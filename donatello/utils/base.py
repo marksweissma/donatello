@@ -5,8 +5,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 class Dobject(object):
     """
-    Base object for Donatello - templates in name and creation time
+    Base object for Donatello - templates in name and __repr___
     """
+    __meta__ = ABCMeta
 
     @abstractproperty
     def name(self):
@@ -63,7 +64,7 @@ class PandasMixin(Dobject):
 
 class PandasWrapper(PandasMixin):
     """
-    Mixin for improving scikit-learn <> pandas interaction
+    Object for class factory to bind pandas and scikit-learn
     """
     @property
     def fields(self):
@@ -97,6 +98,9 @@ class PandasWrapper(PandasMixin):
 
 
 class BaseTransformer(BaseEstimator, TransformerMixin):
+    """
+    Base scikit-learn styile transformer
+    """
     __meta__ = ABCMeta
 
     @abstractmethod
@@ -106,4 +110,4 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     @abstractmethod
     def transform(self, X, y=None, **fitParams):
         warn('no transformation specified returning input')
-        return x
+        return X

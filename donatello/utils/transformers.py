@@ -10,7 +10,6 @@ from sklearn.pipeline import (Pipeline, FeatureUnion,
 from sklearn.externals.joblib import Parallel, delayed
 
 from donatello.utils.base import PandasMixin, BaseTransformer
-from donatello.utils.decorators import init_time
 
 
 def _base_methods():
@@ -24,6 +23,10 @@ base_methods = _base_methods()
 
 
 class PandasTransformer(PandasMixin, TransformerMixin):
+    """
+    Scikit-learn transformer with pandas bindings
+    to enforce fields and features
+    """
     def extract_fields(self, X):
         self.fields = X.columns.tolist()
         self.features = None
@@ -31,13 +34,19 @@ class PandasTransformer(PandasMixin, TransformerMixin):
     def enforce_features(self, index, result):
         postFit = not self.features
         if postFit:
-            features = result.columns.tolist() if hasattr(result, 'columns') else self.fields
+            features = result.columns.tolist() if hasattr(result, 'columns')\
+                    else self.fields
             self.features = features
-        result = result if isinstance(result, pd.DataFrame) else pd.DataFrame(result, columns=self.features, index=index)
+
+        result = result if isinstance(result, pd.DataFrame)\
+            else pd.DataFrame(result, columns=self.features, index=index)
+
         result = result.reindex(columns=self.features)
+
         if postFit:
             # DFS to collect data types for feature unions to rm patch
             self.transformedDtypes = result.dtypes.to_dict()
+
         return result
 
     def fit(self, *args, **kwargs):
@@ -54,6 +63,7 @@ class PandasTransformer(PandasMixin, TransformerMixin):
         super(PandasTransformer, self).fit(*args, **kwargs)
         return super(PandasTransformer, self).transform(*args, **kwargs)
 
+
 class Imputer(PandasMixin, Imputer):
     pass
 
@@ -68,7 +78,8 @@ class Pipeline(PandasMixin, Pipeline):
 
 class FeatureUnion(PandasMixin, FeatureUnion):
     """
-    Ripped from sklearn 19.1 to use pandas concat over numpy hstack in transform
+    Ripped from sklearn 19.1 to use pandas concat over numpy hstack
+    in transform to maintain datatypes
     """
     def fit_transform(self, X, y=None, **fit_params):
         """Fit all transformers, transform the data and concatenate results.
@@ -126,18 +137,18 @@ class FeatureUnion(PandasMixin, FeatureUnion):
         return Xs
 
 
-# @pandas_transformer
 class Selector(PandasMixin, BaseTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
     :param obj selectValue: values used for selection
     :param str selectMethod: type of selection
-            #. None / '' -> direct key /value look up (i.e. column names to slice with)
-            # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes` to select\
-                    by data type.
-    :param bool reverse: option to select all except those fields isolated by\
-            selectValue and selectMethod
+            #. None / '' -> direct key /value look up (i.e. column names to\
+                    slice with)
+            # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes`\
+                    to select by data type.
+    :param bool reverse: option to select all except those fields isolated\
+            by selectValue and selectMethod
     """
     def __init__(self, selectValue=(), selectMethod=None, reverse=False):
         self.selectMethod = selectMethod
@@ -145,7 +156,8 @@ class Selector(PandasMixin, BaseTransformer):
         self.reverse = reverse
 
     def data_type(self, X, inclusionExclusionKwargs):
-        inclusions = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
+        inclusions = X.select_dtypes(**inclusionExclusionKwargs
+                                     ).columns.tolist()
         return inclusions
 
     def regex(self, X, patterns):
@@ -182,154 +194,87 @@ class CategoricalTransformer(PandasMixin, BaseTransformer):
     def fit(self, X, y=None):
         self.categories = {field: [] for field in self.fields}
         for field in self.categories:
-            self.categories[field] = X.loc[X[field].notnull()][field].unique().tolist()
+            self.categories[field] = X.loc[X[field].notnull()][field]\
+                    .unique().tolist()
         return self
 
     def transform(self, X, y=None):
         for field in set(self.fields).intersection(X):
-            X[field] = pd.Series(X[field], dtype='category').cat.set_categories(self.categories[field])
-        transformed = pd.get_dummies(X, columns=self.fields, drop_first=self.dropFirst)
+            X[field] = pd.Series(X[field], dtype='category').cat.\
+                    set_categories(self.categories[field])
+        X = pd.get_dummies(X, columns=self.fields,
+                           drop_first=self.dropFirst)
 
-        return transformed
+        return X
 
 
 class AttributeTransformer(PandasMixin, BaseTransformer):
+    """
+    Transformer leveraing attribute methods of the design object
+    """
     def __init__(self, attribute=None, args=(), kwargs={}):
         self.attribute = attribute
         self.args = args
         self.kwargs = kwargs
 
     def transform(self, X, **fitParams):
-        transformed = getattr(X, self.attribute)(*self.args, **self.kwargs)
-        return transformed
+        X = getattr(X, self.attribute)(*self.args, **self.kwargs)
+        return X
 
 
 class CallbackTransformer(PandasMixin, BaseTransformer):
+    """
+    Transformer to apply call back on design object
+    """
     def __init__(self, callback=None, args=(), kwargs={}):
         self.callback
         self.args = args
         self.kwargs = kwargs
 
     def transform(self, X, **fitParams):
-        transformed = self.callback(X, *self.args, **self.kwargs)
-        return transformed
+        X = self.callback(X, *self.args, **self.kwargs)
+        return X
 
 
-_selectNumbers = Selector(selectMethod='data_type', selectValue={'include': [pd.np.number]})
-_selectObjects = Selector(selectMethod='data_type', selectValue={'include': [object]})
+_selectNumbers = Selector(selectMethod='data_type',
+                          selectValue={'include': [pd.np.number]})
+_selectObjects = Selector(selectMethod='data_type',
+                          selectValue={'include': [object]})
+
+_selectNotAmounts = Selector(selectMethod='regex',
+                             selectValue='_amount', reverse=True)
+_selectAmounts = Selector(selectMethod='regex', selectValue='_amount')
 
 _zeroFill = AttributeTransformer('fillna', (0,))
 
-_selectNotAmounts = Selector(selectMethod='regex', selectValue='_amount', reverse=True)
-_selectAmounts = Selector(selectMethod='regex', selectValue='_amount')
 
+def load_simple_numeric(select=_selectNumbers,
+                        fill=_zeroFill, scaler=StandardScaler()):
+    steps = [('select_numeric', select)]
+    steps.append(('fill_zero', fill)) if fill else None
+    steps.append(('scale', scaler)) if scaler else None
 
-def load_simple_numeric(select=_selectNumbers, fill=_zeroFill, scaler=StandardScaler()):
-    pipe = Pipeline([('select_numeric', select)])
-    pipe.steps.append(('fill_zero', fill)) if fill else None
-    pipe.steps.append(('scale', scaler)) if scaler else None
-    return pipe
+    transformer = Pipeline(steps=steps)
+    return transformer
 
 
 def load_simple_categories(dropFirst=False):
-    pipe = Pipeline([('select_objects', _selectObjects), ('dummify', CategoricalTransformer(dropFirst=dropFirst))])
-    return pipe
+    steps = [('select_objects', _selectObjects),
+             ('dummify', CategoricalTransformer(dropFirst=dropFirst))
+             ]
+    transformer = Pipeline(steps=steps)
+    return transformer
 
 
-def load_num_str_split(numeric=load_simple_numeric(), strings=load_simple_categories()):
+def load_num_str_split(numeric=load_simple_numeric(),
+                       strings=load_simple_categories()):
     features = FeatureUnion([('numeric', numeric), ('strings', strings)])
     return features
 
 
-def load_base_transformer(drops=(), features=load_num_str_split()):
-    transformer = Pipeline([('drops', Selector(selectValue=drops, reverse=True))])
-    transformer.steps.append(('features', features))
+def load_basic_transformer(drops=(), features=load_num_str_split()):
+    steps = [('drops', Selector(selectValue=drops, reverse=True)),
+             ('features', features)
+             ]
+    transformer = Pipeline(steps=steps)
     return transformer
-
-
-def _pandas_transformer(cls):
-    """
-    Wrap scikit-learn based estimators and transformers with pandas bindings
-    """
-    # Need a classtools wraps
-    # class PandasWrapper(_PandasWrapper):
-    class PandasWrapper(PandasMixin):
-        @init_time
-        def __init__(self, *args, **kwargs):
-            self.transformerWrapped = cls(*args, **kwargs)
-            self.transformerWrapped.isFit = False
-
-        def extract_fields(self, X):
-            self.transformerWrapped.fields = X.columns.tolist()
-            self.transformerWrapped.features = None
-
-        def enforce_features(self, index, result):
-            postFit = not self.features
-            if postFit:
-                features = result.columns.tolist() if hasattr(result, 'columns') else self.fields
-                self.features = features
-            result = result if isinstance(result, pd.DataFrame) else pd.DataFrame(result, columns=self.features, index=index)
-            result = result.reindex(columns=self.features)
-            if postFit:
-                # DFS to collect data types for feature unions to rm patch
-                self.transformedDtypes = result.dtypes.to_dict()
-            return result
-
-        def __getattr__(self, name):
-            attr = getattr(self.transformerWrapped, name)
-            if callable(attr):
-                if name == 'fit':
-                    def wrapped(*args, **kwargs):
-                        self.transformerWrapped.isFit = False
-                        self.extract_fields(args[0])
-                        result = attr(*args, **kwargs)
-                        self.transformerWrapped.isFit = True
-                        return result
-                    return wrapped
-
-                elif name == 'transform':
-                    def wrapped(*args, **kwargs):
-                        index = args[0].index
-                        result = self.enforce_features(index, attr(*args, **kwargs))
-                        return result
-                    return wrapped
-
-                # Patch for Feature Union - calls seperate fit_transform
-                elif name == 'fit_transform':
-                    def wrapped(*args, **kwargs):
-                        self.transformerWrapped.isFit = False
-                        self.extract_fields(args[0])
-                        index = args[0].index
-                        result = self.enforce_features(index, attr(*args, **kwargs))
-                        self.transformerWrapped.isFit = True
-                        return result
-                    return wrapped
-
-                else:
-                    def wrapped(*args, **kwargs):
-                        result = attr(*args, **kwargs)
-                        return result
-                    return wrapped
-            else:
-                return attr
-    return PandasWrapper
-
-
-# @pandas_transformer
-# class Imputer(Imputer):
-    # pass
-
-
-# @pandas_transformer
-# class StandardScaler(StandardScaler):
-    # pass
-
-
-# @pandas_transformer
-# class Pipeline(Pipeline):
-    # pass
-
-
-# @pandas_transformer
-# class FeatureUnion(FeatureUnion):
-    # pass

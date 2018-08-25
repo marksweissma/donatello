@@ -4,6 +4,10 @@ from donatello.utils.helpers import now_string, nvl
 
 
 def init_time(func):
+    """
+    Add _initTime attribute to object, format prescribed by
+    **strFormat** kwarg
+    """
     @wraps(func)
     def wrapped(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
@@ -15,6 +19,9 @@ def init_time(func):
 
 
 def split_data(func):
+    """
+    Split data contents into train and test sets
+    """
     @wraps(func)
     def wrapped(self, data=None, X=None, y=None, **fitParams):
         if data.hasContents and self.splitter:
@@ -26,6 +33,9 @@ def split_data(func):
 
 
 def prepare_design(func):
+    """
+    Apply `combiner` to data to create final design (if applicable)
+    """
     @wraps(func)
     def wrapped(self, data=None, X=None, y=None, **fitParams):
         if getattr(self, 'combiner', None):
@@ -35,6 +45,9 @@ def prepare_design(func):
 
 
 def pandas_series(func):
+    """
+    Enforce output as :py:class:`pandas.Series`
+    """
     @wraps(func)
     def wrapped(self, X, index='index', name='', **kwargs):
         yhat = func(self, X)
@@ -45,6 +58,9 @@ def pandas_series(func):
 
 
 def pandas_df(func):
+    """
+    Enforce output as :py:class:`pandas.DataFrame`
+    """
     @wraps(func)
     def wrapped(self, X, index='index', columns=[], **kwargs):
         _df = func(self, X)
@@ -55,10 +71,17 @@ def pandas_df(func):
 
 
 def grid_search(func):
+    """
+    Grid search of hyperparameter space
+
+    Instantates search through `obj.GridType` constructor call
+
+    Stores `gridSearch` attribute with object
+    """
     @wraps(func)
     def wrapped(self, X, y=None,
-                 gridSearch=True, priorGridSearch=False,
-                 paramGrid=None, gridKwargs=None, **kwargs):
+                gridSearch=True, priorGridSearch=False,
+                paramGrid=None, gridKwargs=None, **kwargs):
         """
         """
         paramGrid = nvl(paramGrid, self.paramGrid)
