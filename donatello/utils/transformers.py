@@ -23,6 +23,10 @@ base_methods = _base_methods()
 
 
 class PandasTransformer(PandasMixin, TransformerMixin):
+    """
+    Scikit-learn transformer with pandas bindings
+    to enforce fields and features
+    """
     def extract_fields(self, X):
         self.fields = X.columns.tolist()
         self.features = None

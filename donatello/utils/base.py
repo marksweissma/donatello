@@ -5,8 +5,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 class Dobject(object):
     """
-    Base object for Donatello - templates in name and creation time
+    Base object for Donatello - templates in name and __repr___
     """
+    __meta__ = ABCMeta
 
     @abstractproperty
     def name(self):

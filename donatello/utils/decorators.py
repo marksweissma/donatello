@@ -46,7 +46,7 @@ def prepare_design(func):
 
 def pandas_series(func):
     """
-    Enfore output as :py:class:`pandas.Series`
+    Enforce output as :py:class:`pandas.Series`
     """
     @wraps(func)
     def wrapped(self, X, index='index', name='', **kwargs):
@@ -59,7 +59,7 @@ def pandas_series(func):
 
 def pandas_df(func):
     """
-    Enfore output as :py:class:`pandas.DataFrame`
+    Enforce output as :py:class:`pandas.DataFrame`
     """
     @wraps(func)
     def wrapped(self, X, index='index', columns=[], **kwargs):
