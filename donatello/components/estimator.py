@@ -10,6 +10,16 @@ from donatello.utils.transformers import Selector
 
 class BaseEstimator(BaseTransformer):
     """
+    Donatello's Base Estimation object. Leverages a transformer to prepare and transform
+    design and an ML model to fit and predict. Supports options for grid searching for
+    hyperparameter optimization
+
+    :param donatello.utils.base.BaseTransformer transformer: object implementing fit, transform, fit_transform
+    :param sklearn.base.BaseEstimator model: ML model implementing fit, predict[a-z]*
+    :param str method: string name of prediction method
+    :param dict paramGrid: specificiont of  HPs to grid search
+    :param dict gridKwargs: options for grid search
+    :param str timeFormat: option to specify timestamp format
     """
     gridType = GridSearchCV
     __meta__ = ABCMeta

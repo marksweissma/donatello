@@ -8,6 +8,16 @@ from donatello.utils.decorators import init_time
 
 class Data(Dobject):
     """
+    Object for managing data and helping prevent leakage
+
+    :param obj raws: raw data
+    :param dict queries: queries to execute to fetch data if not directly passed
+    :param func etl: default function to execute queries
+    :param bool copyRaws: option to have contents return copy of raws to preserve fetch
+    :param obj X: option to specify design directly
+    :param obj y: option to specify target directly
+    :param obj type splitType: type of splitter to leverage in iterator
+    :param obj splitKwargs: kwargs for split type to instantiate with in constructor
     """
     @init_time
     def __init__(self, raws=None, queries=None,
