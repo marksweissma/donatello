@@ -4,6 +4,8 @@ import pandas as pd
 def now_string(strFormat="%Y_%m_%d_%H_%M"):
     """
     Pandas formatted string from time
+
+    :param str strFormat: format for time
     """
     return pd.datetime.now().strftime(strFormat)
 
@@ -13,8 +15,12 @@ def nvl(*args):
     SQL like coelesce / redshift NVL, returns first non Falsey arg
     """
     for arg in args:
-        if arg:
-            return arg
+        try:
+            if arg:
+                return arg
+        except ValueError:
+            if arg is not None:
+                return arg
 
 
 def has_nested_attribute(obj, attrPath, separator='_'):
@@ -62,11 +68,3 @@ def get_nested_attribute(obj, attrPath, separator='_'):
                              )
     else:
         return _get_nested_attribute(obj, attrPath, separator)
-
-
-def default_values(dicts, defaults):
-    for name, kwargs in dicts.iteritems():
-        for kwarg, value in defaults.iteritems():
-            if kwarg not in kwargs:
-                kwargs[kwarg] = value
-    return dicts

@@ -99,7 +99,7 @@ class PandasWrapper(PandasMixin):
 
 class BaseTransformer(BaseEstimator, TransformerMixin):
     """
-    Base scikit-learn styile transformer
+    Base scikit-learn style transformer
     """
     __meta__ = ABCMeta
 
