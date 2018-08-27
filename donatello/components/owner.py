@@ -100,10 +100,16 @@ class Owner(Dobject, _BaseEstimator):
 
     @property
     def name(self):
+        """
+        Name of object, defaults to class name
+        """
         return self.__name__
 
     @property
     def declaration(self):
+        """
+        Dictionary of kwargs given during instantiation
+        """
         return {i: clone(j) for i, j in self._declaration.iteritems()}
 
     @declaration.setter
@@ -113,6 +119,9 @@ class Owner(Dobject, _BaseEstimator):
     # components
     @property
     def data(self):
+        """
+        Data object attached to owner
+        """
         return self._data
 
     @data.setter
@@ -122,6 +131,9 @@ class Owner(Dobject, _BaseEstimator):
 
     @property
     def splitter(self):
+        """
+        Splitter object attached to owner
+        """
         return self._splitter
 
     @splitter.setter
@@ -131,6 +143,9 @@ class Owner(Dobject, _BaseEstimator):
 
     @property
     def scorer(self):
+        """
+        Scorer object attached to owner
+        """
         return self._scorer
 
     @scorer.setter
@@ -140,6 +155,9 @@ class Owner(Dobject, _BaseEstimator):
 
     @property
     def hook(self):
+        """
+        Hook object attached to owner
+        """
         return self._hook
 
     @hook.setter
@@ -216,6 +234,10 @@ class Owner(Dobject, _BaseEstimator):
 
     @property
     def fit(self):
+        """
+        Link to build
+        """
+
         return self.build
 
 
