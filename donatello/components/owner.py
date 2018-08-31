@@ -180,7 +180,6 @@ class Owner(Dobject, _BaseEstimator):
         self.scores.crossValidation = _Blank()
         [setattr(self.scores.crossValidation, name, value) for name, value
          in self.scorerCrossValidation['scores'].items()]
-        self.scoresValidation = _Blank()
 
     # @score(cv=None, holdout='Holdout')
     # @split_data(design='designData', target='targetData')

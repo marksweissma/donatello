@@ -41,8 +41,6 @@ class Splitter(BaseTransformer):
         df = data.contents if not self.contentKey else data.contents[self.contentKey]
         target = nvl(target, self.target)
 
-        # if self.stratifyTarget:
-            # self.testKwargs.update({'stratify': df[target]})
         self.testKwargs.update({'stratify': df[target]}) if self.stratifyTarget else None
 
         values = df[self.splitOver].unique() if self.splitOver else df.index
@@ -90,7 +88,10 @@ class Splitter(BaseTransformer):
 
         if target:
             targetData = df[target]
-            targetTrain, targetTest = self._split(targetData, 'index', None)
+
+            targetTrain, targetTest = self._split(targetData,
+                                                  self.splitOver if self.splitOver else 'index',
+                                                  None)
         else:
             targetData, targetTrain, targetTest = None, None, None
 

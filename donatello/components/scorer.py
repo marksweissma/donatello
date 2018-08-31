@@ -58,6 +58,9 @@ class BaseScorer(Dobject):
 
     @property
     def splitter(self):
+        """
+        Splitter to create folds
+        """
         return self._splitter
 
     @splitter.setter
@@ -100,6 +103,9 @@ class BaseScorer(Dobject):
 
     @staticmethod
     def get_metric_name(metric, default=''):
+        """
+        Helper to get string name of metric
+        """
         return metric if isinstance(metric, str) else getattr(metric, '__name__', str(default))
 
     def _score(self, estimator, designTest, targetTest):
@@ -108,8 +114,6 @@ class BaseScorer(Dobject):
         return scored
 
     def _evaluate(self, estimator, scored, metrics):
-        """
-        """
         _increment = 0
         scores = defaultdict(pd.DataFrame)
         for metric, definition in metrics.iteritems():
@@ -137,6 +141,13 @@ class BaseScorer(Dobject):
     def score_evaluate(self, estimator=None, X=None, y=None, metrics=None):
         """
         Score the fitted estimator on y and evaluate metrics
+
+        :param BaseEstimator estimator: Fit estimator to evaluate
+        :param pandas.DataFrame X: design
+        :param pandas.Series y: target
+        :param dict metrics: metrics to evaluate
+        :return: scored, scores
+        :rtype: pandas.Series, metric evaluations
         """
         scored = self._score(estimator, X, y)
         scores = self._evaluate(estimator, scored, metrics)
@@ -146,6 +157,14 @@ class BaseScorer(Dobject):
     def fit_score_folds(self, estimator=None, data=None, X=None, y=None, **kwargs):
         """
         Cross validating scorer, clones and fits estimator on each fold of X|y
+
+        :param BaseEstimator estimator: Fit estimator to evaluate
+        :param donatello.Data data: data object to cross val over
+        :param pandas.DataFrame X: design
+        :param pandas.Series y: target
+        :param dict metrics: metrics to evaluate
+        :return: scored, scores
+        :rtype: pandas.Series, metric evaluations
         """
         scored = pd.DataFrame()
         estimators = {}
@@ -231,6 +250,7 @@ class ScorerClassification(BaseScorer):
         """
         thresholds = nvl(thresholds, self.thresholds)
 
+        # Vectorize this, threshold iter is slow
         data = np.array([np.hstack((i,
                                     confusion_matrix(scored.truth.values, (scored.predicted > i).values).reshape(4,)
                                     )
