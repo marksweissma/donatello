@@ -67,7 +67,7 @@ class BaseScorer(Dobject):
     def splitter(self, splitKwargs):
         self._splitter = self.splitType(**splitKwargs)
 
-    def _dev_features(self, estimator=None, attr='', **kwargs):
+    def feature_weights(self, estimator=None, attr='', **kwargs):
         """
         Extract feature weights from a model
 
@@ -84,22 +84,24 @@ class BaseScorer(Dobject):
         columnNames = ['names']
         values = []
         if hasattr(model, attr):
-            columnNames.extend(attr)
-            values.append([getattr(model, attr)])
+            columnNames.append(attr)
+            values.append(getattr(model, attr))
         if hasattr(model, 'feature_importances_'):
-            columnNames.extend('feature_importances')
-            values.append([model.feature_importances_])
+            columnNames.append('feature_importances')
+            values.append(model.feature_importances_)
         if hasattr(model, 'coef_'):
-            columnNames.extend('coefficients')
+            columnNames.append('coefficients')
             if hasattr(model, 'intercept_'):
                 names.append('intercept_')
-                values.append([np.hstack((model.coef_[0], model.intercept_))])
+                values.append(np.hstack((model.coef_[0], model.intercept_)))
             else:
-                values.append([model.coef_[0]])
+                values.append(model.coef_[0])
         if values:
-            names = np.asarray(names)
-            featureValues = pd.DataFrame(data=np.c_[names, values], columns=columnNames)
-            return featureValues
+            names = pd.Series(np.asarray(names), name=columnNames[0])
+            vectors = pd.DataFrame(np.asarray(values).T, columns=columnNames[1:])
+
+            data = pd.concat([names, vectors], axis=1)
+            return data
 
     @staticmethod
     def get_metric_name(metric, default=''):
@@ -120,7 +122,7 @@ class BaseScorer(Dobject):
             _increment += 1
             name = self.get_metric_name(metric, _increment)
 
-            print 'evaluating {name}'.format(name=name)
+            print('evaluating {name}'.format(name=name))
 
             if callable(metric):
                 columnNames = definition.get('columnNames', ['score'])
@@ -192,9 +194,9 @@ class BaseScorer(Dobject):
             _outputs = self._evaluate(estimators[fold], df, metrics)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
-        scores = {self.get_metric_name(name): outputs[self.get_metric_name(name)]\
-                                             .groupby(definition.get('key', ['_']))\
-                                             .agg(definition.get('agg', pd.np.mean))
+        scores = {self.get_metric_name(metric): outputs[self.get_metric_name(metric)]\
+                                               .groupby(definition.get('key', ['_']))\
+                                               .agg(definition.get('agg', pd.np.mean))
                   for metric, definition in metrics.iteritems()
                   }
         return scores
