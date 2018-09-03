@@ -234,20 +234,24 @@ class ScorerClassification(BaseScorer):
         self.spacing = spacing
 
     def find_thresholds(self, scored, thresholds=None, spacing=101, **kwargs):
-        if self.thresholds is None:
-            self.thresholds = np.linspace(0, 1, spacing)
+        if not thresholds:
+            percentiles = np.linspace(0, 1, spacing)
+            self.thresholds = scored.predicted.quantile(percentiles)
         else:
-            self.spacing = len(thresholds)
+            self.thresholds = thresholds
 
-        percentiles = np.linspace(0, 1, spacing)
-        self.thresholds = scored.predicted.quantile(percentiles)
 
-    def score_folds(self, estimator=None, data=None):
-        estimators, scored = super(ScorerClassification, self).score_folds(self, estimator=estimator, data=data)
-        self.find_tresholds(scored, thresholds=self.thresholds, spacing=self.spacing)
-        return estimators, scored
+    # def score_folds(self, estimator=None, data=None):
+        # estimators, scored = super(ScorerClassification, self).score_folds(self, estimator=estimator, data=data)
+        # self.find_tresholds(scored, thresholds=self.thresholds, spacing=self.spacing)
+        # return estimators, scored
 
-    def threshold_rates(self, scored=None, thresholds=None, spacing=101, **kwargs):
+    def evaluate_scored_folds(self, estimators=None, metrics=None, scored=None, X=None, **kwargs):
+        self.find_thresholds(scored)
+        return super(ScorerClassification, self).evaluate_scored_folds(
+                     estimators=estimators, metrics=metrics, scored=scored, X=X, **kwargs)
+
+    def threshold_rates(self, scored=None, thresholds=None, spacing=101, threshKwargs={}, **kwargs):
         """
         """
         thresholds = nvl(thresholds, self.thresholds)
