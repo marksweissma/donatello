@@ -118,7 +118,7 @@ class BaseScorer(Dobject):
     def _evaluate(self, estimator, scored, metrics):
         _increment = 0
         scores = defaultdict(pd.DataFrame)
-        for metric, definition in metrics.iteritems():
+        for metric, definition in metrics.items():
             _increment += 1
             name = self.get_metric_name(metric, _increment)
 
@@ -196,9 +196,12 @@ class BaseScorer(Dobject):
 
         scores = {self.get_metric_name(metric): outputs[self.get_metric_name(metric)]\
                                                .groupby(definition.get('key', ['_']))\
-                                               .agg(definition.get('agg', pd.np.mean))
-                  for metric, definition in metrics.iteritems()
+                                               .agg(definition.get('agg', pd.np.mean))\
+                                               .sort_values(definition.get('sort', ['_']))
+                  for metric, definition in metrics.items()
                   }
+        # import ipdb
+        # ipdb.set_trace()
         return scores
 
     @package_data
@@ -214,9 +217,10 @@ class BaseScorer(Dobject):
         """
         Build cross validated scoring report
         """
-        scored, scores = self.score_evaluate(estimator=estimator, metrics=metrics,
-                                             X=X, y=y)
+        scored = self._score(estimator, X, y)
+        scored['fold'] = 0
         estimators = {0: estimator}
+        scores = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'scores': scores}
 
 
