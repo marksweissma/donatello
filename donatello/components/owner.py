@@ -5,19 +5,18 @@ from copy import deepcopy
 
 from sklearn import clone
 from sklearn.base import BaseEstimator as _BaseEstimator
+from sklearn.utils import Bunch
 
 from donatello.components.data import Data, DataClassification, DataRegression
 from donatello.components.splitter import Splitter
 from donatello.components.hook import Hook
-from donatello.components.scorer import BaseScorer, ScorerClassification, ScorerRegression
+from donatello.components.scorer import (BaseScorer,
+                                         ScorerClassification,
+                                         ScorerRegression)
 from donatello.utils.helpers import has_nested_attribute, nvl, now_string
 from donatello.utils.decorators import split_data, prepare_design
 from donatello.utils.base import Dobject
 from donatello.components.data import package_data
-
-
-class _Blank(object):
-    pass
 
 
 class Owner(Dobject, _BaseEstimator):
@@ -28,9 +27,11 @@ class Owner(Dobject, _BaseEstimator):
 
     :param dict dataKwargs: :py:class:`donatello.Data`
     :param dict splitterKwargs: arguments for :py:class:`donatello.Splitter`
-    :param object combiner: object with fit_transform method to combine multiple datasets
-            to prepare design matrix - leveraged in :py:func:`donatello.utils.decorators.combine_data`
-    :param donatello.BaseEstimator estimator: estimator for training and predicting
+    :param object combiner: object with fit_transform method to\
+            combine multiple datasets to prepare design matrix -\
+            leveraged in :py:func:`donatello.utils.decorators.combine_data`
+    :param donatello.BaseEstimator estimator: estimator for\
+            training and predicting
     :param dict scorerKwargs: arguments for :py:class:`donatello.Scorer`
     :param bool validation: flag for calculating scoring metrics from
             nested cross val of training + validation sets
@@ -77,13 +78,13 @@ class Owner(Dobject, _BaseEstimator):
         # Other
         self.writeAttrs = writeAttrs
         self.declaration = self.get_params(deep=False)
-        self.scores = _Blank()
+        self.scores = Bunch()
 
     # state
     @abstractproperty
     def mlType(self):
         """
-        Define type of learning 
+        Define type of learning
             #. Regression
             #. Classificaiton
             #. Clustering
@@ -177,7 +178,7 @@ class Owner(Dobject, _BaseEstimator):
                    'X': data.designTrain, 'y': data.targetTrain}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
 
-        self.scores.crossValidation = _Blank()
+        self.scores.crossValidation = Bunch()
         [setattr(self.scores.crossValidation, name, value) for name, value
          in self.scorerCrossValidation['scores'].items()]
 
@@ -192,7 +193,7 @@ class Owner(Dobject, _BaseEstimator):
                            gridSearch=True, **fitParams)
         payload = {'estimator': self.estimator, 'metrics': self.metrics,
                    'X': data.designTest, 'y': data.targetTest}
-        self.scores.holdout = _Blank()
+        self.scores.holdout = Bunch()
         self.scorerHoldout = self.scorer.build_holdout(**payload)
         [setattr(self.scores.holdout, name, value) for name, value
          in self.scorerHoldout['scores'].items()]
