@@ -22,16 +22,20 @@ def _base_methods():
 base_methods = _base_methods()
 
 
-class PandasTransformer(PandasMixin, TransformerMixin):
-    """
-    Scikit-learn transformer with pandas bindings
-    to enforce fields and features
-    """
-    def extract_fields(self, X):
-        self.fields = X.columns.tolist()
+def extract_fields(func):
+    def wrapped(self, *args, **kwargs):
+        self.fields = args[0].columns.tolist()
         self.features = None
+        result = func(self, *args, **kwargs)
+        self.isFit = True
+        return result
+    return wrapped
 
-    def enforce_features(self, index, result):
+
+def enforce_features(func):
+    def wrapped(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+
         postFit = not self.features
         if postFit:
             features = result.columns.tolist() if hasattr(result, 'columns')\
@@ -39,7 +43,8 @@ class PandasTransformer(PandasMixin, TransformerMixin):
             self.features = features
 
         result = result if isinstance(result, pd.DataFrame)\
-            else pd.DataFrame(result, columns=self.features, index=index)
+            else pd.DataFrame(result, columns=self.features,
+                              index=kwargs.get('index', args[0].index))
 
         result = result.reindex(columns=self.features)
 
@@ -48,20 +53,26 @@ class PandasTransformer(PandasMixin, TransformerMixin):
             self.transformedDtypes = result.dtypes.to_dict()
 
         return result
+    return wrapped
 
+
+class PandasTransformer(PandasMixin, TransformerMixin):
+    """
+    Scikit-learn transformer with pandas bindings
+    to enforce fields and features
+    """
+    @extract_fields
     def fit(self, *args, **kwargs):
-        self.extract_fields(args[0])
-        self.isFit = True
         return super(PandasTransformer, self).fit(*args, **kwargs)
 
+    @enforce_features
     def transform(self, *args, **kwargs):
-        index = args[0].index
         result = super(PandasTransformer, self).transform(*args, **kwargs)
-        return self.enforce_features(index, result)
+        return result
 
     def fit_transform(self, *args, **kwargs):
-        super(PandasTransformer, self).fit(*args, **kwargs)
-        return super(PandasTransformer, self).transform(*args, **kwargs)
+        self.fit(*args, **kwargs)
+        return self.transform(*args, **kwargs)
 
 
 class Imputer(PandasMixin, Imputer):
@@ -164,6 +175,7 @@ class Selector(PandasMixin, BaseTransformer):
         inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
         return inclusions
 
+    @extract_fields
     def fit(self, X, y=None):
         if self.selectMethod:
             inclusions = getattr(self, self.selectMethod)(X, self.selectValue)
@@ -178,6 +190,7 @@ class Selector(PandasMixin, BaseTransformer):
 
         return self
 
+    @enforce_features
     def transform(self, X, y=None):
         return X.reindex(columns=self.inclusions)
 

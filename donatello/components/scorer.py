@@ -58,13 +58,16 @@ class BaseScorer(Dobject):
 
     @property
     def splitter(self):
+        """
+        Splitter to create folds
+        """
         return self._splitter
 
     @splitter.setter
     def splitter(self, splitKwargs):
         self._splitter = self.splitType(**splitKwargs)
 
-    def _dev_features(self, estimator=None, attr='', **kwargs):
+    def feature_weights(self, estimator=None, attr='', **kwargs):
         """
         Extract feature weights from a model
 
@@ -81,25 +84,30 @@ class BaseScorer(Dobject):
         columnNames = ['names']
         values = []
         if hasattr(model, attr):
-            columnNames.extend(attr)
-            values.append([getattr(model, attr)])
+            columnNames.append(attr)
+            values.append(getattr(model, attr))
         if hasattr(model, 'feature_importances_'):
-            columnNames.extend('feature_importances')
-            values.append([model.feature_importances_])
+            columnNames.append('feature_importances')
+            values.append(model.feature_importances_)
         if hasattr(model, 'coef_'):
-            columnNames.extend('coefficients')
+            columnNames.append('coefficients')
             if hasattr(model, 'intercept_'):
                 names.append('intercept_')
-                values.append([np.hstack((model.coef_[0], model.intercept_))])
+                values.append(np.hstack((model.coef_[0], model.intercept_)))
             else:
-                values.append([model.coef_[0]])
+                values.append(model.coef_[0])
         if values:
-            names = np.asarray(names)
-            featureValues = pd.DataFrame(data=np.c_[names, values], columns=columnNames)
-            return featureValues
+            names = pd.Series(np.asarray(names), name=columnNames[0])
+            vectors = pd.DataFrame(np.asarray(values).T, columns=columnNames[1:])
+
+            data = pd.concat([names, vectors], axis=1)
+            return data
 
     @staticmethod
     def get_metric_name(metric, default=''):
+        """
+        Helper to get string name of metric
+        """
         return metric if isinstance(metric, str) else getattr(metric, '__name__', str(default))
 
     def _score(self, estimator, designTest, targetTest):
@@ -108,15 +116,13 @@ class BaseScorer(Dobject):
         return scored
 
     def _evaluate(self, estimator, scored, metrics):
-        """
-        """
         _increment = 0
         scores = defaultdict(pd.DataFrame)
-        for metric, definition in metrics.iteritems():
+        for metric, definition in metrics.items():
             _increment += 1
             name = self.get_metric_name(metric, _increment)
 
-            print 'evaluating {name}'.format(name=name)
+            print('evaluating {name}'.format(name=name))
 
             if callable(metric):
                 columnNames = definition.get('columnNames', ['score'])
@@ -137,6 +143,13 @@ class BaseScorer(Dobject):
     def score_evaluate(self, estimator=None, X=None, y=None, metrics=None):
         """
         Score the fitted estimator on y and evaluate metrics
+
+        :param BaseEstimator estimator: Fit estimator to evaluate
+        :param pandas.DataFrame X: design
+        :param pandas.Series y: target
+        :param dict metrics: metrics to evaluate
+        :return: scored, scores
+        :rtype: pandas.Series, metric evaluations
         """
         scored = self._score(estimator, X, y)
         scores = self._evaluate(estimator, scored, metrics)
@@ -146,6 +159,14 @@ class BaseScorer(Dobject):
     def fit_score_folds(self, estimator=None, data=None, X=None, y=None, **kwargs):
         """
         Cross validating scorer, clones and fits estimator on each fold of X|y
+
+        :param BaseEstimator estimator: Fit estimator to evaluate
+        :param donatello.Data data: data object to cross val over
+        :param pandas.DataFrame X: design
+        :param pandas.Series y: target
+        :param dict metrics: metrics to evaluate
+        :return: scored, scores
+        :rtype: pandas.Series, metric evaluations
         """
         scored = pd.DataFrame()
         estimators = {}
@@ -169,14 +190,16 @@ class BaseScorer(Dobject):
         def append_in_place(store, name, df2):
             store[name] = store[name].append(df2)
 
+        # need to partition for multpile aggreagates !!!TODO
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
-        scores = {self.get_metric_name(name): outputs[self.get_metric_name(name)]\
-                                             .groupby(definition.get('key', ['_']))\
-                                             .agg(definition.get('agg', pd.np.mean))
-                  for metric, definition in metrics.iteritems()
+        scores = {self.get_metric_name(metric): outputs[self.get_metric_name(metric)]\
+                                               .groupby(definition.get('key', ['_']))\
+                                               .agg(definition.get('agg', pd.np.mean))\
+                                               .sort_values(definition.get('sort', ['_']))
+                  for metric, definition in metrics.items()
                   }
         return scores
 
@@ -193,9 +216,10 @@ class BaseScorer(Dobject):
         """
         Build cross validated scoring report
         """
-        scored, scores = self.score_evaluate(estimator=estimator, metrics=metrics,
-                                             X=X, y=y)
+        scored = self._score(estimator, X, y)
+        scored['fold'] = 0
         estimators = {0: estimator}
+        scores = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'scores': scores}
 
 
@@ -213,24 +237,29 @@ class ScorerClassification(BaseScorer):
         self.spacing = spacing
 
     def find_thresholds(self, scored, thresholds=None, spacing=101, **kwargs):
-        if self.thresholds is None:
-            self.thresholds = np.linspace(0, 1, spacing)
+        if not thresholds:
+            percentiles = np.linspace(0, 1, spacing)
+            self.thresholds = scored.predicted.quantile(percentiles)
         else:
-            self.spacing = len(thresholds)
+            self.thresholds = thresholds
 
-        percentiles = np.linspace(0, 1, spacing)
-        self.thresholds = scored.predicted.quantile(percentiles)
 
-    def score_folds(self, estimator=None, data=None):
-        estimators, scored = super(ScorerClassification, self).score_folds(self, estimator=estimator, data=data)
-        self.find_tresholds(scored, thresholds=self.thresholds, spacing=self.spacing)
-        return estimators, scored
+    # def score_folds(self, estimator=None, data=None):
+        # estimators, scored = super(ScorerClassification, self).score_folds(self, estimator=estimator, data=data)
+        # self.find_tresholds(scored, thresholds=self.thresholds, spacing=self.spacing)
+        # return estimators, scored
 
-    def threshold_rates(self, scored=None, thresholds=None, spacing=101, **kwargs):
+    def evaluate_scored_folds(self, estimators=None, metrics=None, scored=None, X=None, **kwargs):
+        self.find_thresholds(scored)
+        return super(ScorerClassification, self).evaluate_scored_folds(
+                     estimators=estimators, metrics=metrics, scored=scored, X=X, **kwargs)
+
+    def threshold_rates(self, scored=None, thresholds=None, spacing=101, threshKwargs={}, **kwargs):
         """
         """
         thresholds = nvl(thresholds, self.thresholds)
 
+        # Vectorize this, threshold iter is slow
         data = np.array([np.hstack((i,
                                     confusion_matrix(scored.truth.values, (scored.predicted > i).values).reshape(4,)
                                     )

@@ -4,6 +4,19 @@ from donatello.utils.helpers import now_string, nvl
 
 
 class Splitter(BaseTransformer):
+    """
+    Object to split data into training and testing/validation groups.
+    Packages dataframes and dictionaries of dataframes
+
+    :param str target: name of target field if supervised
+    :param str contentKey: if dictionary of dataframes, key of dictionary\
+            containing primrary df
+    :param splitOver str: option to split over unique values instead \
+            of random or startification
+    :parm bool stratifyTarget: option to startify over the target
+    :param dict testKwargs: kwargs for sklearn.train_test_split
+    :params list attrs: attributes to package
+    """
     def __init__(self,
                  target=None,
                  contentKey=None,
@@ -28,8 +41,7 @@ class Splitter(BaseTransformer):
         df = data.contents if not self.contentKey else data.contents[self.contentKey]
         target = nvl(target, self.target)
 
-        if self.stratifyTarget:
-            self.testKwargs.update({'stratify': df[target]})
+        self.testKwargs.update({'stratify': df[target]}) if self.stratifyTarget else None
 
         values = df[self.splitOver].unique() if self.splitOver else df.index
         self.trainIds, self.testIds = train_test_split(values, **self.testKwargs)
@@ -51,8 +63,10 @@ class Splitter(BaseTransformer):
 
         return designTrain, designTest
 
+    # !!!TODO refactor this
     def transform(self, data=None, target=None, **fitParams):
         """
+        Split data contents into design/target train/test/data
         """
         df = data.contents[self.contentKey] if self.contentKey else data.contents
         target = nvl(target, self.target)
@@ -74,7 +88,10 @@ class Splitter(BaseTransformer):
 
         if target:
             targetData = df[target]
-            targetTrain, targetTest = self._split(targetData, 'index', None)
+
+            targetTrain, targetTest = self._split(targetData,
+                                                  self.splitOver if self.splitOver else 'index',
+                                                  None)
         else:
             targetData, targetTrain, targetTest = None, None, None
 

@@ -48,12 +48,18 @@ class BaseEstimator(BaseTransformer):
 # Read only attributes and magic methods
     @property
     def name(self):
+        """
+        Name of object, defaults to class name + model name
+        """
         name = "_".join([self.__class__.__name__,
                          self.model.__class__.__name__])
         return name
 
     @property
     def declaration(self):
+        """
+        Dictionary of kwargs given during instantiation
+        """
         return self._declaration.copy()
 
     @declaration.setter
@@ -69,16 +75,23 @@ class BaseEstimator(BaseTransformer):
     @property
     def predict_method(self):
         """
+        Unified prediction interface
         """
         return getattr(self, self.method)
 
 # Estimator determined properties
     @property
     def fields(self):
+        """
+        Fields passed into transformer
+        """
         return getattr(self.transformer, '_fields', [])
 
     @property
     def features(self):
+        """
+        Features coming from transformer
+        """
         return getattr(self.transformer, '_features', [])
 
 # Fitting
@@ -86,6 +99,9 @@ class BaseEstimator(BaseTransformer):
     def fit(self, X, y=None,
             gridSearch=False, priorGridSearch=False,
             paramGrid=None, gridKwargs=None, **kwargs):
+        """
+        Fit method with options for grid searching hyperparameters
+        """
 
         transformed = self.transformer.fit_transform(X, y, **kwargs)
         self.model.fit(transformed, y)
@@ -94,10 +110,16 @@ class BaseEstimator(BaseTransformer):
 
     @abstractmethod
     def score(self, X):
+        """
+        Scoring function
+        """
         warn('no score method implemented defaulting transform')
         return self.transformer.transform(X)
 
     def transform(self, X, **kwargs):
+        """
+        Apply fit transformer to X
+        """
         return self.transformer.transform(X, **kwargs)
 
 # Predicting
@@ -120,6 +142,9 @@ class BaseEstimator(BaseTransformer):
 
 
 class Regressor(BaseEstimator):
+    """
+    Estimator for regression, applies predict as class atribute for method
+    """
     method = 'predict'
 
     @pandas_series
@@ -128,6 +153,9 @@ class Regressor(BaseEstimator):
 
 
 class Classifier(BaseEstimator):
+    """
+    Estimator for classification, applies predict_proba as class atribute for method
+    """
     method = 'predict_proba'
 
     @pandas_series

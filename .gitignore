@@ -32,3 +32,5 @@ nosetests.xml
 coverage.xml
 
 *.sw*
+*.pkl
+.ipynb_checkpoints
