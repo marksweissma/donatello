@@ -190,6 +190,7 @@ class BaseScorer(Dobject):
         def append_in_place(store, name, df2):
             store[name] = store[name].append(df2)
 
+        # need to partition for multpile aggreagates !!!TODO
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
@@ -200,8 +201,6 @@ class BaseScorer(Dobject):
                                                .sort_values(definition.get('sort', ['_']))
                   for metric, definition in metrics.items()
                   }
-        # import ipdb
-        # ipdb.set_trace()
         return scores
 
     @package_data
