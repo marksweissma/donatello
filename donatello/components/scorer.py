@@ -201,6 +201,14 @@ class BaseScorer(Dobject):
                                                .sort_values(definition.get('sort', ['_']))
                   for metric, definition in metrics.items()
                   }
+        # fix this, move to metric obj
+        for metric, definition in metrics.items():
+            callback = definition.get('callback', '')
+            callbackKwargs = definition.get('callbackKwargs', {})
+            name = self.get_metric_name(metric)
+            func = callback if callable(callback) else getattr(self, callback, {})
+            scores[name] = func(scores[name], **callbackKwargs) if func else scores[name]
+
         return scores
 
     @package_data
@@ -272,7 +280,7 @@ class ScorerClassification(BaseScorer):
 
     @staticmethod
     def build_threshold_rates(df):
-        df = df / df.sum(axis=1)
+        df = df.apply(lambda x: x / np.sum(x))
         df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
         df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
         df['sensitivity'] = df.true_positive / (df.true_positive + df.false_negative)
