@@ -31,7 +31,8 @@ def load_sklearn_bc_declaration():
                'feature_weights': defaultdict(dict, {'key': 'names',
                                                      'sort': 'coefficients'}),
                'threshold_rates': defaultdict(dict, {'key': 'thresholds',
-                                                     'sort': 'thresholds'})
+                                                     'sort': 'thresholds',
+                                                     'callback': 'build_threshold_rates'})
                }
 
     m = OwnerClassification(dataKwargs=data, splitterKwargs=partition,
