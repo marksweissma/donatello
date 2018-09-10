@@ -111,7 +111,7 @@ class Owner(Dobject, _BaseEstimator):
         """
         Dictionary of kwargs given during instantiation
         """
-        return {i: clone(j) for i, j in self._declaration.iteritems()}
+        return {i: clone(j) for i, j in self._declaration.items()}
 
     @declaration.setter
     def declaration(self, value):
@@ -177,10 +177,7 @@ class Owner(Dobject, _BaseEstimator):
         payload = {'estimator': self.estimator, 'metrics': self.metrics,
                    'X': data.designTrain, 'y': data.targetTrain}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
-
-        self.scores.crossValidation = Bunch()
-        [setattr(self.scores.crossValidation, name, value) for name, value
-         in self.scorerCrossValidation['scores'].items()]
+        self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
 
     # @score(cv=None, holdout='Holdout')
     # @split_data(design='designData', target='targetData')
@@ -193,10 +190,8 @@ class Owner(Dobject, _BaseEstimator):
                            gridSearch=True, **fitParams)
         payload = {'estimator': self.estimator, 'metrics': self.metrics,
                    'X': data.designTest, 'y': data.targetTest}
-        self.scores.holdout = Bunch()
         self.scorerHoldout = self.scorer.build_holdout(**payload)
-        [setattr(self.scores.holdout, name, value) for name, value
-         in self.scorerHoldout['scores'].items()]
+        self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
 
     def _build_entire(self, data, **fitParams):
         """
@@ -237,7 +232,6 @@ class Owner(Dobject, _BaseEstimator):
         """
         Link to build
         """
-
         return self.build
 
 
