@@ -21,6 +21,7 @@ def nvl(*args):
         except ValueError:
             if arg is not None:
                 return arg
+    return args[-1]
 
 
 def has_nested_attribute(obj, attrPath, separator='_'):
