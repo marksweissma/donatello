@@ -95,17 +95,33 @@ class BaseEstimator(BaseTransformer):
         return getattr(self.transformer, '_features', [])
 
 # Fitting
-    @grid_search
+
+    def grid_search(self, X, y=None, gridSearch=True, paramGrid=None, gridKwargs=None):
+        """
+        """
+        if gridSearch and paramGrid:
+            from sklearn.model_selection import GridSearchCV
+
+            self.grid_search(paramGrid, gridKwargs)
+            self.gridSearch = GridSearchCV(estimator=self,
+                                               param_grid=paramGrid,
+                                               **gridKwargs)
+            self.gridSearch.fit(X, y=y, gridSearch=False)
+            self.set_params(**self.gridSearch.best_params_)
+
     def fit(self, X, y=None,
-            gridSearch=False, priorGridSearch=False,
+            gridSearch=True,
             paramGrid=None, gridKwargs=None, **kwargs):
         """
         Fit method with options for grid searching hyperparameters
         """
+        paramGrid = nvl(paramGrid, self.paramGrid)
+        gridKwargs = nvl(gridKwargs, self.gridKwargs)
+
+        self.grid_search(X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
 
         transformed = self.transformer.fit_transform(X, y, **kwargs)
         self.model.fit(transformed, y)
-
         return self
 
     @abstractmethod

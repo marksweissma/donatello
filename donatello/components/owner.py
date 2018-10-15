@@ -166,9 +166,6 @@ class Owner(Dobject, _BaseEstimator):
         kwargs = {} if kwargs is None else kwargs
         self._hook = Hook(**kwargs)
 
-    # @score(cv='CrossValidation', holdout='Validation')
-    # @split_data(design='designTrain', target='targetTrain')
-    # @prepare_design
     def _build_cross_validation(self, data, **fitParams):
         """
         Build cross validated scores over training data of models
@@ -179,9 +176,6 @@ class Owner(Dobject, _BaseEstimator):
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
         self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
 
-    # @score(cv=None, holdout='Holdout')
-    # @split_data(design='designData', target='targetData')
-    # @prepare_design
     def _build_holdout(self, data, **fitParams):
         """
         Build model over training data and score
