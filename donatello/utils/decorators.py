@@ -1,99 +1,138 @@
 import pandas as pd
-from functools import wraps
+from wrapt import decorator
 from donatello.utils.helpers import now_string, nvl
 
 
-def init_time(func):
+@decorator
+def init_time(wrapped, instance, args, kwargs):
     """
     Add _initTime attribute to object, format prescribed by
     **strFormat** kwarg
     """
-    @wraps(func)
-    def wrapped(self, *args, **kwargs):
-        result = func(self, *args, **kwargs)
-        signature = kwargs.get('timeFormat', None)
-        payload = {'strFormat': signature} if signature else {}
-        self._initTime = now_string(**payload)
-        return result
-    return wrapped
+    signature = kwargs.get('timeFormat', None)
+    payload = {'strFormat': signature} if signature else {}
+    result = wrapped(*args, **kwargs)
+    instance._initTime = now_string(**payload)
+    return result
 
 
-def split_data(func):
+@decorator
+def split_data(wrapped, instance, args, kwargs):
     """
     Split data contents into train and test sets
     """
-    @wraps(func)
-    def wrapped(self, data=None, X=None, y=None, **fitParams):
-        if data.hasContents and self.splitter:
-            data.unpack_splits(self.splitter.fit_transform(data))
-        else:
-            data.designData = data.contents
-        return func(self, data, **fitParams)
-    return wrapped
+    data = kwargs.pop('data', None)
+
+    if data and data.hasContents and instance.splitter:
+        data.unpack_splits(instance.splitter.fit_transform(data))
+    else:
+        data.designData = data.contents
+    result = wrapped(data=data, *args, **kwargs)
+    return result
 
 
-def prepare_design(func):
+@decorator
+def prepare_design(wrapped, instance, args, kwargs):
     """
     Apply `combiner` to data to create final design (if applicable)
     """
-    @wraps(func)
-    def wrapped(self, data=None, X=None, y=None, **fitParams):
-        if getattr(self, 'combiner', None):
-            data = self.combiner.fit_transform(data)
-        return func(self, data, **fitParams)
-    return wrapped
+    data = kwargs.pop('data', None)
+    if getattr(instance, 'combiner', None):
+        data = instance.combiner.fit_transform(data)
+    result = wrapped(data=data, *args, **kwargs)
+    return result
 
 
-def pandas_series(func):
+@decorator
+def pandas_series(wrapped, instance, args, kwargs):
     """
     Enforce output as :py:class:`pandas.Series`
     """
-    @wraps(func)
-    def wrapped(self, X, index='index', name='', **kwargs):
-        yhat = func(self, X)
-        index = X[index] if index in X else X.index
-        name = nvl(name, self.name)
-        return pd.Series(yhat, index=index, name=name)
-    return wrapped
+    X = args[0]
+    index = kwargs.pop('index', 'index')
+    name = kwargs.pop('name', '')
+    yhat = wrapped(*args, **kwargs)
+
+    name = nvl(name, instance.name)
+
+    index = X[index] if index in X else X.index
+    result =  pd.Series(yhat, index=index, name=name)
+    return result
 
 
-def pandas_df(func):
+@decorator
+def pandas_df(wrapped, instance, args, kwargs):
+# def pandas_df(func):
     """
     Enforce output as :py:class:`pandas.DataFrame`
     """
-    @wraps(func)
-    def wrapped(self, X, index='index', columns=[], **kwargs):
-        _df = func(self, X)
-        index = X[index] if index in X else X.index
-        columns = nvl(columns, X.columns)
-        return pd.DataFrame(_df, index=index, columns=columns)
-    return wrapped
+    X = args[0]
+    index = kwargs.pop('index', 'index')
+    columns = kwargs.pop('columns', [])
+    columns = nvl(columns, X.columns)
+    index = X[index] if index in X else X.index
+
+    _df = wrapped(X)
+    result = pd.DataFrame(_df, index=index, columns=columns)
+    return result
 
 
-def grid_search(func):
+# @decorator
+#@fallback()
+# def grid_search(wrapped, instance, args, kwargs):
+    # """
+    # Grid search of hyperparameter space
+
+    # Instantates search through `obj.GridType` constructor call
+
+    # Stores `gridSearch` attribute with object
+    # """
+    # X = args[0]
+    # y = kwargs.pop('y', None)
+
+    # gridSearch = kwargs.pop('gridSearch', None)
+    # paramGrid = kwargs.pop('paramGrid', None)
+    # gridKwargs = kwargs.pop('gridKwargs', None)
+
+    # paramGrid = nvl(paramGrid, instance.paramGrid)
+    # gridKwargs = nvl(gridKwargs, instance.gridKwargs)
+    # print 'pre search'
+    # print gridSearch
+    # print paramGrid
+
+    # if gridSearch and paramGrid:
+        # from sklearn.model_selection import GridSearchCV
+        # instance.gridSearch = GridSearchCV(estimator=instance,
+                                           # param_grid=paramGrid,
+                                           # **gridKwargs)
+        # instance.gridSearch.fit(X, y=y, gridSearch=False)
+        # instance.set_params(**instance.gridSearch.best_params_)
+
+    # print 'post search'
+    # result = wrapped(X, y=y, **kwargs)
+    # return result
+
+def coelesce(**defaults):
     """
-    Grid search of hyperparameter space
-
-    Instantates search through `obj.GridType` constructor call
-
-    Stores `gridSearch` attribute with object
+    Key value pairs to enforce null value logic
     """
-    @wraps(func)
-    def wrapped(self, X, y=None,
-                gridSearch=True, priorGridSearch=False,
-                paramGrid=None, gridKwargs=None, **kwargs):
-        """
-        """
-        paramGrid = nvl(paramGrid, self.paramGrid)
-        gridKwargs = nvl(gridKwargs, self.gridKwargs)
-
-        if gridSearch and paramGrid:
-            self.gridSearch = self.gridType(estimator=self,
-                                            param_grid=paramGrid,
-                                            **gridKwargs)
-            self.gridSearch.fit(X, y, gridSearch=False)
-            self.set_params(**self.gridSearch.best_params_)
-
-        result = func(self, X, y, **kwargs)
+    @decorator
+    def _wrapper(wrapped, instance, args, kwargs):
+        for key, default in defaults.items():
+            kwargs[key] = nvl(kwargs.get(key, None), default)
+        result = wrapped(*args, **kwargs)
         return result
-    return wrapped
+    return _wrapper
+
+
+def fallback(*defaults):
+    """
+    Keyword arguemts of attribute to fallback to of object
+    """
+    @decorator
+    def _wrapper(wrapped, instance, args, kwargs):
+        for default in defaults:
+            kwargs[default] = nvl(kwargs.get(default, None), getattr(instance, default, None))
+        result = wrapped(*args, **kwargs)
+        return result
+    return _wrapper

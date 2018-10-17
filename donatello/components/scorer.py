@@ -172,8 +172,10 @@ class BaseScorer(Dobject):
         estimators = {}
 
         for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(data):
+            print((fold, designTrain.shape, targetTrain.shape))
+            print targetTrain.head()
             estimator = clone(estimator)
-            estimator.fit(designTrain, targetTrain, gridSearch=self.gridSearchFlag)
+            estimator.fit(designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
             estimators[fold] = estimator
 
             _temp = self._score(estimator, designTest, targetTest)

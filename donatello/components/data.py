@@ -3,7 +3,7 @@ from functools import wraps
 from sklearn.model_selection import KFold, StratifiedKFold
 from donatello.utils.base import Dobject
 from donatello.utils.helpers import nvl
-from donatello.utils.decorators import init_time
+from donatello.utils.decorators import decorator, init_time
 
 
 class Data(Dobject):
@@ -111,21 +111,27 @@ class DataRegression(Data):
         super(DataRegression, self).__init__(**payload)
 
 
-def package_data(func):
-    @wraps(func)
-    def wrapped(self, data=None, X=None, y=None, **fitParams):
-        if data is None and X is None:
-            data = self.data
-        elif X is not None:
-            mlType = getattr(self, '_mlType', None)
-            if mlType == 'Classification':
-                data = DataClassification(X=X, y=y)
-            elif mlType == 'Regression':
-                data = DataRegression(X=X, y=y)
-            else:
-                data = Data(X=X, y=y)
+@decorator
+def package_data(wrapped, instance, args, kwargs):
+    print('package_data')
+    X = kwargs.pop('X', None)
+    y = kwargs.pop('y', None)
+    data = kwargs.pop('data', None)
 
-        if not data.hasContents and data.queries:
-            data.execute_queries(data.queries)
-        return func(self, data=data, **fitParams)
-    return wrapped
+
+    if data is None and X is None:
+        data = instance.data
+    elif X is not None:
+        mlType = getattr(instance, '_mlType', None)
+        if mlType == 'Classification':
+            data = DataClassification(X=X, y=y)
+        elif mlType == 'Regression':
+            data = DataRegression(X=X, y=y)
+        else:
+            data = Data(X=X, y=y)
+
+    if not data.hasContents and data.queries:
+        data.execute_queries(data.queries)
+
+    result = wrapped(data=data, **kwargs)
+    return result

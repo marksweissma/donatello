@@ -1,6 +1,6 @@
 import components
 import utils
-from donatello.components import Owner, Data, Classifier, Regressor, BaseScorer, Hook
+from donatello.components import Manager , Data, Classifier, Regressor, BaseScorer, Hook
 
-__all__ = ['components', 'utils', 'Owner', 'Data', 'Splitter',
+__all__ = ['components', 'utils', 'Manager', 'Data', 'Splitter',
            'Classifier', 'Regressor', 'Scorer', 'Hook']
