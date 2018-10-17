@@ -8,6 +8,7 @@ Subpackages
 
     donatello.components
     donatello.utils
+    donatello.examples
 
 Module contents
 ---------------

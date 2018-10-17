@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 from donatello.components.estimator import Classifier
-from donatello.components.owner import OwnerClassification
+from donatello.components.manager  import ManagerClassification
 from collections import defaultdict
 
 
@@ -35,7 +35,7 @@ def load_sklearn_bc_declaration():
                                                      'callback': 'build_threshold_rates'})
                }
 
-    m = OwnerClassification(dataKwargs=data, splitterKwargs=partition,
+    m = ManagerClassification(dataKwargs=data, splitterKwargs=partition,
                             estimator=estimator, metrics=metrics,
                             validation=True,
                             holdOut=True)

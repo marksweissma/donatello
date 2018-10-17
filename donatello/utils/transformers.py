@@ -93,7 +93,8 @@ class FeatureUnion(PandasTransformer, FeatureUnion):
     in transform to maintain datatypes
     """
     def fit_transform(self, X, y=None, **fit_params):
-        """Fit all transformers, transform the data and concatenate results.
+        """
+        Fit all transformers, transform the data and concatenate results.
 
         Parameters
         ----------
@@ -124,7 +125,8 @@ class FeatureUnion(PandasTransformer, FeatureUnion):
         return Xs
 
     def transform(self, X):
-        """Transform X separately by each transformer, concatenate results.
+        """
+        Transform X separately by each transformer, concatenate results.
 
         Parameters
         ----------
