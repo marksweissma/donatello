@@ -18,7 +18,7 @@ class Dobject(object):
         return '{name} created at {time}'.format(name=self.name, time=time)
 
 
-class PandasMixin(Dobject):
+class PandasAttrs(Dobject):
     """
     Mixin for improving scikit-learn <> pandas interaction
     """
@@ -62,7 +62,7 @@ class PandasMixin(Dobject):
         return self.features
 
 
-class PandasWrapper(PandasMixin):
+class PandasWrapper(PandasAttrs):
     """
     Object for class factory to bind pandas and scikit-learn
     """
@@ -97,17 +97,12 @@ class PandasWrapper(PandasMixin):
         self.transformerWrapped.transformedDtypes = value
 
 
-class BaseTransformer(BaseEstimator, TransformerMixin):
+class BaseTransformer(PandasAttrs, BaseEstimator, TransformerMixin):
     """
     Base scikit-learn style transformer
     """
-    __meta__ = ABCMeta
-
-    @abstractmethod
-    def fit(self, X, y=None, **fitParams):
+    def fit(self, X, y=None, **kwargs):
         return self
 
-    @abstractmethod
-    def transform(self, X, y=None, **fitParams):
-        warn('no transformation specified returning input')
+    def transform(self, X, y=None, **kwargs):
         return X

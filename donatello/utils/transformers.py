@@ -9,7 +9,7 @@ from sklearn.pipeline import (Pipeline, FeatureUnion,
                               _fit_transform_one, _transform_one)
 from sklearn.externals.joblib import Parallel, delayed
 
-from donatello.utils.base import PandasMixin, BaseTransformer
+from donatello.utils.base import PandasAttrs, BaseTransformer
 
 
 def _base_methods():
@@ -56,7 +56,7 @@ def enforce_features(func):
     return wrapped
 
 
-class PandasTransformer(PandasMixin, TransformerMixin):
+class PandasTransformer(BaseTransformer):
     """
     Scikit-learn transformer with pandas bindings
     to enforce fields and features
@@ -75,19 +75,19 @@ class PandasTransformer(PandasMixin, TransformerMixin):
         return self.transform(*args, **kwargs)
 
 
-class Imputer(PandasMixin, Imputer):
+class Imputer(PandasTransformer, Imputer):
     pass
 
 
-class StandardScaler(PandasMixin, StandardScaler):
+class StandardScaler(PandasTransformer, StandardScaler):
     pass
 
 
-class Pipeline(PandasMixin, Pipeline):
+class Pipeline(PandasTransformer, Pipeline):
     pass
 
 
-class FeatureUnion(PandasMixin, FeatureUnion):
+class FeatureUnion(PandasTransformer, FeatureUnion):
     """
     Ripped from sklearn 19.1 to use pandas concat over numpy hstack
     in transform to maintain datatypes
@@ -148,7 +148,7 @@ class FeatureUnion(PandasMixin, FeatureUnion):
         return Xs
 
 
-class Selector(PandasMixin, BaseTransformer):
+class Selector(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
@@ -195,7 +195,7 @@ class Selector(PandasMixin, BaseTransformer):
         return X.reindex(columns=self.inclusions)
 
 
-class CategoricalTransformer(PandasMixin, BaseTransformer):
+class CategoricalTransformer(PandasTransformer):
     """
     One hot encoder for enumerated string typed fields.
 
@@ -221,7 +221,7 @@ class CategoricalTransformer(PandasMixin, BaseTransformer):
         return X
 
 
-class AttributeTransformer(PandasMixin, BaseTransformer):
+class AttributeTransformer(PandasTransformer, BaseTransformer):
     """
     Transformer leveraing attribute methods of the design object
     """
@@ -235,7 +235,7 @@ class AttributeTransformer(PandasMixin, BaseTransformer):
         return X
 
 
-class CallbackTransformer(PandasMixin, BaseTransformer):
+class CallbackTransformer(PandasTransformer, BaseTransformer):
     """
     Transformer to apply call back on design object
     """

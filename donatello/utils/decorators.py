@@ -21,7 +21,6 @@ def split_data(wrapped, instance, args, kwargs):
     """
     Split data contents into train and test sets
     """
-    print('split_data')
     data = kwargs.pop('data', None)
 
     if data and data.hasContents and instance.splitter:
@@ -38,7 +37,6 @@ def prepare_design(wrapped, instance, args, kwargs):
     Apply `combiner` to data to create final design (if applicable)
     """
     data = kwargs.pop('data', None)
-    print('prepare_design')
     if getattr(instance, 'combiner', None):
         data = instance.combiner.fit_transform(data)
     result = wrapped(data=data, *args, **kwargs)

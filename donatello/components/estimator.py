@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 from sklearn.model_selection import GridSearchCV
 
 from donatello.utils.base import BaseTransformer
-from donatello.utils.decorators import pandas_series, grid_search
+from donatello.utils.decorators import pandas_series#, grid_search
 from donatello.utils.helpers import now_string, nvl
 from donatello.utils.transformers import Selector
 

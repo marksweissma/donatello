@@ -1,4 +1,4 @@
-from donatello.components.owner import Owner
+from donatello.components.manager import Manager
 from donatello.components.data import Data
 from donatello.components.splitter import Splitter
 from donatello.components.estimator import BaseEstimator, Classifier, Regressor

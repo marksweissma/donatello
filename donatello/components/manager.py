@@ -19,7 +19,7 @@ from donatello.utils.base import Dobject
 from donatello.components.data import package_data
 
 
-class Owner(Dobject, _BaseEstimator):
+class Manager(Dobject, _BaseEstimator):
     """
     Backbone for model ownership. [a-z]*Kwargs parameters map 1:1 to
     component objects attached via property setters. Other parameters
@@ -95,7 +95,7 @@ class Owner(Dobject, _BaseEstimator):
     @abstractproperty
     def __name__(self):
         name = self.__class__.__name__
-        warn('Owner does not have a name, defaulting to class {name}'.format(
+        warn('Manager does not have a name, defaulting to class {name}'.format(
              name=name))
         return name
 
@@ -121,7 +121,7 @@ class Owner(Dobject, _BaseEstimator):
     @property
     def data(self):
         """
-        Data object attached to owner
+        Data object attached to manager
         """
         return self._data
 
@@ -133,7 +133,7 @@ class Owner(Dobject, _BaseEstimator):
     @property
     def splitter(self):
         """
-        Splitter object attached to owner
+        Splitter object attached to manager
         """
         return self._splitter
 
@@ -145,7 +145,7 @@ class Owner(Dobject, _BaseEstimator):
     @property
     def scorer(self):
         """
-        Scorer object attached to owner
+        Scorer object attached to manager
         """
         return self._scorer
 
@@ -157,7 +157,7 @@ class Owner(Dobject, _BaseEstimator):
     @property
     def hook(self):
         """
-        Hook object attached to owner
+        Hook object attached to manager
         """
         return self._hook
 
@@ -229,7 +229,7 @@ class Owner(Dobject, _BaseEstimator):
         return self.build
 
 
-class OwnerClassification(Owner):
+class ManagerClassification(Manager):
     @property
     def mlType(self):
         return 'Classification'
@@ -253,7 +253,7 @@ class OwnerClassification(Owner):
         self._data = DataClassification(**kwargs)
 
 
-class OwnerRegression(Owner):
+class ManagerRegression(Manager):
     @property
     def mlType(self):
         return 'Regression'
