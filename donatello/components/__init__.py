@@ -1,6 +1,6 @@
-from donatello.components.manager import Manager
-from donatello.components.data import Data
+from donatello.components.manager import Manager, ManagerClassification, ManagerRegression
+from donatello.components.data import Data, DataClassification, DataRegression
 from donatello.components.splitter import Splitter
-from donatello.components.estimator import BaseEstimator, Classifier, Regressor
-from donatello.components.scorer import BaseScorer
+from donatello.components.estimator import Estimator, EstimatorClassification, EstimatorRegression
+from donatello.components.scorer import Scorer, ScorerClassification, ScorerRegression
 from donatello.components.hook import Hook

@@ -10,7 +10,7 @@ from sklearn.utils import Bunch
 from donatello.components.data import Data, DataClassification, DataRegression
 from donatello.components.splitter import Splitter
 from donatello.components.hook import Hook
-from donatello.components.scorer import (BaseScorer,
+from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
                                          ScorerRegression)
 from donatello.utils.helpers import has_nested_attribute, nvl, now_string
@@ -152,7 +152,7 @@ class Manager(Dobject, _BaseEstimator):
     @scorer.setter
     def scorer(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._scorer = BaseScorer(**kwargs)
+        self._scorer = Scorer(**kwargs)
 
     @property
     def hook(self):
