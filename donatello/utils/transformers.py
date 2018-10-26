@@ -67,8 +67,7 @@ class PandasMixin(PandasAttrs):
 
     @enforce_features
     def transform(self, *args, **kwargs):
-        result = super(PandasMixin, self).transform(*args, **kwargs)
-        return result
+        return super(PandasMixin, self).transform(*args, **kwargs)
 
     def fit_transform(self, *args, **kwargs):
         self.fit(*args, **kwargs)

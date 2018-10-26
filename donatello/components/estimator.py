@@ -94,16 +94,15 @@ class Estimator(BaseTransformer):
         return getattr(self.transformer, '_features', [])
 
 # Fitting
-    def sklearn_grid_search(self, X, y=None, gridSearch=True,
+    def sklearn_grid_search(self, X, y=None,
                     paramGrid=None, gridKwargs=None,
                     xgbParamGrid=None, lgbParamGrid=None):
         """
         """
 
-        self.grid_search(paramGrid, gridKwargs)
         self.gridSearch = GridSearchCV(estimator=self,
-                                           param_grid=paramGrid,
-                                           **gridKwargs)
+                                       param_grid=paramGrid,
+                                       **gridKwargs)
         self.gridSearch.fit(X, y=y, gridSearch=False)
         self.set_params(**self.gridSearch.best_params_)
 
@@ -114,12 +113,14 @@ class Estimator(BaseTransformer):
         paramGrid = nvl(paramGrid, self.paramGrid)
         gridKwargs = nvl(gridKwargs, self.gridKwargs)
 
-        if paramGrid:
+        if paramGrid and gridSearch:
             self.sklearn_grid_search(X, y, paramGrid, gridKwargs)
         elif xgbParamGrid:
-            import xgb
+            # import xgb
+            pass
         elif lgbParamGrid:
-            import lgbm
+            # import lgbm
+            pass
 
     def fit(self, X, y=None,
             gridSearch=True,
@@ -127,7 +128,8 @@ class Estimator(BaseTransformer):
         """
         Fit method with options for grid searching hyperparameters
         """
-        self.grid_search(X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs) if gridSearch else None
+        if gridSearch:
+            self.grid_search(X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
 
         transformed = self.transformer.fit_transform(X, y, **kwargs)
         self.model.fit(transformed, y)

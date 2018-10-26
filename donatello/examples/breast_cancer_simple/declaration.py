@@ -1,12 +1,11 @@
+from collections import defaultdict
 import pandas as pd
 
 from sklearn.datasets import load_breast_cancer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-from donatello.components.estimator import Classifier
-from donatello.components.manager  import ManagerClassification
-from collections import defaultdict
+from donatello import ManagerClassification, EstimatorClassification
 
 
 def load_sklearn_bc_declaration():
@@ -21,10 +20,10 @@ def load_sklearn_bc_declaration():
                       )
     data = {'raws': df}
     partition = {'target': 'is_malignant'}
-    estimator = Classifier(model=LogisticRegression(),
-                           paramGrid={'model__C': pd.np.logspace(-2, 0, 10)},
-                           gridKwargs={'scoring': 'roc_auc', 'cv': 5},
-                           )
+    estimator = EstimatorClassification(model=LogisticRegression(),
+                                        paramGrid={'model__C': pd.np.logspace(-2, 0, 10)},
+                                        gridKwargs={'scoring': 'roc_auc', 'cv': 5},
+                                        )
 
     metrics = {roc_auc_score: defaultdict(dict),
                average_precision_score: defaultdict(dict),
