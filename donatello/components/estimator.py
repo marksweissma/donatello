@@ -3,12 +3,12 @@ from abc import ABCMeta, abstractmethod
 from sklearn.model_selection import GridSearchCV
 
 from donatello.utils.base import BaseTransformer
-from donatello.utils.decorators import pandas_series#, grid_search
+from donatello.utils.decorators import pandas_series
 from donatello.utils.helpers import now_string, nvl
 from donatello.utils.transformers import Selector
 
 
-class BaseEstimator(BaseTransformer):
+class Estimator(BaseTransformer):
     """
     Donatello's Base Estimation object. Leverages a transformer to prepare and transform
     design and an ML model to fit and predict. Supports options for grid searching for
@@ -21,7 +21,6 @@ class BaseEstimator(BaseTransformer):
     :param dict gridKwargs: options for grid search
     :param str timeFormat: option to specify timestamp format
     """
-    gridType = GridSearchCV
     __meta__ = ABCMeta
 
     def __init__(self,
@@ -95,19 +94,33 @@ class BaseEstimator(BaseTransformer):
         return getattr(self.transformer, '_features', [])
 
 # Fitting
-
-    def grid_search(self, X, y=None, gridSearch=True, paramGrid=None, gridKwargs=None):
+    def sklearn_grid_search(self, X, y=None,
+                    paramGrid=None, gridKwargs=None,
+                    xgbParamGrid=None, lgbParamGrid=None):
         """
         """
-        if gridSearch and paramGrid:
-            from sklearn.model_selection import GridSearchCV
 
-            self.grid_search(paramGrid, gridKwargs)
-            self.gridSearch = GridSearchCV(estimator=self,
-                                               param_grid=paramGrid,
-                                               **gridKwargs)
-            self.gridSearch.fit(X, y=y, gridSearch=False)
-            self.set_params(**self.gridSearch.best_params_)
+        self.gridSearch = GridSearchCV(estimator=self,
+                                       param_grid=paramGrid,
+                                       **gridKwargs)
+        self.gridSearch.fit(X, y=y, gridSearch=False)
+        self.set_params(**self.gridSearch.best_params_)
+
+    def grid_search(self, X, y=None, gridSearch=True,
+                    paramGrid=None, gridKwargs=None):
+        """
+        """
+        paramGrid = nvl(paramGrid, self.paramGrid)
+        gridKwargs = nvl(gridKwargs, self.gridKwargs)
+
+        if paramGrid and gridSearch:
+            self.sklearn_grid_search(X, y, paramGrid, gridKwargs)
+        elif xgbParamGrid:
+            # import xgb
+            pass
+        elif lgbParamGrid:
+            # import lgbm
+            pass
 
     def fit(self, X, y=None,
             gridSearch=True,
@@ -115,10 +128,8 @@ class BaseEstimator(BaseTransformer):
         """
         Fit method with options for grid searching hyperparameters
         """
-        paramGrid = nvl(paramGrid, self.paramGrid)
-        gridKwargs = nvl(gridKwargs, self.gridKwargs)
-
-        self.grid_search(X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
+        if gridSearch:
+            self.grid_search(X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
 
         transformed = self.transformer.fit_transform(X, y, **kwargs)
         self.model.fit(transformed, y)
@@ -157,7 +168,7 @@ class BaseEstimator(BaseTransformer):
         return getattr(self, 'features', [])
 
 
-class Regressor(BaseEstimator):
+class EstimatorRegression(Estimator):
     """
     Estimator for regression, applies predict as class atribute for method
     """
@@ -168,9 +179,9 @@ class Regressor(BaseEstimator):
         return self.predict_method(X)
 
 
-class Classifier(BaseEstimator):
+class EstimatorClassification(Estimator):
     """
-    Estimator for classification, applies predict_proba as class atribute for method
+    Estimator for classification, applies predict_proba [:, 1] as class atribute for method
     """
     method = 'predict_proba'
 

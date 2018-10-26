@@ -97,7 +97,7 @@ class PandasWrapper(PandasAttrs):
         self.transformerWrapped.transformedDtypes = value
 
 
-class BaseTransformer(PandasAttrs, BaseEstimator, TransformerMixin):
+class BaseTransformer(BaseEstimator, TransformerMixin):
     """
     Base scikit-learn style transformer
     """

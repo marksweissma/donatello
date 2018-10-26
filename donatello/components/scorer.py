@@ -15,7 +15,7 @@ from donatello.utils.base import Dobject
 from donatello.components.data import package_data
 
 
-class BaseScorer(Dobject):
+class Scorer(Dobject):
     """
     Base class for evaluating estimators and datasets
 
@@ -233,7 +233,7 @@ class BaseScorer(Dobject):
         return {'estimators': estimators, 'scored': scored, 'scores': scores}
 
 
-class ScorerClassification(BaseScorer):
+class ScorerClassification(Scorer):
     """
     Scorer for classifcation models
     """
@@ -295,7 +295,7 @@ class ScorerClassification(BaseScorer):
         return df
 
 
-class ScorerRegression(BaseScorer):
+class ScorerRegression(Scorer):
     """
     Scorer for regression models
     """

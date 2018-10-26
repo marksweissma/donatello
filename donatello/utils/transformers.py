@@ -56,38 +56,40 @@ def enforce_features(func):
     return wrapped
 
 
-class PandasTransformer(BaseTransformer):
+class PandasMixin(PandasAttrs):
     """
     Scikit-learn transformer with pandas bindings
     to enforce fields and features
     """
     @extract_fields
     def fit(self, *args, **kwargs):
-        return super(PandasTransformer, self).fit(*args, **kwargs)
+        return super(PandasMixin, self).fit(*args, **kwargs)
 
     @enforce_features
     def transform(self, *args, **kwargs):
-        result = super(PandasTransformer, self).transform(*args, **kwargs)
-        return result
+        return super(PandasMixin, self).transform(*args, **kwargs)
 
     def fit_transform(self, *args, **kwargs):
         self.fit(*args, **kwargs)
         return self.transform(*args, **kwargs)
 
 
-class Imputer(PandasTransformer, Imputer):
+class PandasTransformer(PandasMixin, BaseTransformer):
+    pass
+
+class Imputer(PandasMixin, Imputer):
     pass
 
 
-class StandardScaler(PandasTransformer, StandardScaler):
+class StandardScaler(PandasMixin, StandardScaler):
     pass
 
 
-class Pipeline(PandasTransformer, Pipeline):
+class Pipeline(PandasMixin, Pipeline):
     pass
 
 
-class FeatureUnion(PandasTransformer, FeatureUnion):
+class FeatureUnion(PandasMixin, FeatureUnion):
     """
     Ripped from sklearn 19.1 to use pandas concat over numpy hstack
     in transform to maintain datatypes
@@ -223,7 +225,7 @@ class CategoricalTransformer(PandasTransformer):
         return X
 
 
-class AttributeTransformer(PandasTransformer, BaseTransformer):
+class AttributeTransformer(PandasTransformer):
     """
     Transformer leveraing attribute methods of the design object
     """
@@ -237,7 +239,7 @@ class AttributeTransformer(PandasTransformer, BaseTransformer):
         return X
 
 
-class CallbackTransformer(PandasTransformer, BaseTransformer):
+class CallbackTransformer(PandasTransformer):
     """
     Transformer to apply call back on design object
     """
