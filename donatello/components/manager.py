@@ -21,7 +21,7 @@ from donatello.components.data import package_data
 
 class Manager(Dobject, _BaseEstimator):
     """
-    Backbone for model ownership. [a-z]*Kwargs parameters map 1:1 to
+    Manager for model process. [a-z]*Kwargs parameters map 1:1 to
     component objects attached via property setters. Other parameters
     attached directly.
 
