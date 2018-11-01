@@ -21,7 +21,9 @@ class Estimator(BaseTransformer):
     :param dict gridKwargs: options for grid search
     :param str timeFormat: option to specify timestamp format
     """
-    __meta__ = ABCMeta
+
+    # this is to provide interface and not call super
+    method = 'predict'
 
     def __init__(self,
                  transformer=None,
@@ -135,13 +137,12 @@ class Estimator(BaseTransformer):
         self.model.fit(transformed, y)
         return self
 
-    @abstractmethod
-    def score(self, X):
+    @pandas_series
+    def score(self, X, name=''):
         """
         Scoring function
         """
-        warn('no score method implemented defaulting transform')
-        return self.transformer.transform(X)
+        return self.predict_method(X)
 
     def transform(self, X, **kwargs):
         """
@@ -168,23 +169,11 @@ class Estimator(BaseTransformer):
         return getattr(self, 'features', [])
 
 
-class EstimatorRegression(Estimator):
-    """
-    Estimator for regression, applies predict as class atribute for method
-    """
-    method = 'predict'
-
-    @pandas_series
-    def score(self, X, name=''):
-        return self.predict_method(X)
-
-
 class EstimatorClassification(Estimator):
     """
     Estimator for classification, applies predict_proba [:, 1] as class atribute for method
     """
     method = 'predict_proba'
-
     @pandas_series
     def score(self, X, name=''):
         return self.predict_method(X)[:, 1]

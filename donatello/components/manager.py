@@ -92,19 +92,14 @@ class Manager(Dobject, _BaseEstimator):
 
         return None
 
-    @abstractproperty
-    def __name__(self):
-        name = self.__class__.__name__
-        warn('Manager does not have a name, defaulting to class {name}'.format(
-             name=name))
-        return name
-
     @property
     def name(self):
         """
         Name of object, defaults to class name
         """
-        return self.__name__
+        warn('Manager does not have a name, defaulting to class {}'.format(name))
+        name = self.__class__.__name__
+        return name
 
     @property
     def declaration(self):
@@ -191,9 +186,9 @@ class Manager(Dobject, _BaseEstimator):
         """
         Build model over entire data set
         """
-        self.estimatorEntire = clone(self.estimator)
-        self.estimatorEntire.fit(X=data.designData, y=data.targetData,
-                                 gridSearch=True, **fitParams)
+        self.estimator = clone(self.estimator)
+        self.estimator.fit(X=data.designData, y=data.targetData,
+                           gridSearch=True, **fitParams)
 
     @package_data
     @split_data
