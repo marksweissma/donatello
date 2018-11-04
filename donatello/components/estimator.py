@@ -70,7 +70,7 @@ class Estimator(BaseTransformer):
     def __repr__(self):
         rep = ['{model} created at {time}'.format(model=self.name,
                                                   time=self._initTime),
-               super(BaseEstimator, self).__repr__()]
+               super(BaseTransformer, self).__repr__()]
         return "\n --- \n **sklearn repr** \n --- \n".join(rep)
 
     @property

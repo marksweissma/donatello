@@ -125,8 +125,6 @@ class ScorerSupervised(Scorer):
             _increment += 1
             name = self.get_metric_name(metric, _increment)
 
-            print('evaluating {name}'.format(name=name))
-
             if callable(metric):
                 columnNames = definition.get('columnNames', ['score'])
                 _output = metric(scored.truth, scored.predicted, **definition['metricKwargs'])

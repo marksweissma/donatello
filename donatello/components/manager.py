@@ -97,8 +97,8 @@ class Manager(Dobject, _BaseEstimator):
         """
         Name of object, defaults to class name
         """
-        warn('Manager does not have a name, defaulting to class {}'.format(name))
         name = self.__class__.__name__
+        warn('Manager does not have a name, defaulting to class {}'.format(name))
         return name
 
     @property
