@@ -54,7 +54,6 @@ def pandas_series(wrapped, instance, args, kwargs):
     yhat = wrapped(*args, **kwargs)
 
     name = nvl(name, instance.name)
-
     index = X[index] if index in X else X.index
     result =  pd.Series(yhat, index=index, name=name)
     return result
@@ -72,7 +71,7 @@ def pandas_df(wrapped, instance, args, kwargs):
     columns = nvl(columns, X.columns)
     index = X[index] if index in X else X.index
 
-    _df = wrapped(X)
+    _df = wrapped(*args, **kwargs)
     result = pd.DataFrame(_df, index=index, columns=columns)
     return result
 

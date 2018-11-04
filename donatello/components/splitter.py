@@ -13,9 +13,9 @@ class Splitter(BaseTransformer):
             containing primrary df
     :param splitOver str: option to split over unique values instead \
             of random or startification
-    :parm bool stratifyTarget: option to startify over the target
+    :param bool stratifyTarget: option to startify over the target
     :param dict testKwargs: kwargs for sklearn.train_test_split
-    :params list attrs: attributes to package
+    :param list attrs: attributes to package
     """
     def __init__(self,
                  target=None,

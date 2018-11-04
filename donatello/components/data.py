@@ -113,7 +113,6 @@ class DataRegression(Data):
 
 @decorator
 def package_data(wrapped, instance, args, kwargs):
-    print('package_data')
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
     data = kwargs.pop('data', None)

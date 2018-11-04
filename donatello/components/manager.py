@@ -21,7 +21,7 @@ from donatello.components.data import package_data
 
 class Manager(Dobject, _BaseEstimator):
     """
-    Backbone for model ownership. [a-z]*Kwargs parameters map 1:1 to
+    Manager for model process. [a-z]*Kwargs parameters map 1:1 to
     component objects attached via property setters. Other parameters
     attached directly.
 
@@ -48,6 +48,7 @@ class Manager(Dobject, _BaseEstimator):
                  combiner=None, estimator=None, scorerKwargs=None,
                  validation=True, holdOut=True, entire=False,
                  metrics=None, hookKwargs=None,
+                 storeReferences=True,
                  writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
 
@@ -77,6 +78,8 @@ class Manager(Dobject, _BaseEstimator):
 
         # Other
         self.writeAttrs = writeAttrs
+        self.storeReferences = storeReferences
+        self._references = {}
         self.declaration = self.get_params(deep=False)
         self.scores = Bunch()
 
@@ -92,19 +95,14 @@ class Manager(Dobject, _BaseEstimator):
 
         return None
 
-    @abstractproperty
-    def __name__(self):
-        name = self.__class__.__name__
-        warn('Manager does not have a name, defaulting to class {name}'.format(
-             name=name))
-        return name
-
     @property
     def name(self):
         """
         Name of object, defaults to class name
         """
-        return self.__name__
+        name = self.__class__.__name__
+        warn('Manager does not have a name, defaulting to class {}'.format(name))
+        return name
 
     @property
     def declaration(self):
@@ -175,6 +173,7 @@ class Manager(Dobject, _BaseEstimator):
                    'X': data.designTrain, 'y': data.targetTrain}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
         self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
+        self.references['cross_validation'] = clone(self.estimator) if self.storeReferences else None
 
     def _build_holdout(self, data, **fitParams):
         """
@@ -186,14 +185,16 @@ class Manager(Dobject, _BaseEstimator):
                    'X': data.designTest, 'y': data.targetTest}
         self.scorerHoldout = self.scorer.build_holdout(**payload)
         self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
+        self.references['holdout'] = clone(self.estimator) if self.storeReferences else None
 
     def _build_entire(self, data, **fitParams):
         """
         Build model over entire data set
         """
-        self.estimatorEntire = clone(self.estimator)
-        self.estimatorEntire.fit(X=data.designData, y=data.targetData,
-                                 gridSearch=True, **fitParams)
+        self.estimator = clone(self.estimator)
+        self.estimator.fit(X=data.designData, y=data.targetData,
+                           gridSearch=True, **fitParams)
+        self.references['entire'] = clone(self.estimator) if self.storeReferences else None
 
     @package_data
     @split_data

@@ -16,22 +16,13 @@ from donatello.components.data import package_data
 
 
 class Scorer(Dobject):
-    """
-    Base class for evaluating estimators and datasets
-
-    :param type splitType: Type of bject with :py:meth:`split` for cross val scoring
-    :param dict splitKwargs: arguments for splitType to instantiate :py:attr:`BaseScorer.splitter`
-    :param str predict_method: method to call from estimator for predicting
-    """
-    __meta__ = ABCMeta
-
     @init_time
     def __init__(self,
                  splitType=None,
                  splitKwargs={'n_splits': 5,
                               'shuffle': True,
                               'random_state': 22},
-                 method='score',
+                 method=None,
                  gridSearchFlag=True,
                  verbose=True,
                  nowFormat="%Y_%m_%d_%H_%M"
@@ -45,10 +36,6 @@ class Scorer(Dobject):
         self.verbose = verbose
 
         self.splitter = splitKwargs
-
-    def __repr__(self):
-        return '{name} created at {time}'.format(name=self.name,
-                                                 time=self._initTime)
 
     @abstractproperty
     def name(self):
@@ -110,8 +97,24 @@ class Scorer(Dobject):
         """
         return metric if isinstance(metric, str) else getattr(metric, '__name__', str(default))
 
+
+class ScorerSupervised(Scorer):
+    """
+    Base class for evaluating estimators and datasets
+
+    :param type splitType: Type of bject with :py:meth:`split` for cross val scoring
+    :param dict splitKwargs: arguments for splitType to instantiate :py:attr:`BaseScorer.splitter`
+    :param str predict_method: method to call from estimator for predicting
+    """
+    def __init__(self,
+                 method='score',
+                 **kwargs
+                 ):
+
+        super(ScorerSupervised, self).__init__(method=method, **kwargs) 
+
     def _score(self, estimator, designTest, targetTest):
-        yhat = estimator.score(designTest)
+        yhat = getattr(estimator, self.method)(designTest)
         scored = pd.concat([targetTest.rename('truth'), yhat.rename('predicted')], axis=1)
         return scored
 
@@ -121,8 +124,6 @@ class Scorer(Dobject):
         for metric, definition in metrics.items():
             _increment += 1
             name = self.get_metric_name(metric, _increment)
-
-            print('evaluating {name}'.format(name=name))
 
             if callable(metric):
                 columnNames = definition.get('columnNames', ['score'])
@@ -172,8 +173,6 @@ class Scorer(Dobject):
         estimators = {}
 
         for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(data):
-            print((fold, designTrain.shape, targetTrain.shape))
-            print targetTrain.head()
             estimator = clone(estimator)
             estimator.fit(designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
             estimators[fold] = estimator
@@ -233,7 +232,7 @@ class Scorer(Dobject):
         return {'estimators': estimators, 'scored': scored, 'scores': scores}
 
 
-class ScorerClassification(Scorer):
+class ScorerClassification(ScorerSupervised):
     """
     Scorer for classifcation models
     """
@@ -252,12 +251,6 @@ class ScorerClassification(Scorer):
             self.thresholds = scored.predicted.quantile(percentiles)
         else:
             self.thresholds = thresholds
-
-
-    # def score_folds(self, estimator=None, data=None):
-        # estimators, scored = super(ScorerClassification, self).score_folds(self, estimator=estimator, data=data)
-        # self.find_tresholds(scored, thresholds=self.thresholds, spacing=self.spacing)
-        # return estimators, scored
 
     def evaluate_scored_folds(self, estimators=None, metrics=None, scored=None, X=None, **kwargs):
         self.find_thresholds(scored)
@@ -295,7 +288,7 @@ class ScorerClassification(Scorer):
         return df
 
 
-class ScorerRegression(Scorer):
+class ScorerRegression(ScorerSupervised):
     """
     Scorer for regression models
     """
@@ -305,3 +298,7 @@ class ScorerRegression(Scorer):
         payload = kwargs
         payload.update({'splitType': splitType})
         super(ScorerClassification, self).__init__(**payload)
+
+
+class ScorerUnsupervised(Scorer):
+    pass
