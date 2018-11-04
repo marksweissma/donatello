@@ -6,7 +6,7 @@ from donatello.components import (Manager, Data, Estimator, Scorer, Hook, Splitt
                                   )
 
 
-__all__ = ['components', 'utis',
+__all__ = ['components', 'utils',
            'Manager', 'Data', 'Estimator', 'Scorer', 'Hook', 'Splitter',
            'ManagerClassification', 'DataClassification', 'EstimatorClassification', 'ScorerClassification', 
            'ManagerRegression', 'DataRegression', 'ScorerRegression'
