@@ -5,7 +5,8 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-from donatello import ManagerClassification, EstimatorClassification
+from donatello.components.manager import ManagerClassification
+from donatello.components.estimator import EstimatorClassification
 
 
 def load_sklearn_bc_declaration():

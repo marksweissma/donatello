@@ -173,7 +173,7 @@ class Manager(Dobject, _BaseEstimator):
                    'X': data.designTrain, 'y': data.targetTrain}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
         self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
-        self.references['cross_validation'] = clone(self.estimator) if self.storeReferences else None
+        self._references['cross_validation'] = clone(self.estimator) if self.storeReferences else None
 
     def _build_holdout(self, data, **fitParams):
         """
@@ -185,7 +185,7 @@ class Manager(Dobject, _BaseEstimator):
                    'X': data.designTest, 'y': data.targetTest}
         self.scorerHoldout = self.scorer.build_holdout(**payload)
         self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
-        self.references['holdout'] = clone(self.estimator) if self.storeReferences else None
+        self._references['holdout'] = clone(self.estimator) if self.storeReferences else None
 
     def _build_entire(self, data, **fitParams):
         """
@@ -194,7 +194,7 @@ class Manager(Dobject, _BaseEstimator):
         self.estimator = clone(self.estimator)
         self.estimator.fit(X=data.designData, y=data.targetData,
                            gridSearch=True, **fitParams)
-        self.references['entire'] = clone(self.estimator) if self.storeReferences else None
+        self._references['entire'] = clone(self.estimator) if self.storeReferences else None
 
     @package_data
     @split_data
