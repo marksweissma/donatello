@@ -24,6 +24,7 @@ class Splitter(BaseTransformer):
                  stratifyTarget=True,
                  testKwargs={'random_state': 42, 'test_size': .25},
                  attrs=['Train', 'Test', 'Data'],
+                 _maxStratification=50,
                  timeFormat="%Y_%m_%d_%H_%M",
                  ):
 
@@ -34,6 +35,7 @@ class Splitter(BaseTransformer):
         self.stratifyTarget = stratifyTarget
         self.testKwargs = testKwargs
         self.attrs = attrs
+        self._maxStratification = _maxStratification
 
     def fit(self, data=None, target=None, contentKey=None, **fitParams):
         """
@@ -41,7 +43,9 @@ class Splitter(BaseTransformer):
         df = data.contents if not self.contentKey else data.contents[self.contentKey]
         target = nvl(target, self.target)
 
-        self.testKwargs.update({'stratify': df[target]}) if self.stratifyTarget else None
+
+        condition = self.stratifyTarget and len(df[target].unique()) <  self._maxStratification
+        self.testKwargs.update({'stratify': df[target]}) if condition else None
 
         values = df[self.splitOver].unique() if self.splitOver else df.index
         self.trainIds, self.testIds = train_test_split(values, **self.testKwargs)

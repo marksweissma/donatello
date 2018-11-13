@@ -19,7 +19,7 @@ from donatello.utils.base import Dobject
 from donatello.components.data import package_data
 
 
-class Manager(Dobject, _BaseEstimator):
+class DM(Dobject, _BaseEstimator):
     """
     Manager for model process. [a-z]*Kwargs parameters map 1:1 to
     component objects attached via property setters. Other parameters
@@ -42,26 +42,35 @@ class Manager(Dobject, _BaseEstimator):
     :param tuple writeAttrs: attributes to write out to disk
     :param str nowFormat: format for creation time string
     """
-    __meta__ = ABCMeta
 
     def __init__(self, dataKwargs=None, splitterKwargs=None,
                  combiner=None, estimator=None, scorerKwargs=None,
                  validation=True, holdOut=True, entire=False,
                  metrics=None, hookKwargs=None,
                  storeReferences=True,
+                 mlType='classification',
+                 typeDispatch= {'data': {'classification': DataClassification,
+                                          'regression': DataRegression
+                                          },
+                                 'scorer': {'classification': ScorerClassification,
+                                            'regression': ScorerRegression
+                                           }
+                                 },
                  writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
 
         self._initTime = now_string(timeFormat)
 
         # Preserve params
-        self.dataKwargs = deepcopy(dataKwargs)
-        self.splitterKwargs = deepcopy(splitterKwargs)
-        self.scorerKwargs = deepcopy(scorerKwargs)
-        self.hookKwargs = deepcopy(hookKwargs)
+        self.dataKwargs = dataKwargs
+        self.splitterKwargs = splitterKwargs
+        self.scorerKwargs = scorerKwargs
+        self.hookKwargs = hookKwargs
 
-        self.metrics = deepcopy(metrics)
-        self.combiner = deepcopy(combiner)
+        self._mlType = mlType
+        self.typeDispatch = typeDispatch
+        self.metrics = metrics
+        self.combiner = combiner
 
         self.estimator = clone(estimator)
 
@@ -84,7 +93,7 @@ class Manager(Dobject, _BaseEstimator):
         self.scores = Bunch()
 
     # state
-    @abstractproperty
+    @property
     def mlType(self):
         """
         Define type of learning
@@ -93,7 +102,7 @@ class Manager(Dobject, _BaseEstimator):
             #. Clustering
        """
 
-        return None
+        return self._mlType
 
     @property
     def name(self):
@@ -101,7 +110,6 @@ class Manager(Dobject, _BaseEstimator):
         Name of object, defaults to class name
         """
         name = self.__class__.__name__
-        warn('Manager does not have a name, defaulting to class {}'.format(name))
         return name
 
     @property
@@ -126,7 +134,7 @@ class Manager(Dobject, _BaseEstimator):
     @data.setter
     def data(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._data = Data(**kwargs)
+        self._data = self.typeDispatch.get('data').get(self.mlType)(**kwargs)
 
     @property
     def splitter(self):
@@ -150,7 +158,7 @@ class Manager(Dobject, _BaseEstimator):
     @scorer.setter
     def scorer(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._scorer = Scorer(**kwargs)
+        self._scorer = self.typeDispatch.get('scorer').get(self.mlType)(**kwargs)
 
     @property
     def hook(self):
@@ -228,51 +236,3 @@ class Manager(Dobject, _BaseEstimator):
         Link to build
         """
         return self.build
-
-
-class ManagerClassification(Manager):
-    @property
-    def mlType(self):
-        return 'Classification'
-
-    @property
-    def scorer(self):
-        return self._scorer
-
-    @scorer.setter
-    def scorer(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._scorer = ScorerClassification(**kwargs)
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._data = DataClassification(**kwargs)
-
-
-class ManagerRegression(Manager):
-    @property
-    def mlType(self):
-        return 'Regression'
-
-    @property
-    def scorer(self):
-        return self._scorer
-
-    @scorer.setter
-    def scorer(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._scorer = ScorerRegression(**kwargs)
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._data = DataRegression(**kwargs)

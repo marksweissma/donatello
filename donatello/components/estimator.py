@@ -23,12 +23,13 @@ class Estimator(BaseTransformer):
     """
 
     # this is to provide interface and not call super
-    method = 'predict'
-
     def __init__(self,
                  transformer=None,
                  model=None,
-                 method=None,
+                 mlType='regression',
+                 typeDispatch={'regression': {'method': 'predict', 'score': 'score_all'},
+                               'classification': {'method': 'predict_proba', 'score': 'score_first'}
+                               },
                  paramGrid={},
                  gridKwargs={},
                  timeFormat="%Y_%m_%d_%H_%M"
@@ -38,7 +39,8 @@ class Estimator(BaseTransformer):
 
         self.transformer = nvl(transformer, Selector(reverse=True))
         self.model = model
-        self.method = method if method else getattr(self, 'method', None)
+        self._mlType = mlType
+        self._typeDispatch = typeDispatch
 
         self.paramGrid = paramGrid
         self.gridKwargs = gridKwargs
@@ -72,6 +74,18 @@ class Estimator(BaseTransformer):
                                                   time=self._initTime),
                super(BaseTransformer, self).__repr__()]
         return "\n --- \n **sklearn repr** \n --- \n".join(rep)
+
+    @property
+    def mlType(self):
+        return self._mlType
+
+    @property
+    def method(self):
+        return self.typeDispatch[self.mlType]['method']
+
+    @property
+    def typeDispatch(self):
+        return self._typeDispatch
 
     @property
     def predict_method(self):
@@ -139,10 +153,21 @@ class Estimator(BaseTransformer):
 
     @pandas_series
     def score(self, X, name=''):
+        scores = getattr(self, self.typeDispatch[self.mlType]['score'])(X, name)
+        return scores
+
+    def score_all(self, X, name=''):
         """
         Scoring function
         """
         return self.predict_method(X)
+
+    def score_first(self, X, name=''):
+        """
+        Scoring function
+        """
+
+        return self.predict_method(X)[:, 1]
 
     def transform(self, X, **kwargs):
         """
@@ -167,13 +192,3 @@ class Estimator(BaseTransformer):
 
     def get_feature_names(self):
         return getattr(self, 'features', [])
-
-
-class EstimatorClassification(Estimator):
-    """
-    Estimator for classification, applies predict_proba [:, 1] as class atribute for method
-    """
-    method = 'predict_proba'
-    @pandas_series
-    def score(self, X, name=''):
-        return self.predict_method(X)[:, 1]
