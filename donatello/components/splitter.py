@@ -14,8 +14,9 @@ class Splitter(BaseTransformer):
     :param splitOver str: option to split over unique values instead \
             of random or startification
     :param bool stratifyTarget: option to startify over the target
-    :param dict testKwargs: kwargs for sklearn.train_test_split
-    :param list attrs: attributes to package
+    :param list attrs: attributes to package for return
+    :param dict testKwargs: kwargs for :py:func:`sklearn.model_selection.train_test_split`
+    :param int _maxStratification: flag to auto stratify
     """
     def __init__(self,
                  target=None,
@@ -39,6 +40,13 @@ class Splitter(BaseTransformer):
 
     def fit(self, data=None, target=None, contentKey=None, **fitParams):
         """
+        fit splitter => finds and store values for each set
+
+        :param donatello.components.data data: data to fit on
+        :param str target: str name of target field to separate
+        :param str contentKey: key for primary field (if data.contents \
+                is dict (not df)
+        :returns: fit transformer
         """
         df = data.contents if not self.contentKey else data.contents[self.contentKey]
         target = nvl(target, self.target)
@@ -71,6 +79,11 @@ class Splitter(BaseTransformer):
     def transform(self, data=None, target=None, **fitParams):
         """
         Split data contents into design/target train/test/data
+
+        :param donatello.components.data data: data to fit on
+        :param str target: str name of target field to separate
+        :returns: paylod of train/test/data <> design/target subsets
+        :rtype: dict
         """
         df = data.contents[self.contentKey] if self.contentKey else data.contents
         target = nvl(target, self.target)

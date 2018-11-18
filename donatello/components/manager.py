@@ -9,7 +9,7 @@ from sklearn.utils import Bunch
 
 from donatello.components.data import Data, DataClassification, DataRegression
 from donatello.components.splitter import Splitter
-from donatello.components.hook import Hook
+from donatello.components.hook import Local
 from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
                                          ScorerRegression)
@@ -38,7 +38,7 @@ class DM(Dobject, _BaseEstimator):
     :param bool holdOut: flag for fitting estimator on entire training set
             and scoring test set
     :param iterable metrics: list or dict of metrics for scorer
-    :param dict hookKwargs: arguments for :py:class:`donatello.Hook`
+    :param dict hookKwargs: arguments for :py:class:`donatello.Local`
     :param tuple writeAttrs: attributes to write out to disk
     :param str nowFormat: format for creation time string
     """
@@ -54,7 +54,9 @@ class DM(Dobject, _BaseEstimator):
                                           },
                                  'scorer': {'classification': ScorerClassification,
                                             'regression': ScorerRegression
-                                           }
+                                           },
+                                 'splitter': Splitter,
+                                 'hook': Local
                                  },
                  writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
@@ -107,7 +109,7 @@ class DM(Dobject, _BaseEstimator):
     @property
     def name(self):
         """
-        Name of object, defaults to class name
+        Name of type
         """
         name = self.__class__.__name__
         return name
@@ -146,7 +148,7 @@ class DM(Dobject, _BaseEstimator):
     @splitter.setter
     def splitter(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._splitter = Splitter(**kwargs)
+        self._splitter = self.typeDispatch.get('splitter')(**kwargs)
 
     @property
     def scorer(self):
@@ -163,14 +165,14 @@ class DM(Dobject, _BaseEstimator):
     @property
     def hook(self):
         """
-        Hook object attached to manager
+        Local object attached to manager
         """
         return self._hook
 
     @hook.setter
     def hook(self, kwargs):
         kwargs = {} if kwargs is None else kwargs
-        self._hook = Hook(**kwargs)
+        self._hook = self.typeDispatch.get('hook')(**kwargs)
 
     def _build_cross_validation(self, data, **fitParams):
         """
@@ -226,13 +228,16 @@ class DM(Dobject, _BaseEstimator):
         """
         writeAttrs = nvl(writeAttrs, self.writeAttrs)
         writeAttrs = [i for i in writeAttrs if has_nested_attribute(self, i)]
-        transfers = [{'attr': attr} for attr in writeAttrs]
-        [transfer.update({'obj': self}) for transfer in transfers]
-        [self.hook.write(**transfer) for transfer in transfers]
+        writePayloads = [{'attr': attr} for attr in writeAttrs]
+        [writePayload.update({'obj': self}) for writePayload in writePayloads]
+        [self.hook.write(**writePayload) for writePayload in writePayloads]
 
     @property
     def fit(self):
         """
-        Link to build
+        Link to build rather than estimator fit
         """
         return self.build
+
+    def __getattr__(self, name):
+        return getattr(self.estimator, name)
