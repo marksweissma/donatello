@@ -2,7 +2,7 @@ from sklearn.externals import joblib
 from donatello.utils.helpers import get_nested_attribute
 
 
-class Hook(object):
+class Local(object):
     """
     Object to provide disk interface
 

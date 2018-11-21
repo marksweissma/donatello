@@ -9,7 +9,7 @@ from sklearn.utils import Bunch
 
 from donatello.components.data import Data, DataClassification, DataRegression
 from donatello.components.splitter import Splitter
-from donatello.components.hook import Hook
+from donatello.components.hook import Local
 from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
                                          ScorerRegression)
@@ -19,7 +19,7 @@ from donatello.utils.base import Dobject
 from donatello.components.data import package_data
 
 
-class Manager(Dobject, _BaseEstimator):
+class DM(Dobject, _BaseEstimator):
     """
     Manager for model process. [a-z]*Kwargs parameters map 1:1 to
     component objects attached via property setters. Other parameters
@@ -38,30 +38,41 @@ class Manager(Dobject, _BaseEstimator):
     :param bool holdOut: flag for fitting estimator on entire training set
             and scoring test set
     :param iterable metrics: list or dict of metrics for scorer
-    :param dict hookKwargs: arguments for :py:class:`donatello.Hook`
+    :param dict hookKwargs: arguments for :py:class:`donatello.Local`
     :param tuple writeAttrs: attributes to write out to disk
     :param str nowFormat: format for creation time string
     """
-    __meta__ = ABCMeta
 
     def __init__(self, dataKwargs=None, splitterKwargs=None,
                  combiner=None, estimator=None, scorerKwargs=None,
                  validation=True, holdOut=True, entire=False,
                  metrics=None, hookKwargs=None,
                  storeReferences=True,
+                 mlType='classification',
+                 typeDispatch= {'data': {'classification': DataClassification,
+                                          'regression': DataRegression
+                                          },
+                                 'scorer': {'classification': ScorerClassification,
+                                            'regression': ScorerRegression
+                                           },
+                                 'splitter': Splitter,
+                                 'hook': Local
+                                 },
                  writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
 
         self._initTime = now_string(timeFormat)
 
         # Preserve params
-        self.dataKwargs = deepcopy(dataKwargs)
-        self.splitterKwargs = deepcopy(splitterKwargs)
-        self.scorerKwargs = deepcopy(scorerKwargs)
-        self.hookKwargs = deepcopy(hookKwargs)
+        self.dataKwargs = dataKwargs
+        self.splitterKwargs = splitterKwargs
+        self.scorerKwargs = scorerKwargs
+        self.hookKwargs = hookKwargs
 
-        self.metrics = deepcopy(metrics)
-        self.combiner = deepcopy(combiner)
+        self._mlType = mlType
+        self.typeDispatch = typeDispatch
+        self.metrics = metrics
+        self.combiner = combiner
 
         self.estimator = clone(estimator)
 
@@ -84,7 +95,7 @@ class Manager(Dobject, _BaseEstimator):
         self.scores = Bunch()
 
     # state
-    @abstractproperty
+    @property
     def mlType(self):
         """
         Define type of learning
@@ -93,15 +104,14 @@ class Manager(Dobject, _BaseEstimator):
             #. Clustering
        """
 
-        return None
+        return self._mlType
 
     @property
     def name(self):
         """
-        Name of object, defaults to class name
+        Name of type
         """
         name = self.__class__.__name__
-        warn('Manager does not have a name, defaulting to class {}'.format(name))
         return name
 
     @property
@@ -126,7 +136,7 @@ class Manager(Dobject, _BaseEstimator):
     @data.setter
     def data(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._data = Data(**kwargs)
+        self._data = self.typeDispatch.get('data').get(self.mlType)(**kwargs)
 
     @property
     def splitter(self):
@@ -138,7 +148,7 @@ class Manager(Dobject, _BaseEstimator):
     @splitter.setter
     def splitter(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._splitter = Splitter(**kwargs)
+        self._splitter = self.typeDispatch.get('splitter')(**kwargs)
 
     @property
     def scorer(self):
@@ -150,19 +160,19 @@ class Manager(Dobject, _BaseEstimator):
     @scorer.setter
     def scorer(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._scorer = Scorer(**kwargs)
+        self._scorer = self.typeDispatch.get('scorer').get(self.mlType)(**kwargs)
 
     @property
     def hook(self):
         """
-        Hook object attached to manager
+        Local object attached to manager
         """
         return self._hook
 
     @hook.setter
     def hook(self, kwargs):
         kwargs = {} if kwargs is None else kwargs
-        self._hook = Hook(**kwargs)
+        self._hook = self.typeDispatch.get('hook')(**kwargs)
 
     def _build_cross_validation(self, data, **fitParams):
         """
@@ -173,7 +183,7 @@ class Manager(Dobject, _BaseEstimator):
                    'X': data.designTrain, 'y': data.targetTrain}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
         self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
-        self.references['cross_validation'] = clone(self.estimator) if self.storeReferences else None
+        self._references['cross_validation'] = clone(self.estimator) if self.storeReferences else None
 
     def _build_holdout(self, data, **fitParams):
         """
@@ -185,7 +195,7 @@ class Manager(Dobject, _BaseEstimator):
                    'X': data.designTest, 'y': data.targetTest}
         self.scorerHoldout = self.scorer.build_holdout(**payload)
         self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
-        self.references['holdout'] = clone(self.estimator) if self.storeReferences else None
+        self._references['holdout'] = clone(self.estimator) if self.storeReferences else None
 
     def _build_entire(self, data, **fitParams):
         """
@@ -194,7 +204,7 @@ class Manager(Dobject, _BaseEstimator):
         self.estimator = clone(self.estimator)
         self.estimator.fit(X=data.designData, y=data.targetData,
                            gridSearch=True, **fitParams)
-        self.references['entire'] = clone(self.estimator) if self.storeReferences else None
+        self._references['entire'] = clone(self.estimator) if self.storeReferences else None
 
     @package_data
     @split_data
@@ -218,61 +228,16 @@ class Manager(Dobject, _BaseEstimator):
         """
         writeAttrs = nvl(writeAttrs, self.writeAttrs)
         writeAttrs = [i for i in writeAttrs if has_nested_attribute(self, i)]
-        transfers = [{'attr': attr} for attr in writeAttrs]
-        [transfer.update({'obj': self}) for transfer in transfers]
-        [self.hook.write(**transfer) for transfer in transfers]
+        writePayloads = [{'attr': attr} for attr in writeAttrs]
+        [writePayload.update({'obj': self}) for writePayload in writePayloads]
+        [self.hook.write(**writePayload) for writePayload in writePayloads]
 
     @property
     def fit(self):
         """
-        Link to build
+        Link to build rather than estimator fit
         """
         return self.build
 
-
-class ManagerClassification(Manager):
-    @property
-    def mlType(self):
-        return 'Classification'
-
-    @property
-    def scorer(self):
-        return self._scorer
-
-    @scorer.setter
-    def scorer(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._scorer = ScorerClassification(**kwargs)
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._data = DataClassification(**kwargs)
-
-
-class ManagerRegression(Manager):
-    @property
-    def mlType(self):
-        return 'Regression'
-
-    @property
-    def scorer(self):
-        return self._scorer
-
-    @scorer.setter
-    def scorer(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._scorer = ScorerRegression(**kwargs)
-
-    @property
-    def data(self):
-        return self._data
-
-    @data.setter
-    def data(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        self._data = DataRegression(**kwargs)
+    def __getattr__(self, name):
+        return getattr(self.estimator, name)

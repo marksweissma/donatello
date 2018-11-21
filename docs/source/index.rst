@@ -10,6 +10,7 @@ Welcome to donatello's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   breast_cancer_simple
    modules.rst
 
 
