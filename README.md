@@ -7,7 +7,7 @@ Donatello is comprised of `components` supported by a set of `utilities`. Compon
   
   Components:
   
-  1. The `Owner` objects are the backbone of donatello coordinating pulling data, splitting, fitting, cross validating, scoring, and storing. 
+  1. The `DM` (donatello manager) object is  the backbone coordinating pulling data, splitting, fitting, cross validating, scoring, and storing. 
   2. The `Estimator` objects encapsulate the transformation process for the expected requirements to serve and the fitting/predicting/scoring of ML algorithims. 
   3. The `Scorer` objects are responsbile for evaluating models on an unseen data, via cross validaiton and hold out
   4. The `Data` objects are responsible for storing and managing data
