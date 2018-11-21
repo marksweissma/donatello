@@ -112,7 +112,7 @@ class Estimator(BaseTransformer):
 # Fitting
     def sklearn_grid_search(self, X, y=None,
                     paramGrid=None, gridKwargs=None,
-                    xgbParamGrid=None, lgbParamGrid=None):
+                    xgbParamGrid=None):
         """
         """
 
@@ -133,9 +133,6 @@ class Estimator(BaseTransformer):
             self.sklearn_grid_search(X, y, paramGrid, gridKwargs)
         elif xgbParamGrid:
             # import xgb
-            pass
-        elif lgbParamGrid:
-            # import lgbm
             pass
 
     def fit(self, X, y=None,
@@ -175,7 +172,6 @@ class Estimator(BaseTransformer):
         """
         return self.transformer.transform(X, **kwargs)
 
-# Predicting
     def __getattr__(self, name):
         prediction_methods = ['predict', 'predict_proba',
                               'predict_log_proba', 'decision_function']
