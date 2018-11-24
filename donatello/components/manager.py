@@ -206,7 +206,7 @@ class DM(Dobject, _BaseEstimator):
     @package_data
     @split_data
     @prepare_design
-    def build(self, data=None, X=None, y=None, **fitParams):
+    def fit(self, data=None, X=None, y=None, **fitParams):
         """
         Build models, tune hyperparameters, and evaluate
         """
@@ -228,13 +228,6 @@ class DM(Dobject, _BaseEstimator):
         writePayloads = [{'attr': attr} for attr in writeAttrs]
         [writePayload.update({'obj': self}) for writePayload in writePayloads]
         [self.hook.write(**writePayload) for writePayload in writePayloads]
-
-    @property
-    def fit(self):
-        """
-        Link to build rather than estimator fit
-        """
-        return self.build
 
     def __getattr__(self, name):
         return getattr(self.estimator, name)

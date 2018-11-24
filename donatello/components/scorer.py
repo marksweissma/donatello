@@ -6,6 +6,7 @@ from abc import ABCMeta, abstractproperty
 from warnings import warn
 
 from sklearn import clone
+from sklearn.utils import Bunch
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import confusion_matrix
 
@@ -222,7 +223,7 @@ class ScorerSupervised(Scorer):
             information =  scores[name]
             # fix this with dispatch
             if isinstance(information, dict):
-                _hold = {agg: func(df, **callbackKwargs) if func else df for df, agg in information.items()}
+                _hold = Bunch(**{agg: func(df, **callbackKwargs) if func else df for agg, df in information.items()})
             else:
                 _hold = func(information, **callbackKwargs) if func else information
             scores[name] = _hold
@@ -285,25 +286,10 @@ class ScorerClassification(ScorerSupervised):
                                     )
                                    ) for i in thresholds])
 
-        output = pd.DataFrame(data=data,
-                              columns=['thresholds', 'true_negative', 'false_positive', 'false_negative', 'true_positive'],
-                              index=range(spacing))
-        return output
+        df = pd.DataFrame(data=data,
+                          columns=['thresholds', 'true_negative', 'false_positive', 'false_negative', 'true_positive'],
+                          index=range(spacing))
 
-    def build_threshold_rates(self, df):
-        levels = df.columns.nlevels
-        current = levels - 1
-        if levels == 1:
-            output = self._build_threshold_rates(df)
-        else:
-            output = {df.xs(key, level=current, axis=1) for key in set(df.columns.get_level_values(current))}
-            for key in set(df.columns.get_level_values(current)):
-                dfSlice = df.xs(key, level=current, axis=1)
-                output[key] = self.build_threshold_rates(dfSlice)
-        return output
-
-    @staticmethod
-    def build_threshold_rates(df):
         df = df.apply(lambda x: x / np.sum(x))
         df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
         df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
@@ -314,6 +300,7 @@ class ScorerClassification(ScorerSupervised):
         df['fall_out'] = 1 - df.specificity
         df['false_discovery_rate'] = 1 - df.precision
         return df
+
 
 class ScorerRegression(ScorerSupervised):
     """
