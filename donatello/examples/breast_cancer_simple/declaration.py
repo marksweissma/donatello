@@ -9,18 +9,22 @@ from donatello.components.manager import DM
 from donatello.components.estimator import Estimator
 
 
-def load_sklearn_bc_declaration():
-    """
-    Helper function to load declaration for sklearn
-    breast cancer data set to classify malignancy
-    """
+def _load_sklearn_bc_dataset():
     dataset = load_breast_cancer()
     df = pd.DataFrame(data=pd.np.c_[dataset['data'], dataset['target']],
                       columns=(dataset['feature_names'].tolist() +
                                ['is_malignant'])
                       )
+    return df
+
+def load_sklearn_bc_declaration():
+    """
+    Helper function to load declaration for sklearn
+    breast cancer data set to classify malignancy
+    """
+    df = _load_sklearn_bc_dataset()
     data = {'raws': df}
-    partition = {'target': 'is_malignant'}
+    split = {'target': 'is_malignant'}
     estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': pd.np.logspace(-2, 0, 10)},
                           gridKwargs={'scoring': 'roc_auc', 'cv': 5},
@@ -30,15 +34,16 @@ def load_sklearn_bc_declaration():
     metrics = {roc_auc_score: defaultdict(dict),
                average_precision_score: defaultdict(dict),
                'feature_weights': defaultdict(dict, {'key': 'names',
-                                                     'sort': 'coefficients'}),
+                                                     'sort': 'coefficients',
+                                                     'agg': ['mean', 'std']
+                                                     }),
                'threshold_rates': defaultdict(dict, {'key': 'thresholds',
                                                      'sort': 'thresholds',
                                                      'agg': ['mean', 'std']
-                                                     # 'callback': 'build_threshold_rates'
                                                      })
                }
 
-    m = DM(dataKwargs=data, splitterKwargs=partition,
+    m = DM(dataKwargs=data, splitterKwargs=split,
            estimator=estimator, metrics=metrics,
            mlType='classification',
            validation=True,
