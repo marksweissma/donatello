@@ -191,24 +191,41 @@ class ScorerSupervised(Scorer):
         def append_in_place(store, name, df2):
             store[name] = store[name].append(df2)
 
-        # need to partition for multpile aggreagates !!!TODO
+        def _unwrap_multiple(df):
+            levels = df.columns.nlevels
+            current = levels - 1
+            if not current:
+                output = df
+            else:
+                output = {df.xs(key, level=current, axis=1) for key in set(df.columns.get_level_values(current))}
+           return output
+
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
-        scores = {self.get_metric_name(metric): outputs[self.get_metric_name(metric)]\
+        scores = {self.get_metric_name(metric): _unwrap_multiple(
+                                                outputs[self.get_metric_name(metric)]\
                                                .groupby(definition.get('key', ['_']))\
                                                .agg(definition.get('agg', pd.np.mean))\
                                                .sort_values(definition.get('sort', ['_']))
+                                               )
                   for metric, definition in metrics.items()
                   }
+
         # fix this, move to metric obj
         for metric, definition in metrics.items():
             callback = definition.get('callback', '')
             callbackKwargs = definition.get('callbackKwargs', {})
             name = self.get_metric_name(metric)
             func = callback if callable(callback) else getattr(self, callback, {})
-            scores[name] = func(scores[name], **callbackKwargs) if func else scores[name]
+            information =  scores[name]
+            # fix this with dispatch
+            if isinstance(information, dict):
+                _hold = {agg: func(df, **callbackKwargs) if func else df agg, df in information.items()}
+            else:
+                _hold = func(information, **callbackKwargs) if func else information
+            scores[name] = _hold
 
         return scores
 
@@ -273,6 +290,18 @@ class ScorerClassification(ScorerSupervised):
                               index=range(spacing))
         return output
 
+    def build_threshold_rates(self, df):
+        levels = df.columns.nlevels
+        current = levels - 1
+        if levels == 1:
+            output = self._build_threshold_rates(df)
+        else:
+            output = {df.xs(key, level=current, axis=1) for key in set(df.columns.get_level_values(current))}
+            for key in set(df.columns.get_level_values(current)):
+                dfSlice = df.xs(key, level=current, axis=1)
+                output[key] = self.build_threshold_rates(dfSlice)
+        return output
+
     @staticmethod
     def build_threshold_rates(df):
         df = df.apply(lambda x: x / np.sum(x))
@@ -284,9 +313,7 @@ class ScorerClassification(ScorerSupervised):
         df['negative_predictive_value'] = df.true_negative / (df.true_negative + df.false_negative)
         df['fall_out'] = 1 - df.specificity
         df['false_discovery_rate'] = 1 - df.precision
-
         return df
-
 
 class ScorerRegression(ScorerSupervised):
     """

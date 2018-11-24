@@ -33,7 +33,8 @@ def load_sklearn_bc_declaration():
                                                      'sort': 'coefficients'}),
                'threshold_rates': defaultdict(dict, {'key': 'thresholds',
                                                      'sort': 'thresholds',
-                                                     'callback': 'build_threshold_rates'})
+                                                     'agg': ['mean', 'std'],
+                                                     'callback': 'build_threshold_rates'}),
                }
 
     m = DM(dataKwargs=data, splitterKwargs=partition,
