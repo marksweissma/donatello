@@ -192,13 +192,18 @@ class ScorerSupervised(Scorer):
         def append_in_place(store, name, df2):
             store[name] = store[name].append(df2)
 
-        def _unwrap_multiple(df):
+        def _option_sort(df, sort):
+            df = df.sort_values(sort) if sort else df
+            return df
+
+        def _unwrap_multiple(df, definitionSort):
             levels = df.columns.nlevels
             current = levels - 1
             if not current:
                 output = df
             else:
-                output = {key: df.xs(key, level=current, axis=1) for key in set(df.columns.get_level_values(current))}
+                output = {key: _option_sort(df.xs(key, level=current, axis=1), definitionSort)
+                          for key in set(df.columns.get_level_values(current))}
             return output
 
         for fold, df in scored.groupby('fold'):
@@ -208,8 +213,8 @@ class ScorerSupervised(Scorer):
         scores = {self.get_metric_name(metric): _unwrap_multiple(
                                                 outputs[self.get_metric_name(metric)]\
                                                .groupby(definition.get('key', ['_']))\
-                                               .agg(definition.get('agg', pd.np.mean))\
-                                               .sort_values(definition.get('sort', ['_']))
+                                               .agg(definition.get('agg', pd.np.mean)),
+                                               definition.get('sort', None)
                                                )
                   for metric, definition in metrics.items()
                   }
