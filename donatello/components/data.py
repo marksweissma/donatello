@@ -113,10 +113,12 @@ class DataRegression(Data):
 
 @decorator
 def package_data(wrapped, instance, args, kwargs):
+    """
+    Package X (and y if supervised) in Data object via mlType
+    """
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
     data = kwargs.pop('data', None)
-
 
     if data is None and X is None:
         data = instance.data
