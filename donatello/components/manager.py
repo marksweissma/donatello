@@ -7,7 +7,7 @@ from sklearn import clone
 from sklearn.base import BaseEstimator as _BaseEstimator
 from sklearn.utils import Bunch
 
-from donatello.components.data import Data, DataClassification, DataRegression
+from donatello.components.data import Data
 from donatello.components.splitter import Splitter
 from donatello.components.hook import Local
 from donatello.components.scorer import (Scorer,
@@ -49,10 +49,7 @@ class DM(Dobject, _BaseEstimator):
                  metrics=None, hookKwargs=None,
                  storeReferences=True,
                  mlType='classification',
-                 typeDispatch= {'data': {'classification': DataClassification,
-                                          'regression': DataRegression
-                                          },
-                                 'scorer': {'classification': ScorerClassification,
+                 typeDispatch= {'scorer': {'classification': ScorerClassification,
                                             'regression': ScorerRegression
                                            },
                                  'splitter': Splitter,
@@ -136,7 +133,7 @@ class DM(Dobject, _BaseEstimator):
     @data.setter
     def data(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        self._data = self.typeDispatch.get('data').get(self.mlType)(**kwargs)
+        self._data = Data(**kwargs)
 
     @property
     def splitter(self):

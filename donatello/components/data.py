@@ -1,10 +1,15 @@
 import pandas as pd
-from functools import wraps
 from sklearn.model_selection import KFold, StratifiedKFold
 from donatello.utils.base import Dobject
 from donatello.utils.helpers import nvl
 from donatello.utils.decorators import decorator, init_time
 
+
+typeDispatch = {'splitter': {None: KFold,
+                             'classification': StratifiedKFold,
+                             'regression': KFold
+                             }
+                }
 
 class Data(Dobject):
     """
@@ -22,18 +27,19 @@ class Data(Dobject):
     @init_time
     def __init__(self, raws=None, queries=None,
                  etl=pd.read_csv, copyRaws=True,
-                 X=None, y=None,
-                 splitType=None,
+                 X=None, y=None, mlType=None,
+                 typeDispatch=typeDispatch,
                  splitKwargs={'n_splits': 5,
                               'shuffle': True,
-                              'random_state': 22},
+                              'random_state': 22}
                  ):
 
         self.copyRaws = copyRaws
         self.link(raws, X, y)
         self.queries = queries
         self.etl = etl
-        self.splitter = splitType(**splitKwargs)
+        self.typeDispatch = typeDispatch
+        self.splitter = typeDispatch.get('splitter').get(mlType)(**splitKwargs)
 
     @property
     def contents(self):
@@ -96,21 +102,6 @@ class Data(Dobject):
     def next(self):
         return self.__next__
 
-
-class DataClassification(Data):
-    def __init__(self, splitType=StratifiedKFold, **kwargs):
-        payload = kwargs
-        payload.update({'splitType': splitType})
-        super(DataClassification, self).__init__(**payload)
-
-
-class DataRegression(Data):
-    def __init__(self, splitType=KFold, **kwargs):
-        payload = kwargs
-        payload.update({'splitType': splitType})
-        super(DataRegression, self).__init__(**payload)
-
-
 @decorator
 def package_data(wrapped, instance, args, kwargs):
     """
@@ -124,13 +115,7 @@ def package_data(wrapped, instance, args, kwargs):
         data = instance.data
     elif X is not None:
         mlType = getattr(instance, '_mlType', None)
-        if mlType == 'Classification':
-            data = DataClassification(X=X, y=y)
-        elif mlType == 'Regression':
-            data = DataRegression(X=X, y=y)
-        else:
-            data = Data(X=X, y=y)
-
+        data = Data(X=X, y=y, mlType=mlType)
     if not data.hasContents and data.queries:
         data.execute_queries(data.queries)
 

@@ -197,8 +197,8 @@ class ScorerSupervised(Scorer):
             if not current:
                 output = df
             else:
-                output = {df.xs(key, level=current, axis=1) for key in set(df.columns.get_level_values(current))}
-           return output
+                output = {key: df.xs(key, level=current, axis=1) for key in set(df.columns.get_level_values(current))}
+            return output
 
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics)
@@ -222,7 +222,7 @@ class ScorerSupervised(Scorer):
             information =  scores[name]
             # fix this with dispatch
             if isinstance(information, dict):
-                _hold = {agg: func(df, **callbackKwargs) if func else df agg, df in information.items()}
+                _hold = {agg: func(df, **callbackKwargs) if func else df for df, agg in information.items()}
             else:
                 _hold = func(information, **callbackKwargs) if func else information
             scores[name] = _hold
@@ -253,7 +253,7 @@ class ScorerClassification(ScorerSupervised):
     """
     Scorer for classifcation models
     """
-    _mlType = 'Classification'
+    _mlType = 'classification'
 
     def __init__(self, thresholds=None, spacing=101, splitType=StratifiedKFold, **kwargs):
         payload = kwargs
@@ -319,7 +319,7 @@ class ScorerRegression(ScorerSupervised):
     """
     Scorer for regression models
     """
-    _mlType = 'Regression'
+    _mlType = 'regression'
 
     def __init__(self, splitType=KFold, **kwargs):
         payload = kwargs
