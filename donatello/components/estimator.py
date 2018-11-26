@@ -39,7 +39,7 @@ class Estimator(BaseTransformer):
 
         self.transformer = nvl(transformer, Selector(reverse=True))
         self.model = model
-        self._mlType = mlType
+        self.mlType = mlType
         self._typeDispatch = typeDispatch
 
         self.paramGrid = paramGrid
@@ -47,16 +47,6 @@ class Estimator(BaseTransformer):
         self.timeFormat = timeFormat
 
         self.declaration = self.get_params()
-
-# Read only attributes and magic methods
-    @property
-    def name(self):
-        """
-        Name of object, defaults to class name + model name
-        """
-        name = "_".join([self.__class__.__name__,
-                         self.model.__class__.__name__])
-        return name
 
     @property
     def declaration(self):
@@ -68,12 +58,6 @@ class Estimator(BaseTransformer):
     @declaration.setter
     def declaration(self, value):
         self._declaration = value
-
-    def __repr__(self):
-        rep = ['{model} created at {time}'.format(model=self.name,
-                                                  time=self._initTime),
-               super(BaseTransformer, self).__repr__()]
-        return "\n --- \n **sklearn repr** \n --- \n".join(rep)
 
     @property
     def mlType(self):

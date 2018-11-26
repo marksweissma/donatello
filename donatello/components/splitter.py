@@ -16,7 +16,6 @@ class Splitter(BaseTransformer):
     :param bool stratifyTarget: option to startify over the target
     :param list attrs: attributes to package for return
     :param dict testKwargs: kwargs for :py:func:`sklearn.model_selection.train_test_split`
-    :param int _maxStratification: flag to auto stratify
     """
     def __init__(self,
                  target=None,
@@ -25,7 +24,7 @@ class Splitter(BaseTransformer):
                  stratifyTarget=True,
                  testKwargs={'random_state': 42, 'test_size': .25},
                  attrs=['Train', 'Test', 'Data'],
-                 _maxStratification=50,
+                 mlType=None,
                  timeFormat="%Y_%m_%d_%H_%M",
                  ):
 
@@ -36,7 +35,6 @@ class Splitter(BaseTransformer):
         self.stratifyTarget = stratifyTarget
         self.testKwargs = testKwargs
         self.attrs = attrs
-        self._maxStratification = _maxStratification
 
     def fit(self, data=None, target=None, contentKey=None, **fitParams):
         """
@@ -52,8 +50,7 @@ class Splitter(BaseTransformer):
         target = nvl(target, self.target)
 
 
-        condition = self.stratifyTarget and len(df[target].unique()) <  self._maxStratification
-        self.testKwargs.update({'stratify': df[target]}) if condition else None
+        self.testKwargs.update({'stratify': df[target]}) if self.mlType == 'classification' else None
 
         values = df[self.splitOver].unique() if self.splitOver else df.index
         self.trainIds, self.testIds = train_test_split(values, **self.testKwargs)
@@ -76,6 +73,7 @@ class Splitter(BaseTransformer):
         return designTrain, designTest
 
     # !!!TODO refactor this
+    @fallback(target)
     def transform(self, data=None, target=None, **fitParams):
         """
         Split data contents into design/target train/test/data
@@ -86,7 +84,7 @@ class Splitter(BaseTransformer):
         :rtype: dict
         """
         df = data.contents[self.contentKey] if self.contentKey else data.contents
-        target = nvl(target, self.target)
+        # target = nvl(target, self.target)
         designData = df.drop(target, axis=1) if target else df
         designTrain, designTest = self._split(df, self.splitOver if self.splitOver else 'index', target)
 

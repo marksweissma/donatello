@@ -119,3 +119,19 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None, **kwargs):
         return X
+
+    @property
+    def name(self):
+        """
+        Name of object, defaults to class name + model name
+        """
+        name = "_".join([self.__class__.__name__,
+                         self.model.__class__.__name__])
+        return name
+
+    def __repr__(self):
+        rep = ['{model} created at {time}'.format(model=self.name,
+                                                  time=self._initTime),
+               super(BaseTransformer, self).__repr__()]
+        return "\n --- \n **sklearn repr** \n --- \n".join(rep)
+

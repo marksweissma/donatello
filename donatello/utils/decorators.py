@@ -90,7 +90,7 @@ def coelesce(**defaults):
 
 def fallback(*defaults):
     """
-    Keyword arguemts of attribute to fallback to of object
+    Keyword arguments of attribute to fallback to of object
     """
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):

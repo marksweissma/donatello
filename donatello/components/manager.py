@@ -12,9 +12,9 @@ from donatello.components.splitter import Splitter
 from donatello.components.hook import Local
 from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
-                                         ScorerRegression)
+                                         ScorerSupervised)
 from donatello.utils.helpers import has_nested_attribute, nvl, now_string
-from donatello.utils.decorators import split_data, prepare_design
+from donatello.utils.decorators import split_data, prepare_design, fallback
 from donatello.utils.base import Dobject
 from donatello.components.data import package_data
 
@@ -52,7 +52,7 @@ class DM(Dobject, _BaseEstimator):
                  storeReferences=True,
                  mlType='classification',
                  typeDispatch= {'scorer': {'classification': ScorerClassification,
-                                            'regression': ScorerRegression
+                                            'regression': ScorerSupervised
                                            },
                                  'splitter': Splitter,
                                  'hook': Local
@@ -113,6 +113,7 @@ class DM(Dobject, _BaseEstimator):
         return self._data
 
     @data.setter
+    @fallback('mlType')
     def data(self, kwargs):
         kwargs = kwargs if kwargs else {}
         self._data = Data(**kwargs)
@@ -125,6 +126,7 @@ class DM(Dobject, _BaseEstimator):
         return self._splitter
 
     @splitter.setter
+    @fallback('mlType')
     def splitter(self, kwargs):
         kwargs = kwargs if kwargs else {}
         self._splitter = self.typeDispatch.get('splitter')(**kwargs)
@@ -137,6 +139,7 @@ class DM(Dobject, _BaseEstimator):
         return self._scorer
 
     @scorer.setter
+    @fallback('mlType')
     def scorer(self, kwargs):
         kwargs = kwargs if kwargs else {}
         self._scorer = self.typeDispatch.get('scorer').get(self.mlType)(**kwargs)

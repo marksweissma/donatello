@@ -1,6 +1,48 @@
 import pandas as pd
 
 
+def has(obj, attr, slicers):
+    """
+    """
+    condition = attr in obj if isinstance(obj, slicers) else hasattr(obj, attr)
+    return condition
+
+def _get(obj, attr, slicers):
+     value = obj[attr] if isinstance(obj, slicers) else getattr(obj, attr)
+     return value
+
+def get(obj, attr, slicers, errors, default):
+    """
+    Get from object
+    """
+    condition = (errors == 'raise') or has(obj, attr, slicers)
+    value = _get(obj, attr, slicers) if condition else default
+    return value
+
+
+def access(obj=None, attrPath=None,
+           method=None, methodArgs=None, methodKwargs=None,
+           cb=None, cbArgs=None, cbKwargs=None,
+           slicers=(dict, list, tuple, pd.np.ndarray, pd.Series, pd.DataFrame),
+           default=None, errors='raise'):
+
+        if not attrPath:
+            obj = obj if not method else getattr(obj, method)(*methodArgs, **methodKwargs)
+            value = obj if not cb else cb(obj, *cbArgs, **cbKwargs)
+
+        else:
+            head, tail = attrPath[0], attrPath[1:]
+
+            obj = get(obj, head, slicers, errors, default)
+
+            value = access(obj, attrPath=tail,
+                           method=method, methodArgs=methodArgs, methodKwargs=methodKwargs,
+                           cb=cb, cbArgs=cbArgs, cbKwargs=cbKwargs,
+                           slicers=slicers, errors=errors, default=default)
+
+        return value
+
+
 def now_string(strFormat="%Y_%m_%d_%H_%M"):
     """
     Pandas formatted string from time
@@ -69,3 +111,5 @@ def get_nested_attribute(obj, attrPath, separator='_'):
                              )
     else:
         return _get_nested_attribute(obj, attrPath, separator)
+
+

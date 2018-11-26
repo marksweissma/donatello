@@ -11,13 +11,14 @@ typeDispatch = {'splitter': {None: KFold,
                              }
                 }
 
+
 class Data(Dobject):
     """
     Object for managing data and helping prevent leakage
 
     :param obj raws: raw data
     :param dict queries: queries to execute to fetch data if not directly passed
-    :param func etl: default function to execute queries
+    :param func querier: default function to execute queries
     :param bool copyRaws: option to have contents return copy of raws to preserve fetch
     :param obj X: option to specify design directly
     :param obj y: option to specify target directly
@@ -26,7 +27,7 @@ class Data(Dobject):
     """
     @init_time
     def __init__(self, raws=None, queries=None,
-                 etl=pd.read_csv, copyRaws=True,
+                 querier=pd.read_csv, copyRaws=True,
                  X=None, y=None, mlType=None,
                  typeDispatch=typeDispatch,
                  splitKwargs={'n_splits': 5,
@@ -35,9 +36,10 @@ class Data(Dobject):
                  ):
 
         self.copyRaws = copyRaws
+        self.mlType = mlType
         self.link(raws, X, y)
         self.queries = queries
-        self.etl = etl
+        self.querier = querier
         self.typeDispatch = typeDispatch
         self.splitter = typeDispatch.get('splitter').get(mlType)(**splitKwargs)
 
@@ -72,15 +74,15 @@ class Data(Dobject):
         else:
             self.raws = raws
 
-    def execute_queries(self, queries=None, etl=None):
+    def execute_queries(self, queries=None, querier=None):
         for name, query in queries.iteritems():
-            etl = query['etl'] if 'etl' in query else nvl(etl, self.etl)
+            querier = query['querier'] if 'querier' in query else nvl(querier, self.querier)
             # Don't pop to prevent mutation
-            payload = {i: j for i, j in query.iteritems() if i != 'etl'}
+            payload = {i: j for i, j in query.iteritems() if i != 'querier'}
             if len(queries) == 1:
-                self.raws = etl(**payload)
+                self.raws = querier(**payload)
             else:
-                self.raws[name] = etl(**payload)
+                self.raws[name] = querier(**payload)
 
     def unpack_splits(self, splitResults):
         for attr, result in splitResults.iteritems():
