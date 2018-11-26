@@ -61,7 +61,6 @@ def pandas_series(wrapped, instance, args, kwargs):
 
 @decorator
 def pandas_df(wrapped, instance, args, kwargs):
-# def pandas_df(func):
     """
     Enforce output as :py:class:`pandas.DataFrame`
     """
@@ -76,41 +75,6 @@ def pandas_df(wrapped, instance, args, kwargs):
     return result
 
 
-# @decorator
-#@fallback()
-# def grid_search(wrapped, instance, args, kwargs):
-    # """
-    # Grid search of hyperparameter space
-
-    # Instantates search through `obj.GridType` constructor call
-
-    # Stores `gridSearch` attribute with object
-    # """
-    # X = args[0]
-    # y = kwargs.pop('y', None)
-
-    # gridSearch = kwargs.pop('gridSearch', None)
-    # paramGrid = kwargs.pop('paramGrid', None)
-    # gridKwargs = kwargs.pop('gridKwargs', None)
-
-    # paramGrid = nvl(paramGrid, instance.paramGrid)
-    # gridKwargs = nvl(gridKwargs, instance.gridKwargs)
-    # print 'pre search'
-    # print gridSearch
-    # print paramGrid
-
-    # if gridSearch and paramGrid:
-        # from sklearn.model_selection import GridSearchCV
-        # instance.gridSearch = GridSearchCV(estimator=instance,
-                                           # param_grid=paramGrid,
-                                           # **gridKwargs)
-        # instance.gridSearch.fit(X, y=y, gridSearch=False)
-        # instance.set_params(**instance.gridSearch.best_params_)
-
-    # print 'post search'
-    # result = wrapped(X, y=y, **kwargs)
-    # return result
-
 def coelesce(**defaults):
     """
     Key value pairs to enforce null value logic
@@ -118,7 +82,7 @@ def coelesce(**defaults):
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):
         for key, default in defaults.items():
-            kwargs[key] = nvl(kwargs.get(key, None), default)
+            kwargs[key] = kwargs.get(key, default)
         result = wrapped(*args, **kwargs)
         return result
     return _wrapper
@@ -131,7 +95,7 @@ def fallback(*defaults):
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):
         for default in defaults:
-            kwargs[default] = nvl(kwargs.get(default, None), getattr(instance, default, None))
+            kwargs[default] = kwargs.get(default, getattr(instance, default, None))
         result = wrapped(*args, **kwargs)
         return result
     return _wrapper
