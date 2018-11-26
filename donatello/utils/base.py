@@ -9,9 +9,22 @@ class Dobject(object):
     """
     __meta__ = ABCMeta
 
-    @abstractproperty
     def name(self):
         return self.__class__.__name__
+
+    @property
+    def mlType(self):
+        """
+        Define type of learning
+            #. regression
+            #. classificaiton
+            #. clustering
+       """
+        return self._mlType
+
+    @mlType.stter
+    def mlType(self, value):
+        self._mlType = value
 
     def __repr__(self):
         time = getattr(self, '_initTime', '[no_init_time]')

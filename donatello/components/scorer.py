@@ -19,6 +19,7 @@ from donatello.components.data import package_data
 class Scorer(Dobject):
     @init_time
     def __init__(self,
+                 mlType=None,
                  splitType=None,
                  splitKwargs={'n_splits': 5,
                               'shuffle': True,
@@ -30,6 +31,7 @@ class Scorer(Dobject):
                  ):
 
         # Preserve Args
+        self.mlType = mlType
         self.splitType = splitType
         self.splitKwargs = splitKwargs
         self.gridSearchFlag = gridSearchFlag
@@ -213,7 +215,7 @@ class ScorerSupervised(Scorer):
         scores = {self.get_metric_name(metric): _unwrap_multiple(
                                                 outputs[self.get_metric_name(metric)]\
                                                .groupby(definition.get('key', ['_']))\
-                                               .agg(definition.get('agg', pd.np.mean)),
+                                               .agg(definition.get('agg', ['mean', 'std'])),
                                                definition.get('sort', None)
                                                )
                   for metric, definition in metrics.items()
@@ -259,8 +261,6 @@ class ScorerClassification(ScorerSupervised):
     """
     Scorer for classifcation models
     """
-    _mlType = 'classification'
-
     def __init__(self, thresholds=None, spacing=101, splitType=StratifiedKFold, **kwargs):
         payload = kwargs
         payload.update({'splitType': splitType})
@@ -305,18 +305,6 @@ class ScorerClassification(ScorerSupervised):
         df['fall_out'] = 1 - df.specificity
         df['false_discovery_rate'] = 1 - df.precision
         return df
-
-
-class ScorerRegression(ScorerSupervised):
-    """
-    Scorer for regression models
-    """
-    _mlType = 'regression'
-
-    def __init__(self, splitType=KFold, **kwargs):
-        payload = kwargs
-        payload.update({'splitType': splitType})
-        super(ScorerClassification, self).__init__(**payload)
 
 
 class ScorerUnsupervised(Scorer):

@@ -25,6 +25,8 @@ class DM(Dobject, _BaseEstimator):
     component objects attached via property setters. Other parameters
     attached directly.
 
+    Manager accessors will fallback to accessing from estimator attributes
+
     :param dict dataKwargs: :py:class:`donatello.Data`
     :param dict splitterKwargs: arguments for :py:class:`donatello.Splitter`
     :param object combiner: object with fit_transform method to\
@@ -66,7 +68,7 @@ class DM(Dobject, _BaseEstimator):
         self.scorerKwargs = scorerKwargs
         self.hookKwargs = hookKwargs
 
-        self._mlType = mlType
+        self.mlType = mlType
         self.typeDispatch = typeDispatch
         self.metrics = metrics
         self.combiner = combiner
@@ -90,26 +92,6 @@ class DM(Dobject, _BaseEstimator):
         self._references = {}
         self.declaration = self.get_params(deep=False)
         self.scores = Bunch()
-
-    # state
-    @property
-    def mlType(self):
-        """
-        Define type of learning
-            #. Regression
-            #. Classificaiton
-            #. Clustering
-       """
-
-        return self._mlType
-
-    @property
-    def name(self):
-        """
-        Name of type
-        """
-        name = self.__class__.__name__
-        return name
 
     @property
     def declaration(self):

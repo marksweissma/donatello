@@ -17,17 +17,12 @@ def _load_sklearn_bc_dataset():
                       )
     return df
 
-def load_sklearn_bc_declaration():
-    """
-    Helper function to load declaration for sklearn
-    breast cancer data set to classify malignancy
-    """
-    df = _load_sklearn_bc_dataset()
-    data = {'raws': df}
+def load_declaration():
+    data = {'queries': {}, 'etl': _load_sklearn_bc_dataset}
     split = {'target': 'is_malignant'}
-    estimator = Estimator(model=LogisticRegression(),
-                          paramGrid={'model__C': pd.np.logspace(-2, 0, 10)},
-                          gridKwargs={'scoring': 'roc_auc', 'cv': 5},
+    estimator = Estimator(modelType=LogisticRegression,
+                          paramGrid={'model__C': list(pd.np.logspace(-2, 0, 10))},
+                          gridKwargs={'scoring': 'f1', 'cv': 5},
                           mlType='classification'
                           )
 
@@ -35,17 +30,28 @@ def load_sklearn_bc_declaration():
                average_precision_score: defaultdict(dict),
                'feature_weights': defaultdict(dict, {'key': 'names',
                                                      'sort': 'coefficients',
-                                                     'agg': ['mean', 'std']
                                                      }),
                'threshold_rates': defaultdict(dict, {'key': 'thresholds',
                                                      'sort': 'thresholds',
-                                                     'agg': ['mean', 'std']
                                                      })
                }
 
-    m = DM(dataKwargs=data, splitterKwargs=split,
-           estimator=estimator, metrics=metrics,
-           mlType='classification',
-           validation=True,
-           holdOut=True)
+    declaration = {'dataKwargs': data,
+                   'splitterKwargs': split,
+                   'estimator': estimator,
+                   'metrics': metrics,
+                   'mlType': 'classification',
+                   'validation': True,
+                   'holdOut': True
+                   }
+
+    return declaration
+
+
+def load_sklearn_bc_declaration(declaration=load_declaration()):
+    """
+    Helper function to load declaration for sklearn
+    breast cancer data set to classify malignancy
+    """
+    m = DM(**declaration)
     return m
