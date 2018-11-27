@@ -9,6 +9,7 @@ class Dobject(object):
     """
     __meta__ = ABCMeta
 
+    @property
     def name(self):
         return self.__class__.__name__
 
@@ -22,7 +23,7 @@ class Dobject(object):
        """
         return self._mlType
 
-    @mlType.stter
+    @mlType.setter
     def mlType(self, value):
         self._mlType = value
 

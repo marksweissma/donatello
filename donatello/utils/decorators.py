@@ -99,3 +99,18 @@ def fallback(*defaults):
         result = wrapped(*args, **kwargs)
         return result
     return _wrapper
+
+
+def update(**defaults):
+    """
+    update first arg payload with attr from obj
+    """
+    @decorator
+    def _wrapper(wrapped, instance, args, kwargs):
+        args = list(args)
+        for default, index in defaults.items():
+            args[index] = args[index] if args[index] else {}
+            args[index][default] = args[index][default] if default in args[index] else getattr(instance, default, None)
+        result = wrapped(*tuple(args), **kwargs)
+        return result
+    return _wrapper

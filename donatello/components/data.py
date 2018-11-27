@@ -36,7 +36,7 @@ class Data(Dobject):
                  ):
 
         self.copyRaws = copyRaws
-        self.mlType = mlType
+        self._mlType = mlType
         self.link(raws, X, y)
         self.queries = queries
         self.querier = querier
@@ -47,7 +47,7 @@ class Data(Dobject):
     def contents(self):
         value = getattr(self, '_contents', None)
         if value is None:
-            if self.copyRaws:
+            if self.copyRaws and self.raws is not None:
                 value = self.raws.copy()
             else:
                 value = self.raws
@@ -77,7 +77,6 @@ class Data(Dobject):
     def execute_queries(self, queries=None, querier=None):
         for name, query in queries.iteritems():
             querier = query['querier'] if 'querier' in query else nvl(querier, self.querier)
-            # Don't pop to prevent mutation
             payload = {i: j for i, j in query.iteritems() if i != 'querier'}
             if len(queries) == 1:
                 self.raws = querier(**payload)
@@ -112,13 +111,15 @@ def package_data(wrapped, instance, args, kwargs):
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
     data = kwargs.pop('data', None)
+    import ipdb; ipdb.set_trace()
 
     if data is None and X is None:
         data = instance.data
     elif X is not None:
         mlType = getattr(instance, '_mlType', None)
         data = Data(X=X, y=y, mlType=mlType)
-    if not data.hasContents and data.queries:
+
+    if not data.hasContents and data.queries is not None:
         data.execute_queries(data.queries)
 
     result = wrapped(data=data, **kwargs)

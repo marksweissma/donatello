@@ -1,6 +1,7 @@
 from sklearn.model_selection import train_test_split
 from donatello.utils.base import BaseTransformer
 from donatello.utils.helpers import now_string, nvl
+from donatello.utils.decorators import fallback
 
 
 class Splitter(BaseTransformer):
@@ -73,7 +74,7 @@ class Splitter(BaseTransformer):
         return designTrain, designTest
 
     # !!!TODO refactor this
-    @fallback(target)
+    @fallback('target')
     def transform(self, data=None, target=None, **fitParams):
         """
         Split data contents into design/target train/test/data

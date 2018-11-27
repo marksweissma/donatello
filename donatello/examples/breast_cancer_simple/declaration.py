@@ -18,9 +18,9 @@ def _load_sklearn_bc_dataset():
     return df
 
 def load_declaration():
-    data = {'queries': {}, 'etl': _load_sklearn_bc_dataset}
+    data = {'queries': {None: {'querier': _load_sklearn_bc_dataset}}}
     split = {'target': 'is_malignant'}
-    estimator = Estimator(modelType=LogisticRegression,
+    estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': list(pd.np.logspace(-2, 0, 10))},
                           gridKwargs={'scoring': 'f1', 'cv': 5},
                           mlType='classification'

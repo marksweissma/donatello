@@ -14,7 +14,7 @@ from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
                                          ScorerSupervised)
 from donatello.utils.helpers import has_nested_attribute, nvl, now_string
-from donatello.utils.decorators import split_data, prepare_design, fallback
+from donatello.utils.decorators import split_data, prepare_design
 from donatello.utils.base import Dobject
 from donatello.components.data import package_data
 
@@ -113,9 +113,9 @@ class DM(Dobject, _BaseEstimator):
         return self._data
 
     @data.setter
-    @fallback('mlType')
     def data(self, kwargs):
         kwargs = kwargs if kwargs else {}
+        kwargs.update({'mlType': self.mlType}) if 'mlType' not in kwargs else None
         self._data = Data(**kwargs)
 
     @property
@@ -126,9 +126,9 @@ class DM(Dobject, _BaseEstimator):
         return self._splitter
 
     @splitter.setter
-    @fallback('mlType')
     def splitter(self, kwargs):
         kwargs = kwargs if kwargs else {}
+        kwargs.update({'mlType': self.mlType}) if 'mlType' not in kwargs else None
         self._splitter = self.typeDispatch.get('splitter')(**kwargs)
 
     @property
@@ -139,9 +139,9 @@ class DM(Dobject, _BaseEstimator):
         return self._scorer
 
     @scorer.setter
-    @fallback('mlType')
     def scorer(self, kwargs):
         kwargs = kwargs if kwargs else {}
+        kwargs.update({'mlType': self.mlType}) if 'mlType' not in kwargs else None
         self._scorer = self.typeDispatch.get('scorer').get(self.mlType)(**kwargs)
 
     @property

@@ -39,7 +39,7 @@ class Estimator(BaseTransformer):
 
         self.transformer = nvl(transformer, Selector(reverse=True))
         self.model = model
-        self.mlType = mlType
+        self._mlType = mlType
         self._typeDispatch = typeDispatch
 
         self.paramGrid = paramGrid
