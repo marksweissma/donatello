@@ -25,6 +25,20 @@ def access(obj=None, attrPath=None,
            default=None, errors='raise'):
     """
     Access information from nested object
+
+    :param object obj: object to access from
+    :param list attrPath: sequence of traversal
+    :param str method: (optional) method to call at end of path
+    :param tuple methodArgs: positional args for method 
+    :param tuple methodKwargs: keyword args for method 
+    :param str cb: (optional) cb to call at end of path
+    :param tuple cbArgs: positional args for cb 
+    :param tuple cbKwargs: keyword args for cb 
+    :param tuple slicers: object types to use ``__getitem__`` slice rather than getattr
+    :param obj default: option to return default (if not rasiing errors)
+    :param str errors: option to raise errors ('raise') or ignore ('ignore')
+
+    :return: value of given prescription
     """
 
     if not attrPath:
@@ -112,3 +126,9 @@ def get_nested_attribute(obj, attrPath, separator='_'):
                              )
     else:
         return _get_nested_attribute(obj, attrPath, separator)
+
+
+# dispatch on shape make registers :/
+def reformat_aggs(d, sort=sorted, idx=0):
+    information = [pd.Series(value.columns[idx], name=key) for key, value in sort(d.items())]
+    return pd.concat(information, axis=1)

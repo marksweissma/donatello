@@ -17,8 +17,11 @@ def _load_sklearn_bc_dataset():
                       )
     return df
 
-def load_declaration():
-    data = {'queries': {None: {'querier': _load_sklearn_bc_dataset}}}
+def load_declaration(asDf=False):
+    if asDf:
+        data = {'raws': _load_sklearn_bc_dataset()}
+    else:
+        data = {'queries': {None: {'querier': _load_sklearn_bc_dataset}}}
     split = {'target': 'is_malignant'}
     estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': list(pd.np.logspace(-2, 0, 10))},
@@ -48,10 +51,11 @@ def load_declaration():
     return declaration
 
 
-def load_sklearn_bc_declaration(declaration=load_declaration()):
+def load_sklearn_bc_declaration(asDf=False):
     """
     Helper function to load declaration for sklearn
     breast cancer data set to classify malignancy
     """
+    declaration=load_declaration(asDf)
     m = DM(**declaration)
     return m

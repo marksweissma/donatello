@@ -75,13 +75,29 @@ class Data(Dobject):
             self.raws = raws
 
     def execute_queries(self, queries=None, querier=None):
-        for name, query in queries.iteritems():
-            querier = query['querier'] if 'querier' in query else nvl(querier, self.querier)
-            payload = {i: j for i, j in query.iteritems() if i != 'querier'}
-            if len(queries) == 1:
-                self.raws = querier(**payload)
-            else:
-                self.raws[name] = querier(**payload)
+        """
+        Execute data extraction via cascading querying dependencies
+        Attaches return to :py:attr:`Data.raws`, which can be
+        accessed via py:attr:`Data.contents`
+
+        :param dict queries: payload of queries
+        :param func querier: option to specify executor at the execution\
+                level rather than the query level
+        """
+
+
+        if not queries:
+            self.raws = nvl(querier, self.querier)
+
+        else:
+            for name, query in queries.iteritems():
+                querier = query.get('querier', nvl(querier, self.querier))
+
+                payload = {i: j for i, j in query.iteritems() if i != 'querier'}
+                if len(queries) == 1:
+                    self.raws = querier(**payload)
+                else:
+                    self.raws[name] = querier(**payload)
 
     def unpack_splits(self, splitResults):
         for attr, result in splitResults.iteritems():
