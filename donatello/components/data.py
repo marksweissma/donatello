@@ -111,7 +111,6 @@ def package_data(wrapped, instance, args, kwargs):
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
     data = kwargs.pop('data', None)
-    import ipdb; ipdb.set_trace()
 
     if data is None and X is None:
         data = instance.data

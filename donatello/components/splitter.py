@@ -36,6 +36,7 @@ class Splitter(BaseTransformer):
         self.stratifyTarget = stratifyTarget
         self.testKwargs = testKwargs
         self.attrs = attrs
+        self.mlType = mlType
 
     def fit(self, data=None, target=None, contentKey=None, **fitParams):
         """
