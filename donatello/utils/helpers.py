@@ -129,6 +129,13 @@ def get_nested_attribute(obj, attrPath, separator='_'):
 
 
 # dispatch on shape make registers :/
-def reformat_aggs(d, sort=sorted, idx=0):
-    information = [pd.Series(value.columns[idx], name=key) for key, value in sort(d.items())]
-    return pd.concat(information, axis=1)
+def reformat_aggs(d, idx=0, sortValues=None, indexName=None, filterNulls=.95):
+    information = [pd.Series(value[value.columns[idx]], name=key) for key, value in d.items()]
+    df = pd.concat(information, axis=1, sort=True)
+    df = df.sort_values(sortValues) if sortValues else df
+    if indexName:
+        df.index.name = indexName
+    if filterNulls:
+        rates = df.isnull().mean()
+        df = df.drop([column for column, rate in zip(df, rates) if rate > filterNulls], axis=1)
+    return df

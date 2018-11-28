@@ -130,12 +130,12 @@ class ScorerSupervised(Scorer):
 
             if callable(metric):
                 columnNames = definition.get('columnNames', ['score'])
-                _output = metric(scored.truth, scored.predicted, **definition['metricKwargs'])
+                _output = metric(scored.truth, scored.predicted, **definition.get('metricKwargs', {}))
                 output = pd.DataFrame([[1, _output]], columns=['_'] + columnNames)
 
             elif hasattr(self, metric):
                 payload = {'estimator': estimator, 'scored': scored}
-                payload.update(definition['kwargs'])
+                payload.update(definition.get('kwargs', {}))
                 output = getattr(self, metric)(**payload)
             else:
                 warn('metric {metric} inaccesible'.format(metric=metric))
@@ -227,13 +227,10 @@ class ScorerSupervised(Scorer):
             callbackKwargs = definition.get('callbackKwargs', {})
             name = self.get_metric_name(metric)
             func = callback if callable(callback) else getattr(self, callback, {})
-            information =  scores[name]
-            # fix this with dispatch
-            if isinstance(information, dict):
-                _hold = Bunch(**{agg: func(df, **callbackKwargs) if func else df for agg, df in information.items()})
-            else:
-                _hold = func(information, **callbackKwargs) if func else information
-            scores[name] = _hold
+            # if isinstance(information, dict):
+                # _hold = Bunch(**{agg: func(df, **callbackKwargs) if func else df for agg, df in information.items()})
+            # else:
+            scores.update({name: func(scores[name], **callbackKwargs)}) if func else None
 
         return scores
 

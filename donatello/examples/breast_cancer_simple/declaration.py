@@ -7,6 +7,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 
 from donatello.components.manager import DM
 from donatello.components.estimator import Estimator
+from donatello.utils.helpers import reformat_aggs
 
 
 def _load_sklearn_bc_dataset():
@@ -18,10 +19,7 @@ def _load_sklearn_bc_dataset():
     return df
 
 def load_declaration(asDf=False):
-    if asDf:
-        data = {'raws': _load_sklearn_bc_dataset()}
-    else:
-        data = {'queries': {None: {'querier': _load_sklearn_bc_dataset}}}
+    data = {'raws': _load_sklearn_bc_dataset()} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset}}}
     split = {'target': 'is_malignant'}
     estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': list(pd.np.logspace(-2, 0, 10))},
@@ -29,14 +27,19 @@ def load_declaration(asDf=False):
                           mlType='classification'
                           )
 
-    metrics = {roc_auc_score: defaultdict(dict),
-               average_precision_score: defaultdict(dict),
-               'feature_weights': defaultdict(dict, {'key': 'names',
-                                                     'sort': 'coefficients',
-                                                     }),
-               'threshold_rates': defaultdict(dict, {'key': 'thresholds',
-                                                     'sort': 'thresholds',
-                                                     })
+    metrics = {roc_auc_score: {},
+               average_precision_score: {},
+               'feature_weights': {'key': 'names',
+                                   'sort': 'coefficients',
+                                   'callback': reformat_aggs,
+                                   'agg': 'describe',
+                                   'callbackKwargs': {'sortValues': 'mean',
+                                                      'indexName': 'features'
+                                                       }
+                                    },
+               'threshold_rates': {'key': 'thresholds',
+                                   'sort': 'thresholds',
+                                   }
                }
 
     declaration = {'dataKwargs': data,
@@ -51,9 +54,9 @@ def load_declaration(asDf=False):
     return declaration
 
 
-def load_sklearn_bc_declaration(asDf=False):
+def load_dm(asDf=False):
     """
-    Helper function to load declaration for sklearn
+    Helper function to load donatello manager  for sklearn
     breast cancer data set to classify malignancy
     """
     declaration=load_declaration(asDf)
