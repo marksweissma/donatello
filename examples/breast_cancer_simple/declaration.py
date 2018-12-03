@@ -3,7 +3,6 @@ import pandas as pd
 
 from sklearn.datasets import load_breast_cancer
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import IsolationForest
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 from donatello.components.manager import DM
@@ -38,42 +37,6 @@ def load_declaration(asDf=False):
                                                       'indexName': 'features'
                                                        }
                                     },
-               'threshold_rates': {'key': 'thresholds',
-                                   'sort': 'thresholds',
-                                   }
-               }
-
-    declaration = {'dataKwargs': data,
-                   'splitterKwargs': split,
-                   'estimator': estimator,
-                   'metrics': metrics,
-                   'mlType': 'classification',
-                   'validation': True,
-                   'holdOut': True
-                   }
-
-    return declaration
-
-
-def load_declaration(asDf=False):
-    data = {'raws': _load_sklearn_bc_dataset()} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset}}}
-    split = {'target': 'is_malignant'}
-    estimator = Estimator(model=IsolationForest(),
-                          typeDispatch={'classification': {'method': 'decision_function', 'score': 'score_all'}},
-                          gridKwargs={'scoring': 'f1', 'cv': 5},
-                          mlType='classification'
-                          )
-
-    metrics = {roc_auc_score: {},
-               average_precision_score: {},
-               # 'feature_weights': {'key': 'names',
-                                   # 'sort': 'coefficients',
-                                   # 'callback': reformat_aggs,
-                                   # 'agg': 'describe',
-                                   # 'callbackKwargs': {'sortValues': 'mean',
-                                                      # 'indexName': 'features'
-                                                      # }
-                                   # },
                'threshold_rates': {'key': 'thresholds',
                                    'sort': 'thresholds',
                                    }

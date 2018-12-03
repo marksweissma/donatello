@@ -107,7 +107,7 @@ class Estimator(BaseTransformer):
         self.set_params(**self.gridSearch.best_params_)
 
     def grid_search(self, X, y=None, gridSearch=True,
-                    paramGrid=None, gridKwargs=None, xgbParamGrid=None):
+                    paramGrid=None, gridKwargs=None):
         """
         """
         paramGrid = nvl(paramGrid, self.paramGrid)
