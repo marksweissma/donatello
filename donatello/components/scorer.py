@@ -155,7 +155,6 @@ class ScorerSupervised(Scorer):
         estimators = {}
 
         for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(data):
-            print fold
             estimator = clone(estimator)
             estimator.fit(X=designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
             estimators[fold] = estimator

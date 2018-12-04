@@ -112,7 +112,6 @@ class Data(Dobject):
 
     def __iter__(self):
         kwargs = self.package_split_kwargs()
-        print kwargs
         for train, test in self.splitter.split(self.designData,
                                                self.targetData, **kwargs):
             results = [self.designData.iloc[train], self.designData.iloc[test]]
