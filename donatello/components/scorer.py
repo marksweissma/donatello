@@ -13,17 +13,13 @@ from sklearn.metrics import confusion_matrix
 from donatello.utils.helpers import nvl
 from donatello.utils.decorators import init_time
 from donatello.utils.base import Dobject
-from donatello.components.data import package_data
+from donatello.components.data import Data, package_data
 
 
 class Scorer(Dobject):
     @init_time
     def __init__(self,
                  mlType=None,
-                 splitType=None,
-                 splitKwargs={'n_splits': 5,
-                              'shuffle': True,
-                              'random_state': 22},
                  method=None,
                  gridSearchFlag=True,
                  verbose=True,
@@ -32,30 +28,15 @@ class Scorer(Dobject):
 
         # Preserve Args
         self.mlType = mlType
-        self.splitType = splitType
-        self.splitKwargs = splitKwargs
         self.gridSearchFlag = gridSearchFlag
         self.method = method
         self.verbose = verbose
-
-        self.splitter = splitKwargs
 
     @abstractproperty
     def name(self):
         name = self.__class__.__name__
         warn('Defaulting to *{name}*'.format(name=name))
         return name
-
-    @property
-    def splitter(self):
-        """
-        Splitter to create folds
-        """
-        return self._splitter
-
-    @splitter.setter
-    def splitter(self, splitKwargs):
-        self._splitter = self.splitType(**splitKwargs)
 
     def feature_weights(self, estimator=None, attr='', **kwargs):
         """
@@ -105,8 +86,6 @@ class ScorerSupervised(Scorer):
     """
     Base class for evaluating estimators and datasets
 
-    :param type splitType: Type of bject with :py:meth:`split` for cross val scoring
-    :param dict splitKwargs: arguments for splitType to instantiate :py:attr:`BaseScorer.splitter`
     :param str predict_method: method to call from estimator for predicting
     """
     def __init__(self,
@@ -114,7 +93,7 @@ class ScorerSupervised(Scorer):
                  **kwargs
                  ):
 
-        super(ScorerSupervised, self).__init__(method=method, **kwargs) 
+        super(ScorerSupervised, self).__init__(method=method, **kwargs)
 
     def _score(self, estimator, designTest, targetTest):
         yhat = getattr(estimator, self.method)(designTest)
@@ -177,7 +156,7 @@ class ScorerSupervised(Scorer):
 
         for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(data):
             estimator = clone(estimator)
-            estimator.fit(designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
+            estimator.fit(X=designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
             estimators[fold] = estimator
 
             _temp = self._score(estimator, designTest, targetTest)
@@ -204,8 +183,8 @@ class ScorerSupervised(Scorer):
             if not current:
                 output = df
             else:
-                output = {key: _option_sort(df.xs(key, level=current, axis=1), definitionSort)
-                          for key in set(df.columns.get_level_values(current))}
+                output = Bunch(**{key: _option_sort(df.xs(key, level=current, axis=1), definitionSort)
+                          for key in set(df.columns.get_level_values(current))})
             return output
 
         for fold, df in scored.groupby('fold'):
@@ -226,10 +205,7 @@ class ScorerSupervised(Scorer):
             callback = definition.get('callback', '')
             callbackKwargs = definition.get('callbackKwargs', {})
             name = self.get_metric_name(metric)
-            func = callback if callable(callback) else getattr(self, callback, {})
-            # if isinstance(information, dict):
-                # _hold = Bunch(**{agg: func(df, **callbackKwargs) if func else df for agg, df in information.items()})
-            # else:
+            func = callback if callable(callback) else None
             scores.update({name: func(scores[name], **callbackKwargs)}) if func else None
 
         return scores
@@ -258,10 +234,8 @@ class ScorerClassification(ScorerSupervised):
     """
     Scorer for classifcation models
     """
-    def __init__(self, thresholds=None, spacing=101, splitType=StratifiedKFold, **kwargs):
-        payload = kwargs
-        payload.update({'splitType': splitType})
-        super(ScorerClassification, self).__init__(**payload)
+    def __init__(self, thresholds=None, spacing=101, **kwargs):
+        super(ScorerClassification, self).__init__(**kwargs)
         self.thresholds = thresholds
         self.spacing = spacing
 
@@ -292,10 +266,10 @@ class ScorerClassification(ScorerSupervised):
                           columns=['thresholds', 'true_negative', 'false_positive', 'false_negative', 'true_positive'],
                           index=range(spacing))
 
-        df = df.apply(lambda x: x / np.sum(x))
+        df = df.set_index('thresholds').apply(lambda x: x / np.sum(x), axis=1).reset_index()
         df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
         df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
-        df['sensitivity'] = df.true_positive / (df.true_positive + df.false_negative)
+        df['recall'] = df.true_positive / (df.true_positive + df.false_negative)
         df['specificity'] = df.true_negative / (df.true_negative + df.false_positive)
         df['precision'] = df.true_positive / (df.true_positive + df.false_positive)
         df['negative_predictive_value'] = df.true_negative / (df.true_negative + df.false_negative)
