@@ -11,6 +11,7 @@ from donatello.components.manager import DM
 from donatello.components.estimator import Estimator
 from donatello.utils.transformers import Selector
 from donatello.utils.helpers import reformat_aggs
+from donatello.components.scorer import Scorer
 
 
 def _load_sklearn_bc_dataset(group=True):
@@ -24,10 +25,9 @@ def _load_sklearn_bc_dataset(group=True):
     return df
 
 
-def load_logit_declaration(group=True, asDf=False):
+def load_data_split(asDf, group):
     data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset, 'group': group}}}
     split = {'target': 'is_malignant'}
-
     if group:
         typeDispatch = {'splitter': {'classification': GroupKFold}}
         data.update({'typeDispatch': typeDispatch, 'groupKey': 'grouper',
@@ -35,6 +35,32 @@ def load_logit_declaration(group=True, asDf=False):
                      })
 
         split.update({'splitOver': 'grouper'})
+
+    return data, split
+
+def load_metrics(metrics=None, featureName='coefficients'):
+    _metrics = {roc_auc_score: {},
+                average_precision_score: {},
+                'feature_weights': {'key': 'names',
+                                    'sort': featureName,
+                                    'callback': reformat_aggs,
+                                    'agg': 'describe',
+                                    'callbackKwargs': {'sortValues': 'mean',
+                                                       'indexName': 'features'
+                                                       }
+                                    },
+                'threshold_rates': {'key': 'thresholds',
+                                    'sort': 'thresholds',
+                                    }
+                }
+
+    _filter = Scorer()
+    metrics = {i: j for i, j in _metrics.items() if _filter.get_metric_name(i) in metrics} if metrics else _metrics
+    return metrics
+
+def load_logit_declaration(group=True, asDf=False, metrics=None):
+
+    data, split = load_data_split(asDf, group)
 
     estimator = Estimator(model=LogisticRegression(),
                           transformer=Selector(['grouper'], reverse=True),
@@ -43,21 +69,7 @@ def load_logit_declaration(group=True, asDf=False):
                           mlType='classification'
                           )
 
-    metrics = {roc_auc_score: {},
-               average_precision_score: {},
-               'feature_weights': {'key': 'names',
-                                   'sort': 'coefficients',
-                                   'callback': reformat_aggs,
-                                   'agg': 'describe',
-                                   'callbackKwargs': {'sortValues': 'mean',
-                                                      'indexName': 'features'
-                                                      }
-                                   },
-               'threshold_rates': {'key': 'thresholds',
-                                   'sort': 'thresholds',
-                                   }
-               }
-
+    metrics = load_metrics(metrics)
     declaration = {'dataKwargs': data,
                    'splitterKwargs': split,
                    'estimator': estimator,
@@ -70,40 +82,17 @@ def load_logit_declaration(group=True, asDf=False):
     return declaration
 
 
-def load_random_forest_declaration(group=True, asDf=True):
+def load_random_forest_declaration(group=True, asDf=True, metrics=None):
+    data, split = load_data_split(asDf, group)
 
-    data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset, 'group': group}}}
-    split = {'target': 'is_malignant'}
-
-    if group:
-        typeDispatch = {'splitter': {'classification': GroupKFold}}
-        data.update({'typeDispatch': typeDispatch, 'groupKey': 'grouper',
-                     'splitKwargs': {}
-                     })
-
-        split.update({'splitOver': 'grouper'})
-
-    estimator = Estimator(model=RandomForestClassifier(),
+    estimator = Estimator(model=RandomForestClassifier(n_estimators=100),
                           transformer=Selector(['grouper'], reverse=True),
                           paramGrid={'model__max_depth': [3, 5, 7]},
                           gridKwargs={'scoring': 'f1', 'cv': 5},
                           mlType='classification'
                           )
 
-    metrics = {roc_auc_score: {},
-               average_precision_score: {},
-               'feature_weights': {'key': 'names',
-                                   'sort': 'feature_importances',
-                                   'callback': reformat_aggs,
-                                   'agg': 'describe',
-                                   'callbackKwargs': {'sortValues': 'mean',
-                                                      'indexName': 'features'
-                                                       }
-                                    },
-               'threshold_rates': {'key': 'thresholds',
-                                   'sort': 'thresholds',
-                                   }
-               }
+    metrics = load_metrics(metrics, 'feature_importances')
 
     declaration = {'dataKwargs': data,
                    'splitterKwargs': split,
@@ -117,18 +106,8 @@ def load_random_forest_declaration(group=True, asDf=True):
     return declaration
 
 
-def load_isolation_forest_declaration(group=True, asDf=False):
-    data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset, 'group': group}}}
-    split = {'target': 'is_malignant'}
-
-    if group:
-        typeDispatch = {'splitter': {'classification': GroupKFold}}
-        data.update({'typeDispatch': typeDispatch, 'groupKey': 'grouper',
-                     'splitKwargs': {}
-                     })
-
-        split.update({'splitOver': 'grouper'})
-
+def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_score', 'average_percision_score', 'threshold_rates']):
+    data, split = load_data_split(asDf, group)
 
     estimator = Estimator(model=IsolationForest(),
                           typeDispatch={'classification': {'method': 'decision_function', 'score': 'score_all'}},
@@ -136,13 +115,7 @@ def load_isolation_forest_declaration(group=True, asDf=False):
                           mlType='classification'
                           )
 
-    metrics = {roc_auc_score: {},
-               average_precision_score: {},
-               'threshold_rates': {'key': 'thresholds',
-                                   'sort': 'thresholds',
-                                   }
-               }
-
+    metrics = load_metrics(metrics)
     declaration = {'dataKwargs': data,
                    'splitterKwargs': split,
                    'estimator': estimator,
