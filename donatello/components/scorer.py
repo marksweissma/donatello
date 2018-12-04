@@ -194,7 +194,7 @@ class ScorerSupervised(Scorer):
         scores = {self.get_metric_name(metric): _unwrap_multiple(
                                                 outputs[self.get_metric_name(metric)]\
                                                .groupby(definition.get('key', ['_']))\
-                                               .agg(definition.get('agg', ['describe'])),
+                                               .agg(definition.get('agg', ['mean', 'std'])),
                                                definition.get('sort', None)
                                                )
                   for metric, definition in metrics.items()
@@ -266,7 +266,7 @@ class ScorerClassification(ScorerSupervised):
                           columns=['thresholds', 'true_negative', 'false_positive', 'false_negative', 'true_positive'],
                           index=range(spacing))
 
-        df = df.set_index('thresholds').apply(lambda x: x / np.sum(x)).reset_index()
+        df = df.set_index('thresholds').apply(lambda x: x / np.sum(x), axis=1).reset_index()
         df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
         df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
         df['recall'] = df.true_positive / (df.true_positive + df.false_negative)
