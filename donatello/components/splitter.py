@@ -51,24 +51,25 @@ class Splitter(BaseTransformer):
         df = data.contents if not self.contentKey else data.contents[self.contentKey]
         target = nvl(target, self.target)
 
-
-        self.testKwargs.update({'stratify': df[target]}) if self.mlType == 'classification' else None
+        self.testKwargs.update({'stratify': df[target]}) if (self.mlType == 'classification' and not self.splitOver) else None
 
         values = df[self.splitOver].unique() if self.splitOver else df.index
         self.trainIds, self.testIds = train_test_split(values, **self.testKwargs)
         return self
 
-    def _split(self, df, key, target=None):
+    def _build_masks(self, df, key, target=None):
         if key is None:
-            return df, df
+            return [True] * df.shape[0], [True] * df.shape[0]
         elif key == 'index':
             ids = df.index
         else:
             ids = df[key]
         trainMask = ids.isin(self.trainIds)
         testMask = ids.isin(self.testIds)
+        return trainMask, testMask
 
-        _designData = df.drop(target, axis=1) if target else df
+    def _split(self, df, trainMask, testMask, target=None):
+        _designData = df.drop(target, axis=1) if (target and target in df) else df
         designTrain = _designData.loc[trainMask]
         designTest = _designData.loc[testMask]
 
@@ -86,9 +87,11 @@ class Splitter(BaseTransformer):
         :rtype: dict
         """
         df = data.contents[self.contentKey] if self.contentKey else data.contents
-        # target = nvl(target, self.target)
         designData = df.drop(target, axis=1) if target else df
-        designTrain, designTest = self._split(df, self.splitOver if self.splitOver else 'index', target)
+
+        trainMask, testMask = self._build_masks(df, self.splitOver if self.splitOver else 'index', target)
+
+        designTrain, designTest = self._split(df, trainMask, testMask, target)
 
         _designData = {self.contentKey: designData}
         _designTrain = {self.contentKey: designTrain}
@@ -97,7 +100,9 @@ class Splitter(BaseTransformer):
             for key, content in self.contents.iteritems():
                 if key != self.contentKey:
                     _designData[key] = content
-                    _designTrain[key], _designTest[key] = self._split(content, self.contentMap.get(key, None))
+
+                    _trainMask, _testMask = self._build_masks(content, self.contentMap.get(key, None))
+                    _designTrain[key], _designTest[key] = self._split(content, _trainMask, testMask)
 
         designData = _designData if None not in _designData else _designData[None]
         designTrain = _designTrain if None not in _designTrain else _designTrain[None]
@@ -106,9 +111,7 @@ class Splitter(BaseTransformer):
         if target:
             targetData = df[target]
 
-            targetTrain, targetTest = self._split(targetData,
-                                                  self.splitOver if self.splitOver else 'index',
-                                                  None)
+            targetTrain, targetTest = self._split(targetData, trainMask, testMask)
         else:
             targetData, targetTrain, targetTest = None, None, None
 

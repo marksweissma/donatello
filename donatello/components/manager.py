@@ -161,8 +161,8 @@ class DM(Dobject, _BaseEstimator):
         Build cross validated scores over training data of models
         """
 
-        payload = {'estimator': self.estimator, 'metrics': self.metrics,
-                   'X': data.designTrain, 'y': data.targetTrain}
+        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'data': data}
+                   # 'X': data.designTrain, 'y': data.targetTrain}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
         self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
         self._references['cross_validation'] = clone(self.estimator) if self.storeReferences else None
@@ -173,6 +173,7 @@ class DM(Dobject, _BaseEstimator):
         """
         self.estimator.fit(X=data.designTrain, y=data.targetTrain,
                            gridSearch=True, **fitParams)
+
         payload = {'estimator': self.estimator, 'metrics': self.metrics,
                    'X': data.designTest, 'y': data.targetTest}
         self.scorerHoldout = self.scorer.build_holdout(**payload)

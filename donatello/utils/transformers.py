@@ -24,7 +24,14 @@ base_methods = _base_methods()
 
 def extract_fields(func):
     def wrapped(self, *args, **kwargs):
-        self.fields = args[0].columns.tolist()
+        try:
+            self.fields = kwargs.get('X', pd.DataFrame()).columns.tolist()
+        except:
+            try:
+                self.fields = args[0].columns.tolist()
+            except:
+                self.fields = args[1].columns.tolist()
+
         self.features = None
         result = func(self, *args, **kwargs)
         self.isFit = True
@@ -41,10 +48,17 @@ def enforce_features(func):
             features = result.columns.tolist() if hasattr(result, 'columns')\
                     else self.fields
             self.features = features
+        try:
+            index = kwargs.get('index', kwargs.get('X').index)
+        except:
+            try:
+                index = args[0].index
+            except:
+                self.fields = args[1].index
 
         result = result if isinstance(result, pd.DataFrame)\
             else pd.DataFrame(result, columns=self.features,
-                              index=kwargs.get('index', args[0].index))
+                              index=index)
 
         result = result.reindex(columns=self.features)
 
@@ -69,20 +83,26 @@ class PandasMixin(PandasAttrs):
     def transform(self, *args, **kwargs):
         return super(PandasMixin, self).transform(*args, **kwargs)
 
+    # def fit_transform(self, *args, **kwargs):
+        # self.fit(*args, **kwargs)
+        # return self.transform(*args, **kwargs)
+
+    @extract_fields
+    @enforce_features
     def fit_transform(self, *args, **kwargs):
-        self.fit(*args, **kwargs)
-        return self.transform(*args, **kwargs)
+        return super(PandasMixin, self).fit_transform(*args, **kwargs)
 
 
 class PandasTransformer(PandasMixin, BaseTransformer):
     pass
 
-class Imputer(PandasMixin, Imputer):
-    pass
+
+# class Imputer(PandasMixin, Imputer):
+    # pass
 
 
-class StandardScaler(PandasMixin, StandardScaler):
-    pass
+# class StandardScaler(PandasMixin, StandardScaler):
+    # pass
 
 
 class Pipeline(PandasMixin, Pipeline):
@@ -94,7 +114,7 @@ class FeatureUnion(PandasMixin, FeatureUnion):
     Ripped from sklearn 19.1 to use pandas concat over numpy hstack
     in transform to maintain datatypes
     """
-    def fit_transform(self, X, y=None, **fit_params):
+    def fit_transform(self, X=None, y=None, **fit_params):
         """
         Fit all transformers, transform the data and concatenate results.
 
@@ -180,7 +200,7 @@ class Selector(PandasTransformer):
         return inclusions
 
     @extract_fields
-    def fit(self, X, y=None):
+    def fit(self, X=None, y=None):
         if self.selectMethod:
             inclusions = getattr(self, self.selectMethod)(X, self.selectValue)
         else:
@@ -195,7 +215,7 @@ class Selector(PandasTransformer):
         return self
 
     @enforce_features
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         return X.reindex(columns=self.inclusions)
 
 
@@ -208,14 +228,14 @@ class CategoricalTransformer(PandasTransformer):
     def __init__(self, dropFirst=False):
         self.dropFirst = dropFirst
 
-    def fit(self, X, y=None):
+    def fit(self, X=None, y=None):
         self.categories = {field: [] for field in self.fields}
         for field in self.categories:
             self.categories[field] = X.loc[X[field].notnull()][field]\
                     .unique().tolist()
         return self
 
-    def transform(self, X, y=None):
+    def transform(self, X=None, y=None):
         for field in set(self.fields).intersection(X):
             X[field] = pd.Series(X[field], dtype='category').cat.\
                     set_categories(self.categories[field])
@@ -234,7 +254,7 @@ class AttributeTransformer(PandasTransformer):
         self.args = args
         self.kwargs = kwargs
 
-    def transform(self, X, **fitParams):
+    def transform(self, X=None, **fitParams):
         X = getattr(X, self.attribute)(*self.args, **self.kwargs)
         return X
 
@@ -248,7 +268,7 @@ class CallbackTransformer(PandasTransformer):
         self.args = args
         self.kwargs = kwargs
 
-    def transform(self, X, **fitParams):
+    def transform(self, X=None, **fitParams):
         X = self.callback(X, *self.args, **self.kwargs)
         return X
 

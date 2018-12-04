@@ -115,10 +115,10 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     """
     Base scikit-learn style transformer
     """
-    def fit(self, X, y=None, **kwargs):
+    def fit(self, X=None, y=None, **kwargs):
         return self
 
-    def transform(self, X, y=None, **kwargs):
+    def transform(self, X=None, y=None, **kwargs):
         return X
 
     @property
@@ -135,4 +135,3 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
                                                   time=self._initTime),
                super(BaseTransformer, self).__repr__()]
         return "\n --- \n **sklearn repr** \n --- \n".join(rep)
-

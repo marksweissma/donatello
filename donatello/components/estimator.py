@@ -6,6 +6,7 @@ from donatello.utils.base import BaseTransformer
 from donatello.utils.decorators import pandas_series
 from donatello.utils.helpers import now_string, nvl
 from donatello.utils.transformers import Selector
+from donatello.components.data import package_data
 
 
 class Estimator(BaseTransformer):
@@ -94,19 +95,19 @@ class Estimator(BaseTransformer):
         return getattr(self.transformer, '_features', [])
 
 # Fitting
-    def sklearn_grid_search(self, X, y=None,
-                    paramGrid=None, gridKwargs=None,
-                    xgbParamGrid=None):
+    def sklearn_grid_search(self, X=None, y=None,
+                    paramGrid=None, gridKwargs=None
+                    ):
         """
         """
 
         self.gridSearch = GridSearchCV(estimator=self,
                                        param_grid=paramGrid,
                                        **gridKwargs)
-        self.gridSearch.fit(X, y=y, gridSearch=False)
+        self.gridSearch.fit(X=X, y=y, gridSearch=False)
         self.set_params(**self.gridSearch.best_params_)
 
-    def grid_search(self, X, y=None, gridSearch=True,
+    def grid_search(self, X=None, y=None, gridSearch=True,
                     paramGrid=None, gridKwargs=None):
         """
         """
@@ -114,21 +115,19 @@ class Estimator(BaseTransformer):
         gridKwargs = nvl(gridKwargs, self.gridKwargs)
 
         if paramGrid and gridSearch:
-            self.sklearn_grid_search(X, y, paramGrid, gridKwargs)
-        elif xgbParamGrid:
-            # import xgb
-            pass
+            self.sklearn_grid_search(X=X, y=y, paramGrid=paramGrid, gridKwargs=gridKwargs)
 
-    def fit(self, X, y=None,
+    def fit(self, X=None, y=None,
             gridSearch=True,
             paramGrid=None, gridKwargs=None, **kwargs):
         """
         Fit method with options for grid searching hyperparameters
         """
         if gridSearch:
-            self.grid_search(X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
+            self.grid_search(X=X, y=y,
+                    gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
 
-        transformed = self.transformer.fit_transform(X, y, **kwargs)
+        transformed = self.transformer.fit_transform(X=X, y=y, **kwargs)
         self.model.fit(transformed, y)
         return self
 
@@ -141,20 +140,20 @@ class Estimator(BaseTransformer):
         """
         Scoring function
         """
-        return self.predict_method(X)
+        return self.predict_method(X=X)
 
     def score_first(self, X, name=''):
         """
         Scoring function
         """
 
-        return self.predict_method(X)[:, 1]
+        return self.predict_method(X=X)[:, 1]
 
-    def transform(self, X, **kwargs):
+    def transform(self, X=None, **kwargs):
         """
         Apply fit transformer to X
         """
-        return self.transformer.transform(X, **kwargs)
+        return self.transformer.transform(X=X, **kwargs)
 
     def __getattr__(self, name):
         prediction_methods = ['predict', 'predict_proba',
@@ -163,8 +162,8 @@ class Estimator(BaseTransformer):
             attr = getattr(self.model, name)
 
             def wrapped(X, *args, **kwargs):
-                X = self.transform(X, **kwargs)
-                result = attr(X, *args, **kwargs)
+                X = self.transform(X=X, **kwargs)
+                result = attr(X=X, *args, **kwargs)
                 return result
             return wrapped
         else:

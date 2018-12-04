@@ -32,7 +32,8 @@ class Data(Dobject):
                  typeDispatch=typeDispatch,
                  splitKwargs={'n_splits': 5,
                               'shuffle': True,
-                              'random_state': 22}
+                              'random_state': 22},
+                 groupKey=None,
                  ):
 
         self.copyRaws = copyRaws
@@ -42,6 +43,9 @@ class Data(Dobject):
         self.querier = querier
         self.typeDispatch = typeDispatch
         self.splitter = typeDispatch.get('splitter').get(mlType)(**splitKwargs)
+        self.groupKey = groupKey
+        self.params = {'mlType': mlType, 'typeDispatch': typeDispatch,
+                       'splitKwargs': splitKwargs, 'groupKey': groupKey}
 
     @property
     def contents(self):
@@ -85,7 +89,6 @@ class Data(Dobject):
                 level rather than the query level
         """
 
-
         if not queries:
             self.raws = nvl(querier, self.querier)
 
@@ -103,9 +106,15 @@ class Data(Dobject):
         for attr, result in splitResults.iteritems():
             setattr(self, attr, result)
 
+    def package_split_kwargs(self):
+        kwargs = {'groups': self.designData[self.groupKey].values} if self.groupKey else {}
+        return kwargs
+
     def __iter__(self):
+        kwargs = self.package_split_kwargs()
+        print kwargs
         for train, test in self.splitter.split(self.designData,
-                                               self.targetData):
+                                               self.targetData, **kwargs):
             results = [self.designData.iloc[train], self.designData.iloc[test]]
             if self.targetData is not None:
                 results.extend([self.targetData.iloc[train],
@@ -127,13 +136,19 @@ def package_data(wrapped, instance, args, kwargs):
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
     data = kwargs.pop('data', None)
+ 
+    if not data:
+        if X is None and hasattr(instance, 'data'): 
+            data = instance.data
+        elif X is not None and hasattr(instance, 'data'):
+            data = Data(X=X, y=y, **instance.data.get_params())
 
-    if data is None and X is None:
-        data = instance.data
-    elif X is not None:
-        mlType = getattr(instance, '_mlType', None)
-        data = Data(X=X, y=y, mlType=mlType)
+        elif X is not None:
+            mlType = getattr(instance, '_mlType', None)
+            data = Data(X=X, y=y, mlType=mlType)
 
+    if data is None:
+        import ipdb; ipdb.set_trace()
     if not data.hasContents and data.queries is not None:
         data.execute_queries(data.queries)
 
