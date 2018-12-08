@@ -210,7 +210,7 @@ class DM(Dobject, _BaseEstimator):
         """
         Write objects to disk
         """
-        writeAttrs = filter(writeAttrs, self.has_attribute)
+        writeAttrs = filter(self.has_attribute, writeAttrs)
         writePayloads = [{'obj': self, 'attr': attr} for attr in writeAttrs]
         [self.hook.write(**writePayload) for writePayload in writePayloads]
 

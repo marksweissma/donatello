@@ -11,7 +11,7 @@ typeDispatch = {None: KFold,
                 'group': GroupKFold
                 }
 
-splitKwargs = {'n_splits': 5,
+foldKwargs = {'n_splits': 5,
                'shuffle': True,
                'random_state': 22}
 
@@ -32,7 +32,7 @@ class Splitter(object):
                  target=None,
                  primaryKey=None,
                  splitOver=None,
-                 splitKwargs=splitKwargs,
+                 foldKwargs=foldKwargs,
                  typeDispatch=typeDispatch,
                  runTimeAccess=None,
                  mlType=None
@@ -41,10 +41,10 @@ class Splitter(object):
         self.target = target
         self.primaryKey = primaryKey
         self.splitOver = splitOver
-        self.splitKwargs = splitKwargs
+        self.foldKwargs = foldKwargs
         self.typeDispatch = typeDispatch
         self.runTimeAccess = runTimeAccess if runTimeAccess else {}
-        self.splitter = typeDispatch.get(mlType)(**splitKwargs)
+        self.folder = typeDispatch.get(mlType)(**foldKwargs)
         self.mlType = mlType
 
     @fallback('target', 'primaryKey')
@@ -63,7 +63,7 @@ class Splitter(object):
         kwargs = {key: access(df, **value) for key, value in self.runTimeAccess} if self.runTimeAccess else {}
 
         self.indices = [(trainValues, testValues) for trainValues, testValues
-                        in self.splitter.split(df.index, df[target], **kwargs)]
+                        in self.folder.split(df.index, df[target], **kwargs)]
 
         values = df[self.splitOver] if self.splitOver else df.index.to_series()
 
