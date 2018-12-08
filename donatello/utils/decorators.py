@@ -24,7 +24,7 @@ def split_data(wrapped, instance, args, kwargs):
     data = kwargs.pop('data', None)
 
     if data and data.hasContents and instance.splitter:
-        data.unpack_splits(next(instance.splitter.fit_transform(data)))
+        data.unpack_splits(next(instance.splitter.fit_split(data)))
     else:
         data.designData = data.contents
     result = wrapped(data=data, *args, **kwargs)

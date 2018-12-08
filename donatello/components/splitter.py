@@ -64,7 +64,7 @@ class Splitter(object):
 
         self.indices = [(trainValues, testValues) for trainValues, testValues
                         in self.splitter.split(df.index, df[target], **kwargs)]
- 
+
         values = df[self.splitOver] if self.splitOver else df.index.to_series()
 
         self.ids = [(values.iloc[trainValues].values, values.iloc[testValues].values)
@@ -103,6 +103,12 @@ class Splitter(object):
         df = data.contents[primaryKey] if primaryKey else data.contents
         designData = df.drop(target, axis=1) if target else df
 
+        def _wrap_split(key, content, train, test):
+            _designData[key] = content
+            _trainMask, _testMask = self._build_masks(content, self.contentMap.get(key, None), train=train, test=test)
+            _designTrain[key], _designTest[key] = self._split(content, _trainMask, testMask)
+            return _designTrain[key], _designTest[key]
+
         for train, test in self.ids:
             trainMask, testMask = self._build_masks(df, self.splitOver if self.splitOver else 'index',
                                                     target, train=train, test=test)
@@ -112,13 +118,11 @@ class Splitter(object):
             _designData = {self.primaryKey: designData}
             _designTrain = {self.primaryKey: designTrain}
             _designTest = {self.primaryKey: designTest}
+
             if isinstance(data.contents, dict):
                 for key, content in self.contents.iteritems():
                     if key != self.primaryKey:
-                        _designData[key] = content
-
-                        _trainMask, _testMask = self._build_masks(content, self.contentMap.get(key, None), train=train, test=test)
-                        _designTrain[key], _designTest[key] = self._split(content, _trainMask, testMask)
+                        _designTrain[key], _designTest[key] = _wrap_split(key, content, train, test)
 
             designData = _designData if None not in _designData else _designData[None]
             designTrain = _designTrain if None not in _designTrain else _designTrain[None]
@@ -127,13 +131,22 @@ class Splitter(object):
             results = {'designData': designData,
                        'designTrain': designTrain,
                        'designTest': designTest}
+
             if target:
                 targetData = df[target]
                 targetTrain, targetTest = self._split(targetData, trainMask, testMask)
-                results.update({'targetData': targetData,
-                                'targetTrain': targetTrain,
-                                'targetTest': targetTest
-                                })
+            else:
+                targetData, targetTrain, targetTest = None, None, None
+
+            results.update({'targetData': targetData,
+                            'targetTrain': targetTrain,
+                            'targetTest': targetTest
+                            })
 
             yield results
         raise StopIteration
+
+    @fallback('target', 'primaryKey')
+    def fit_split(self, data=None, target=None, primaryKey=None, **fitParams):
+        self.fit(data=data,target=target, primaryKey=primaryKey, **fitParams)
+        return self.split(data=data,target=target, primaryKey=primaryKey, **fitParams)
