@@ -1,63 +1,6 @@
 import pandas as pd
 
 
-def has(obj, attr, slicers):
-    condition = attr in obj if isinstance(obj, slicers) else hasattr(obj, attr)
-    return condition
-
-def _get(obj, attr, slicers):
-     value = obj[attr] if isinstance(obj, slicers) else getattr(obj, attr)
-     return value
-
-def get(obj, attr, slicers, errors, default):
-    """
-    Get from object
-    """
-    condition = (errors == 'raise') or has(obj, attr, slicers)
-    value = _get(obj, attr, slicers) if condition else default
-    return value
-
-
-def access(obj=None, attrPath=None,
-           method=None, methodArgs=None, methodKwargs=None,
-           cb=None, cbArgs=None, cbKwargs=None,
-           slicers=(dict, list, tuple, pd.np.ndarray, pd.Series, pd.DataFrame),
-           default=None, errors='raise'):
-    """
-    Access information from nested object
-
-    :param object obj: object to access from
-    :param list attrPath: sequence of traversal
-    :param str method: (optional) method to call at end of path
-    :param tuple methodArgs: positional args for method 
-    :param tuple methodKwargs: keyword args for method 
-    :param str cb: (optional) cb to call at end of path
-    :param tuple cbArgs: positional args for cb 
-    :param tuple cbKwargs: keyword args for cb 
-    :param tuple slicers: object types to use ``__getitem__`` slice rather than getattr
-    :param obj default: option to return default (if not rasiing errors)
-    :param str errors: option to raise errors ('raise') or ignore ('ignore')
-
-    :return: value of given prescription
-    """
-
-    if not attrPath:
-        obj = obj if not method else getattr(obj, method)(*methodArgs, **methodKwargs)
-        value = obj if not cb else cb(obj, *cbArgs, **cbKwargs)
-
-    else:
-        head, tail = attrPath[0], attrPath[1:]
-
-        obj = get(obj, head, slicers, errors, default)
-
-        value = access(obj, attrPath=tail,
-                       method=method, methodArgs=methodArgs, methodKwargs=methodKwargs,
-                       cb=cb, cbArgs=cbArgs, cbKwargs=cbKwargs,
-                       slicers=slicers, errors=errors, default=default)
-
-    return value
-
-
 def now_string(strFormat="%Y_%m_%d_%H_%M"):
     """
     Pandas formatted string from time
@@ -139,3 +82,62 @@ def reformat_aggs(d, idx=0, sortValues=None, indexName=None, filterNulls=.95):
         rates = df.isnull().mean()
         df = df.drop([column for column, rate in zip(df, rates) if rate > filterNulls], axis=1)
     return df
+
+
+def has(obj, attr, slicers):
+    condition = attr in obj if isinstance(obj, slicers) else hasattr(obj, attr)
+    return condition
+
+
+def _get(obj, attr, slicers):
+    value = obj[attr] if isinstance(obj, slicers) else getattr(obj, attr)
+    return value
+
+
+def get(obj, attr, slicers, errors, default):
+    """
+    Get from object
+    """
+    condition = (errors == 'raise') or has(obj, attr, slicers)
+    value = _get(obj, attr, slicers) if condition else default
+    return value
+
+
+def access(obj=None, attrPath=None,
+           method=None, methodArgs=None, methodKwargs=None,
+           cb=None, cbArgs=None, cbKwargs=None,
+           slicers=(dict, list, tuple, pd.np.ndarray, pd.Series, pd.DataFrame),
+           default=None, errors='raise'):
+    """
+    Access information from nested object
+
+    :param object obj: object to access from
+    :param list attrPath: sequence of traversal
+    :param str method: (optional) method to call at end of path
+    :param tuple methodArgs: positional args for method
+    :param tuple methodKwargs: keyword args for method
+    :param str cb: (optional) cb to call at end of path
+    :param tuple cbArgs: positional args for cb
+    :param tuple cbKwargs: keyword args for cb
+    :param tuple slicers: object types to use ``__getitem__`` slice rather than getattr
+    :param obj default: option to return default (if not rasiing errors)
+    :param str errors: option to raise errors ('raise') or ignore ('ignore')
+
+    :return: value of given prescription
+    """
+
+    if not attrPath:
+        obj = obj if not method else getattr(obj, method)(*methodArgs, **methodKwargs)
+        value = obj if not cb else cb(obj, *cbArgs, **cbKwargs)
+
+    else:
+        head, tail = attrPath[0], attrPath[1:]
+
+        obj = get(obj, head, slicers, errors, default)
+
+        value = access(obj, attrPath=tail,
+                       method=method, methodArgs=methodArgs, methodKwargs=methodKwargs,
+                       cb=cb, cbArgs=cbArgs, cbKwargs=cbKwargs,
+                       slicers=slicers, errors=errors, default=default)
+
+    return value

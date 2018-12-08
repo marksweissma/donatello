@@ -2,6 +2,19 @@ from sklearn.model_selection import train_test_split
 from donatello.utils.base import BaseTransformer
 from donatello.utils.helpers import now_string, nvl
 from donatello.utils.decorators import fallback
+from sklearn.model_selection import (KFold,
+                                     StratifiedKFold,
+                                     GroupKFold)
+
+typeDispatch = {None: KFold,
+                'classification': StratifiedKFold,
+                'regression': KFold,
+                'group': GroupKFold
+                }
+
+splitKwargs = {'n_splits': 5,
+               'shuffle': True,
+               'random_state': 22}
 
 
 class Splitter(BaseTransformer):
@@ -21,9 +34,9 @@ class Splitter(BaseTransformer):
     def __init__(self,
                  target=None,
                  contentKey=None,
-                 splitOver=None,
-                 stratifyTarget=True,
-                 testKwargs={'random_state': 42, 'test_size': .25},
+                 splitKwargs=splitKwargs,
+                 typeDispatch=typeDispatch,
+                 runTimeAccess=None,
                  attrs=['Train', 'Test', 'Data'],
                  mlType=None,
                  timeFormat="%Y_%m_%d_%H_%M",
@@ -32,12 +45,15 @@ class Splitter(BaseTransformer):
         self._initTime = now_string(timeFormat)
         self.target = target
         self.contentKey = contentKey
-        self.splitOver = splitOver
-        self.stratifyTarget = stratifyTarget
-        self.testKwargs = testKwargs
+        self.splitKwargs = splitKwargs
+        self.typeDispatch = typeDispatch
+        self.runTimeAccess = runTimeAccess if runTimeAccess
+        self.splitter = typeDispatch.get(mlType)(**splitKwargs)
+
         self.attrs = attrs
         self.mlType = mlType
 
+    @fallback('target')
     def fit(self, data=None, target=None, contentKey=None, **fitParams):
         """
         fit splitter => finds and store values for each set
@@ -49,33 +65,34 @@ class Splitter(BaseTransformer):
         :returns: fit transformer
         """
         df = data.contents if not self.contentKey else data.contents[self.contentKey]
-        target = nvl(target, self.target)
+        values = df[self.splitOver] if self.splitOver else df.index
+        kwargs = {key: access(df, **value) for key, value in self.runTimeAccess} if self.runTimeAccess else df.index
 
-        self.testKwargs.update({'stratify': df[target]}) if (self.mlType == 'classification' and not self.splitOver) else None
-
-        values = df[self.splitOver].unique() if self.splitOver else df.index
-        self.trainIds, self.testIds = train_test_split(values, **self.testKwargs)
+        self.ids = [(trainValues, testValues) for trainValues, testValues
+                    in self.splitter.split(values, **kwargs)]
         return self
 
-    def _build_masks(self, df, key, target=None):
+    def _build_masks(self, df, key, target=None, train=None, test=None):
         if key is None:
             return [True] * df.shape[0], [True] * df.shape[0]
         elif key == 'index':
             ids = df.index
         else:
             ids = df[key]
-        trainMask = ids.isin(self.trainIds)
-        testMask = ids.isin(self.testIds)
+        trainMask = ids.isin(train)
+        testMask = ids.isin(test)
         return trainMask, testMask
 
     def _split(self, df, trainMask, testMask, target=None):
-        _designData = df.drop(target, axis=1) if (target and target in df) else df
-        designTrain = _designData.loc[trainMask]
-        designTest = _designData.loc[testMask]
+        data = df.drop(target, axis=1) if (target and target in df) else df
+        train = data.loc[trainMask]
+        test = data.loc[testMask]
+        return train, test
 
-        return designTrain, designTest
+    @property
+    def split(self):
+        return self.transform
 
-    # !!!TODO refactor this
     @fallback('target')
     def transform(self, data=None, target=None, **fitParams):
         """
@@ -89,38 +106,40 @@ class Splitter(BaseTransformer):
         df = data.contents[self.contentKey] if self.contentKey else data.contents
         designData = df.drop(target, axis=1) if target else df
 
-        trainMask, testMask = self._build_masks(df, self.splitOver if self.splitOver else 'index', target)
+        for train, test in self.ids:
+            trainMask, testMask = self._build_masks(df, self.splitOver if self.splitOver else 'index',
+                                                    target, train=train, test=test)
 
-        designTrain, designTest = self._split(df, trainMask, testMask, target)
+            designTrain, designTest = self._split(df, trainMask, testMask, target)
 
-        _designData = {self.contentKey: designData}
-        _designTrain = {self.contentKey: designTrain}
-        _designTest = {self.contentKey: designTest}
-        if isinstance(data.contents, dict):
-            for key, content in self.contents.iteritems():
-                if key != self.contentKey:
-                    _designData[key] = content
+            _designData = {self.contentKey: designData}
+            _designTrain = {self.contentKey: designTrain}
+            _designTest = {self.contentKey: designTest}
+            if isinstance(data.contents, dict):
+                for key, content in self.contents.iteritems():
+                    if key != self.contentKey:
+                        _designData[key] = content
 
-                    _trainMask, _testMask = self._build_masks(content, self.contentMap.get(key, None))
-                    _designTrain[key], _designTest[key] = self._split(content, _trainMask, testMask)
+                        _trainMask, _testMask = self._build_masks(content, self.contentMap.get(key, None), train=train, test=test)
+                        _designTrain[key], _designTest[key] = self._split(content, _trainMask, testMask)
 
-        designData = _designData if None not in _designData else _designData[None]
-        designTrain = _designTrain if None not in _designTrain else _designTrain[None]
-        designTest = _designTest if None not in _designTest else _designTest[None]
+            designData = _designData if None not in _designData else _designData[None]
+            designTrain = _designTrain if None not in _designTrain else _designTrain[None]
+            designTest = _designTest if None not in _designTest else _designTest[None]
 
-        if target:
-            targetData = df[target]
+            if target:
+                targetData = df[target]
+                targetTrain, targetTest = self._split(targetData, trainMask, testMask)
+            else:
+                targetData, targetTrain, targetTest = None, None, None
 
-            targetTrain, targetTest = self._split(targetData, trainMask, testMask)
-        else:
-            targetData, targetTrain, targetTest = None, None, None
+            results = {'designData': designData,
+                       'designTrain': designTrain,
+                       'designTest': designTest,
+                       'targetData': targetData,
+                       'targetTrain': targetTrain,
+                       'targetTest': targetTest
+                       }
 
-        results = {'designData': designData,
-                   'designTrain': designTrain,
-                   'designTest': designTest,
-                   'targetData': targetData,
-                   'targetTrain': targetTrain,
-                   'targetTest': targetTest
-                   }
-
-        return results
+            yield results
+        raise StopIteration

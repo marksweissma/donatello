@@ -10,6 +10,7 @@ from sklearn.pipeline import (Pipeline, FeatureUnion,
 from sklearn.externals.joblib import Parallel, delayed
 
 from donatello.utils.base import PandasAttrs, BaseTransformer
+from donatello.utils.decorators import init_time
 
 
 def _base_methods():
@@ -197,7 +198,7 @@ class Node(object):
         [transformer.fit(X=X, y=y, **kwargs) for transformer in self.transformers]
         return self
 
-    def transform(self, X=X, y=y, **kwargs):
+    def transform(self, X=None, y=None, **kwargs):
         if not self.information_available:
             information = pd.concat([transformer.transform(X=X, y=y) for
                                      transformer in self.transformer],
@@ -224,7 +225,7 @@ class TransformationDAG(object):
             fields = [self.graph.nodes[parent][self.attr].information for parent in parents]
             information = self.graph.nodes[node][self.attr].fit_transform(fields)
         else:
-            information = self.graph.nodes[node][self.attr].fit_transform([self.flush(parent, data) for parent in parents
+            information = self.graph.nodes[node][self.attr].fit_transform([self.flush(parent, data) for parent in parents])
 
         return information
 
