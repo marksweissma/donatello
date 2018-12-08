@@ -34,7 +34,9 @@ def load_data_split(asDf, group):
                      'splitKwargs': {}
                      })
 
-        split.update({'splitOver': 'grouper'})
+        split.update({'mlType': 'group',
+                      'runTimeAccess': {'group': ['grouper', 'values']}
+                      })
 
     return data, split
 
