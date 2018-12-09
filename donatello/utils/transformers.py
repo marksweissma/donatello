@@ -3,13 +3,14 @@ import pandas as pd
 
 from inspect import getmembers
 
-from sklearn.preprocessing import Imputer, StandardScaler
+from sklearn.preprocessing import Imputer, StandardScaler, OneHotEncoder
 from sklearn.base import TransformerMixin
 from sklearn.pipeline import (Pipeline, FeatureUnion,
                               _fit_transform_one, _transform_one)
 from sklearn.externals.joblib import Parallel, delayed
 
 from donatello.utils.base import PandasAttrs, BaseTransformer
+from donatello.utils.decorators import init_time
 
 
 def _base_methods():
@@ -46,6 +47,7 @@ def enforce_features(func):
         postFit = not self.features
         if postFit:
             features = result.columns.tolist() if hasattr(result, 'columns')\
+                    else list(self.get_feature_names()) if hasattr(self, 'get_feature_names')\
                     else self.fields
             self.features = features
         try:
@@ -97,79 +99,8 @@ class PandasTransformer(PandasMixin, BaseTransformer):
     pass
 
 
-# class Imputer(PandasMixin, Imputer):
-    # pass
-
-
-# class StandardScaler(PandasMixin, StandardScaler):
-    # pass
-
-
-class Pipeline(PandasMixin, Pipeline):
+class OneHotEncoder(PandasMixin, OneHotEncoder):
     pass
-
-
-class FeatureUnion(PandasMixin, FeatureUnion):
-    """
-    Ripped from sklearn 19.1 to use pandas concat over numpy hstack
-    in transform to maintain datatypes
-    """
-    def fit_transform(self, X=None, y=None, **fit_params):
-        """
-        Fit all transformers, transform the data and concatenate results.
-
-        Parameters
-        ----------
-        X : iterable or array-like, depending on transformers
-            Input data to be transformed.
-
-        y : array-like, shape (n_samples, ...), optional
-            Targets for supervised learning.
-
-        Returns
-        -------
-        X_t : array-like or sparse matrix, shape (n_samples, sum_n_components)
-            hstack of results of transformers. sum_n_components is the
-            sum of n_components (output dimension) over transformers.
-        """
-        self._validate_transformers()
-        result = Parallel(n_jobs=self.n_jobs)(
-            delayed(_fit_transform_one)(trans, weight, X, y,
-                                        **fit_params)
-            for name, trans, weight in self._iter())
-
-        if not result:
-            # All transformers are None
-            return pd.np.zeros((X.shape[0], 0))
-        Xs, transformers = zip(*result)
-        self._update_transformer_list(transformers)
-        Xs = pd.concat(Xs, axis=1)
-        return Xs
-
-    def transform(self, X):
-        """
-        Transform X separately by each transformer, concatenate results.
-
-        Parameters
-        ----------
-        X : iterable or array-like, depending on transformers
-            Input data to be transformed.
-
-        Returns
-        -------
-        X_t : array-like or sparse matrix, shape (n_samples, sum_n_components)
-            hstack of results of transformers. sum_n_components is the
-            sum of n_components (output dimension) over transformers.
-        """
-        Xs = Parallel(n_jobs=self.n_jobs)(
-            delayed(_transform_one)(trans, weight, X)
-            for name, trans, weight in self._iter())
-        if not Xs:
-            # All transformers are None
-            return pd.np.zeros((X.shape[0], 0))
-        else:
-            Xs = pd.concat(Xs, axis=1)
-        return Xs
 
 
 class Selector(PandasTransformer):
@@ -219,32 +150,6 @@ class Selector(PandasTransformer):
         return X.reindex(columns=self.inclusions)
 
 
-class CategoricalTransformer(PandasTransformer):
-    """
-    One hot encoder for enumerated string typed fields.
-
-    :param bool dropFirst: option to drop first value from each column
-    """
-    def __init__(self, dropFirst=False):
-        self.dropFirst = dropFirst
-
-    def fit(self, X=None, y=None):
-        self.categories = {field: [] for field in self.fields}
-        for field in self.categories:
-            self.categories[field] = X.loc[X[field].notnull()][field]\
-                    .unique().tolist()
-        return self
-
-    def transform(self, X=None, y=None):
-        for field in set(self.fields).intersection(X):
-            X[field] = pd.Series(X[field], dtype='category').cat.\
-                    set_categories(self.categories[field])
-        X = pd.get_dummies(X, columns=self.fields,
-                           drop_first=self.dropFirst)
-
-        return X
-
-
 class AttributeTransformer(PandasTransformer):
     """
     Transformer leveraing attribute methods of the design object
@@ -273,45 +178,55 @@ class CallbackTransformer(PandasTransformer):
         return X
 
 
-_selectNumbers = Selector(selectMethod='data_type',
-                          selectValue={'include': [pd.np.number]})
-_selectObjects = Selector(selectMethod='data_type',
-                          selectValue={'include': [object]})
+class Node(object):
+    @init_time
+    def __init__(self, name='transformer', transformers=None, aggregator=None):
+        self.name = name
+        self.transformers = transformers
+        self.aggregator = aggregator
+        self.information = None
 
-_selectNotAmounts = Selector(selectMethod='regex',
-                             selectValue='_amount', reverse=True)
-_selectAmounts = Selector(selectMethod='regex', selectValue='_amount')
+    @property
+    def information_available(self):
+        return self.information is not None
 
-_zeroFill = AttributeTransformer('fillna', (0,))
+    def reset(self):
+        self.information = None
+        self.transformers = [clone(transformer) for transformer in self.transformers]
 
+    def fit(self, data,  **kwargs):
+        [transformer.fit(X=X, y=y, **kwargs) for transformer in self.transformers]
+        return self
 
-def load_simple_numeric(select=_selectNumbers,
-                        fill=_zeroFill, scaler=StandardScaler()):
-    steps = [('select_numeric', select)]
-    steps.append(('fill_zero', fill)) if fill else None
-    steps.append(('scale', scaler)) if scaler else None
+    def transform(self, X=None, y=None, **kwargs):
+        if not self.information_available:
+            information = pd.concat([transformer.transform(X=X, y=y) for
+                                     transformer in self.transformer],
+                                    axis=1)
+            self.information = information
 
-    transformer = Pipeline(steps=steps)
-    return transformer
-
-
-def load_simple_categories(dropFirst=False):
-    steps = [('select_objects', _selectObjects),
-             ('dummify', CategoricalTransformer(dropFirst=dropFirst))
-             ]
-    transformer = Pipeline(steps=steps)
-    return transformer
-
-
-def load_num_str_split(numeric=load_simple_numeric(),
-                       strings=load_simple_categories()):
-    features = FeatureUnion([('numeric', numeric), ('strings', strings)])
-    return features
+        return self.information
 
 
-def load_basic_transformer(drops=(), features=load_num_str_split()):
-    steps = [('drops', Selector(selectValue=drops, reverse=True)),
-             ('features', features)
-             ]
-    transformer = Pipeline(steps=steps)
-    return transformer
+class TransformationDAG(object):
+    def __init__(self, graph=None, attr='executor'):
+        self.graph = graph
+        self.attr = attr
+
+    def clean(self):
+        [self.graph.nodes[node][self.attr].reset() for node in self.graph]
+
+    def flush(self, node, data):
+        self.clean_graph()
+        parents = tuple(self.graph.succesors(node))
+        if not parents:
+            information = self.graph.nodes[node][self.attr].transform(data)
+        elif all([self.graph.nodex[parent][self.attr].information_available for parent in parents]):
+            fields = [self.graph.nodes[parent][self.attr].information for parent in parents]
+            information = self.graph.nodes[node][self.attr].fit_transform(fields)
+        else:
+            information = self.graph.nodes[node][self.attr].fit_transform([self.flush(parent, data) for parent in parents])
+
+        return information
+
+

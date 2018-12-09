@@ -4,10 +4,10 @@ donatello.components package
 Submodules
 ----------
 
-donatello.components.data module
---------------------------------
+donatello.components.manager module
+-----------------------------------
 
-.. automodule:: donatello.components.data
+.. automodule:: donatello.components.manager
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,18 +20,18 @@ donatello.components.estimator module
     :undoc-members:
     :show-inheritance:
 
-donatello.components.hook module
+donatello.components.data module
 --------------------------------
 
-.. automodule:: donatello.components.hook
+.. automodule:: donatello.components.data
     :members:
     :undoc-members:
     :show-inheritance:
 
-donatello.components.manager module
------------------------------------
+donatello.components.splitter module
+------------------------------------
 
-.. automodule:: donatello.components.manager
+.. automodule:: donatello.components.splitter
     :members:
     :undoc-members:
     :show-inheritance:
@@ -44,10 +44,10 @@ donatello.components.scorer module
     :undoc-members:
     :show-inheritance:
 
-donatello.components.splitter module
-------------------------------------
+donatello.components.hook module
+--------------------------------
 
-.. automodule:: donatello.components.splitter
+.. automodule:: donatello.components.hook
     :members:
     :undoc-members:
     :show-inheritance:

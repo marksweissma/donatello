@@ -14,7 +14,7 @@ from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
                                          ScorerSupervised)
 from donatello.utils.helpers import has_nested_attribute, nvl, now_string
-from donatello.utils.decorators import split_data, prepare_design
+from donatello.utils.decorators import split_data, prepare_design, fallback
 from donatello.utils.base import Dobject
 from donatello.components.data import package_data
 
@@ -51,12 +51,12 @@ class DM(Dobject, _BaseEstimator):
                  metrics=None, hookKwargs=None,
                  storeReferences=True,
                  mlType='classification',
-                 typeDispatch= {'scorer': {'classification': ScorerClassification,
-                                            'regression': ScorerSupervised
-                                           },
-                                 'splitter': Splitter,
-                                 'hook': Local
-                                 },
+                 typeDispatch={'scorer': {'classification': ScorerClassification,
+                                          'regression': ScorerSupervised
+                                          },
+                               'splitter': Splitter,
+                               'hook': Local
+                               },
                  writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
 
@@ -162,23 +162,20 @@ class DM(Dobject, _BaseEstimator):
         """
 
         payload = {'estimator': self.estimator, 'metrics': self.metrics, 'data': data}
-                   # 'X': data.designTrain, 'y': data.targetTrain}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
         self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
-        self._references['cross_validation'] = clone(self.estimator) if self.storeReferences else None
+        self._references['cross_validation'] = self.estimator if self.storeReferences else None
 
     def _build_holdout(self, data, **fitParams):
         """
         Build model over training data and score
         """
-        self.estimator.fit(X=data.designTrain, y=data.targetTrain,
-                           gridSearch=True, **fitParams)
+        self.estimator.fit(X=data.designTrain, y=data.targetTrain, gridSearch=True, **fitParams)
 
-        payload = {'estimator': self.estimator, 'metrics': self.metrics,
-                   'X': data.designTest, 'y': data.targetTest}
+        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'X': data.designTest, 'y': data.targetTest}
         self.scorerHoldout = self.scorer.build_holdout(**payload)
         self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
-        self._references['holdout'] = clone(self.estimator) if self.storeReferences else None
+        self._references['holdout'] = self.estimator if self.storeReferences else None
 
     def _build_entire(self, data, **fitParams):
         """
@@ -187,12 +184,13 @@ class DM(Dobject, _BaseEstimator):
         self.estimator = clone(self.estimator)
         self.estimator.fit(X=data.designData, y=data.targetData,
                            gridSearch=True, **fitParams)
-        self._references['entire'] = clone(self.estimator) if self.storeReferences else None
+        self._references['entire'] = self.estimator if self.storeReferences else None
 
+    @fallback('writeAttrs')
     @package_data
     @split_data
     @prepare_design
-    def fit(self, data=None, X=None, y=None, **fitParams):
+    def fit(self, data=None, X=None, y=None, writeAttrs=None, **fitParams):
         """
         Build models, tune hyperparameters, and evaluate
         """
@@ -201,18 +199,20 @@ class DM(Dobject, _BaseEstimator):
         self._build_holdout(data, **fitParams) if self.holdOut else None
         self._build_entire(data, **fitParams) if self.entire else None
 
-        self.write(self.writeAttrs) if self.writeAttrs else None
+        self.write(writeAttrs=writeAttrs)
 
         return self
 
-    def write(self, writeAttrs=()):
+    def has_attribute(self, attr):
+        return has_nested_attribute(self, attr)
+
+    @fallback('writeAttrs')
+    def write(self, writeAttrs=None):
         """
         Write objects to disk
         """
-        writeAttrs = nvl(writeAttrs, self.writeAttrs)
-        writeAttrs = [i for i in writeAttrs if has_nested_attribute(self, i)]
-        writePayloads = [{'attr': attr} for attr in writeAttrs]
-        [writePayload.update({'obj': self}) for writePayload in writePayloads]
+        writeAttrs = filter(self.has_attribute, writeAttrs)
+        writePayloads = [{'obj': self, 'attr': attr} for attr in writeAttrs]
         [self.hook.write(**writePayload) for writePayload in writePayloads]
 
     def __getattr__(self, name):
