@@ -2,18 +2,17 @@ import pandas as pd
 import numpy as np
 
 from collections import defaultdict
-from abc import ABCMeta, abstractproperty
+from abc import abstractproperty
 from warnings import warn
 
 from sklearn import clone
 from sklearn.utils import Bunch
-from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import confusion_matrix
 
 from donatello.utils.helpers import nvl
 from donatello.utils.decorators import init_time
 from donatello.utils.base import Dobject
-from donatello.components.data import Data, package_data
+from donatello.components.data import package_dataset
 
 
 class Scorer(Dobject):
@@ -138,13 +137,13 @@ class ScorerSupervised(Scorer):
         scores = self._evaluate(estimator, scored, metrics)
         return scored, scores
 
-    @package_data
-    def fit_score_folds(self, estimator=None, data=None, X=None, y=None, **kwargs):
+    @package_dataset
+    def fit_score_folds(self, estimator=None, dataset=None, X=None, y=None, **kwargs):
         """
         Cross validating scorer, clones and fits estimator on each fold of X|y
 
         :param BaseEstimator estimator: Fit estimator to evaluate
-        :param donatello.Data data: data object to cross val over
+        :param donatello.Data.dataset: dataset object to cross val over
         :param pandas.DataFrame X: design
         :param pandas.Series y: target
         :param dict metrics: metrics to evaluate
@@ -154,7 +153,7 @@ class ScorerSupervised(Scorer):
         scored = pd.DataFrame()
         estimators = {}
 
-        for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(data):
+        for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(dataset):
             estimator = clone(estimator)
             estimator.fit(X=designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
             estimators[fold] = estimator
@@ -184,7 +183,7 @@ class ScorerSupervised(Scorer):
                 output = df
             else:
                 output = Bunch(**{key: _option_sort(df.xs(key, level=current, axis=1), definitionSort)
-                          for key in set(df.columns.get_level_values(current))})
+                                  for key in set(df.columns.get_level_values(current))})
             return output
 
         for fold, df in scored.groupby('fold'):
@@ -195,8 +194,8 @@ class ScorerSupervised(Scorer):
                                                 outputs[self.get_metric_name(metric)]\
                                                .groupby(definition.get('key', ['_']))\
                                                .agg(definition.get('agg', ['mean', 'std'])),
-                                               definition.get('sort', None)
-                                               )
+                                                definition.get('sort', None)
+                                                )
                   for metric, definition in metrics.items()
                   }
 
@@ -210,13 +209,13 @@ class ScorerSupervised(Scorer):
 
         return scores
 
-    @package_data
-    def buildCV(self, estimator=None, metrics=None, data=None, X=None, y=None):
+    @package_dataset
+    def buildCV(self, estimator=None, metrics=None, dataset=None, X=None, y=None):
         """
         Build cross validated scoring report
         """
-        estimators, scored = self.fit_score_folds(estimator=estimator, data=data)
-        scores = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=data.designData, metrics=metrics)
+        estimators, scored = self.fit_score_folds(estimator=estimator, dataset=dataset)
+        scores = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=dataset.designData, metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'scores': scores}
 
     def build_holdout(self, estimator=None, metrics=None, X=None, y=None):

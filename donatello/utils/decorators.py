@@ -17,29 +17,29 @@ def init_time(wrapped, instance, args, kwargs):
 
 
 @decorator
-def split_data(wrapped, instance, args, kwargs):
+def split_dataset(wrapped, instance, args, kwargs):
     """
-    Split data contents into train and test sets
+    Split dataset data into train and test sets
     """
-    data = kwargs.pop('data', None)
+    dataset = kwargs.pop('dataset', None)
 
-    if data and data.hasContents and instance.splitter:
-        data.unpack_splits(next(instance.splitter.fit_split(data)))
+    if dataset and dataset.hasData and instance.splitter:
+        dataset.unpack_splits(next(instance.splitter.fit_split(dataset)))
     else:
-        data.designData = data.contents
-    result = wrapped(data=data, *args, **kwargs)
+        dataset.designData = dataset.data
+    result = wrapped(dataset=dataset, *args, **kwargs)
     return result
 
 
 @decorator
 def prepare_design(wrapped, instance, args, kwargs):
     """
-    Apply `combiner` to data to create final design (if applicable)
+    Apply `combiner` to dataset to create final design (if applicable)
     """
-    data = kwargs.pop('data', None)
+    dataset = kwargs.pop('dataset', None)
     if getattr(instance, 'combiner', None):
-        data = instance.combiner.fit_transform(data)
-    result = wrapped(data=data, *args, **kwargs)
+        dataset = instance.combiner.fit_transform(dataset)
+    result = wrapped(dataset=dataset, *args, **kwargs)
     return result
 
 

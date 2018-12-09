@@ -52,17 +52,17 @@ class Splitter(object):
         self.mlType = mlType
 
     @fallback('target', 'primaryKey')
-    def fit(self, data=None, target=None, primaryKey=None, **fitParams):
+    def fit(self, dataset=None, target=None, primaryKey=None, **fitParams):
         """
         fit splitter => finds and store values for each set
 
-        :param donatello.components.data data: data to fit on
+        :param donatello.components.dataset dataset: dataset to fit on
         :param str target: str name of target field to separate
-        :param str primaryKey: key for primary field (if data.contents \
+        :param str primaryKey: key for primary field (if dataset.data \
                 is dict (not df)
         :returns: fit transformer
         """
-        df = data.contents if not primaryKey else data.contents[primaryKey]
+        df = dataset.data if not primaryKey else dataset.data[primaryKey]
 
         kwargs = {key: access(df, **value) for key, value in self.runTimeAccess.items()} if self.runTimeAccess else {}
 
@@ -95,16 +95,16 @@ class Splitter(object):
         return train, test
 
     @fallback('target', 'primaryKey')
-    def split(self, data=None, target=None, primaryKey=None, **fitParams):
+    def split(self, dataset=None, target=None, primaryKey=None, **fitParams):
         """
-        Split data contents into design/target train/test/data
+        Split data data into design/target train/test/data
 
-        :param donatello.components.data data: data to fit on
+        :param donatello.components.dataset dataset: dataset to fit on
         :param str target: str name of target field to separate
         :returns: paylod of train/test/data <> design/target subsets
         :rtype: dict
         """
-        df = data.contents[primaryKey] if primaryKey else data.contents
+        df = dataset.data[primaryKey] if primaryKey else dataset.data
         designData = df.drop(target, axis=1) if target else df
 
         def _wrap_split(key, content, train, test):
@@ -123,8 +123,8 @@ class Splitter(object):
             _designTrain = {self.primaryKey: designTrain}
             _designTest = {self.primaryKey: designTest}
 
-            if isinstance(data.contents, dict):
-                for key, content in self.contents.items():
+            if isinstance(dataset.data, dict):
+                for key, content in self.data.items():
                     if key != self.primaryKey:
                         _designTrain[key], _designTest[key] = _wrap_split(key, content, train, test)
 
@@ -151,6 +151,6 @@ class Splitter(object):
         raise StopIteration
 
     @fallback('target', 'primaryKey')
-    def fit_split(self, data=None, target=None, primaryKey=None, **fitParams):
-        self.fit(data=data,target=target, primaryKey=primaryKey, **fitParams)
-        return self.split(data=data,target=target, primaryKey=primaryKey, **fitParams)
+    def fit_split(self, dataset=None, target=None, primaryKey=None, **fitParams):
+        self.fit(dataset=dataset, target=target, primaryKey=primaryKey, **fitParams)
+        return self.split(dataset=dataset, target=target, primaryKey=primaryKey, **fitParams)
