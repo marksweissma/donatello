@@ -124,7 +124,7 @@ class Splitter(object):
             _designTest = {self.primaryKey: designTest}
 
             if isinstance(data.contents, dict):
-                for key, content in self.contents.iteritems():
+                for key, content in self.contents.items():
                     if key != self.primaryKey:
                         _designTrain[key], _designTest[key] = _wrap_split(key, content, train, test)
 

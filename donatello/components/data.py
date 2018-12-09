@@ -1,8 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import KFold, StratifiedKFold
 from donatello.utils.base import Dobject
-from donatello.utils.helpers import nvl
-from donatello.utils.decorators import decorator, init_time
+from donatello.utils.decorators import decorator, init_time, fallback
 
 
 typeDispatch = {'splitter': {None: KFold,
@@ -78,6 +77,7 @@ class Data(Dobject):
         else:
             self.raws = raws
 
+    @fallback('querier')
     def execute_queries(self, queries=None, querier=None):
         """
         Execute data extraction via cascading querying dependencies
@@ -90,20 +90,19 @@ class Data(Dobject):
         """
 
         if not queries:
-            self.raws = nvl(querier, self.querier)
-
+            self.raws = querier
         else:
-            for name, query in queries.iteritems():
-                querier = query.get('querier', nvl(querier, self.querier))
+            for name, query in queries.items():
+                querier = query.get('querier', querier)
 
-                payload = {i: j for i, j in query.iteritems() if i != 'querier'}
+                payload = {i: j for i, j in query.items() if i != 'querier'}
                 if len(queries) == 1:
                     self.raws = querier(**payload)
                 else:
                     self.raws[name] = querier(**payload)
 
     def unpack_splits(self, splitResults):
-        for attr, result in splitResults.iteritems():
+        for attr, result in splitResults.items():
             setattr(self, attr, result)
 
     def package_split_kwargs(self):
@@ -127,6 +126,7 @@ class Data(Dobject):
     def next(self):
         return self.__next__
 
+
 @decorator
 def package_data(wrapped, instance, args, kwargs):
     """
@@ -135,9 +135,9 @@ def package_data(wrapped, instance, args, kwargs):
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
     data = kwargs.pop('data', None)
- 
+
     if not data:
-        if X is None and hasattr(instance, 'data'): 
+        if X is None and hasattr(instance, 'data'):
             data = instance.data
         elif X is not None and hasattr(instance, 'data'):
             data = Data(X=X, y=y, **instance.data.get_params())
@@ -146,8 +146,6 @@ def package_data(wrapped, instance, args, kwargs):
             mlType = getattr(instance, '_mlType', None)
             data = Data(X=X, y=y, mlType=mlType)
 
-    if data is None:
-        import ipdb; ipdb.set_trace()
     if not data.hasContents and data.queries is not None:
         data.execute_queries(data.queries)
 
