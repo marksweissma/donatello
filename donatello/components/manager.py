@@ -51,12 +51,12 @@ class DM(Dobject, _BaseEstimator):
                  metrics=None, hookKwargs=None,
                  storeReferences=True,
                  mlType='classification',
-                 typeDispatch= {'scorer': {'classification': ScorerClassification,
-                                            'regression': ScorerSupervised
-                                           },
-                                 'splitter': Splitter,
-                                 'hook': Local
-                                 },
+                 typeDispatch={'scorer': {'classification': ScorerClassification,
+                                          'regression': ScorerSupervised
+                                          },
+                               'splitter': Splitter,
+                               'hook': Local
+                               },
                  writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
 
@@ -186,10 +186,11 @@ class DM(Dobject, _BaseEstimator):
                            gridSearch=True, **fitParams)
         self._references['entire'] = self.estimator if self.storeReferences else None
 
+    @fallback('writeAttrs')
     @package_data
     @split_data
     @prepare_design
-    def fit(self, data=None, X=None, y=None, **fitParams):
+    def fit(self, data=None, X=None, y=None, writeAttrs=None, **fitParams):
         """
         Build models, tune hyperparameters, and evaluate
         """
@@ -198,7 +199,7 @@ class DM(Dobject, _BaseEstimator):
         self._build_holdout(data, **fitParams) if self.holdOut else None
         self._build_entire(data, **fitParams) if self.entire else None
 
-        self.write(writeAttrs=self.writeAttrs) if self.writeAttrs else None
+        self.write(writeAttrs=writeAttrs)
 
         return self
 
@@ -206,7 +207,7 @@ class DM(Dobject, _BaseEstimator):
         return has_nested_attribute(self, attr)
 
     @fallback('writeAttrs')
-    def write(self, writeAttrs=()):
+    def write(self, writeAttrs=None):
         """
         Write objects to disk
         """

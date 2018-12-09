@@ -126,13 +126,12 @@ def access(obj=None, attrPath=None,
     :return: value of given prescription
     """
 
-    if not attrPath:
+    if not attrPath or not attrPath[0]:
         obj = obj if not method else getattr(obj, method)(*methodArgs, **methodKwargs)
         value = obj if not cb else cb(obj, *cbArgs, **cbKwargs)
 
     else:
         head, tail = attrPath[0], attrPath[1:]
-
         obj = get(obj, head, slicers, errors, default)
 
         value = access(obj, attrPath=tail,

@@ -1,5 +1,6 @@
+import os
 from sklearn.externals import joblib
-from donatello.utils.helpers import get_nested_attribute
+from donatello.utils.helpers import access
 
 
 class Local(object):
@@ -13,12 +14,12 @@ class Local(object):
         self.reader = reader
         self.writer = writer
 
-    def write(self, obj=None, attr="", root='.', extension='pkl', writeKwargs={'protocol': 2}):
-        obj = get_nested_attribute(obj, attr)
+    def write(self, obj=None, attr="", root='.', extension='pkl', *writeArgs, **writeKwargs):
+        obj = access(obj, [attr])
         name = ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
-        localPath = "/".join([root, name])
-        self.writer(obj, localPath, **writeKwargs)
+        localPath = os.path.join(root, name)
+        self.writer(obj, localPath, *writeArgs, **writeKwargs)
 
-    def read(self, localPath):
-        obj = self.reader(localPath)
+    def read(self, localPath, *args, **kwargs):
+        obj = self.reader(localPath, *args, **kwargs)
         return obj
