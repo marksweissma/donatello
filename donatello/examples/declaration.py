@@ -132,7 +132,7 @@ def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_
 
 def load_dm(model='lr', group=True, asDf=False):
     """
-    Helper function to load donatello manager  for sklearn
+    Helper function to load donatello manager for sklearn
     breast cancer data set to classify malignancy
     """
     if model == 'if':
