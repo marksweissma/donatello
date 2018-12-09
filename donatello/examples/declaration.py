@@ -31,7 +31,7 @@ def load_data_split(asDf, group):
     if group:
         typeDispatch = {'splitter': {'classification': GroupKFold}}
         data.update({'typeDispatch': typeDispatch, 'groupKey': 'grouper',
-                     'splitKwargs': {}
+                     'splitDeclaration': {}
                      })
 
         split.update({'mlType': 'group',
@@ -72,8 +72,8 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
                           )
 
     metrics = load_metrics(metrics)
-    declaration = {'dataKwargs': data,
-                   'splitterKwargs': split,
+    declaration = {'dataDeclaration': data,
+                   'splitterDeclaration': split,
                    'estimator': estimator,
                    'metrics': metrics,
                    'mlType': 'classification',
@@ -96,8 +96,8 @@ def load_random_forest_declaration(group=True, asDf=True, metrics=None):
 
     metrics = load_metrics(metrics, 'feature_importances')
 
-    declaration = {'dataKwargs': data,
-                   'splitterKwargs': split,
+    declaration = {'dataDeclaration': data,
+                   'splitterDeclaration': split,
                    'estimator': estimator,
                    'metrics': metrics,
                    'mlType': 'classification',
@@ -118,8 +118,8 @@ def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_
                           )
 
     metrics = load_metrics(metrics)
-    declaration = {'dataKwargs': data,
-                   'splitterKwargs': split,
+    declaration = {'dataDeclaration': data,
+                   'splitterDeclaration': split,
                    'estimator': estimator,
                    'metrics': metrics,
                    'mlType': 'classification',

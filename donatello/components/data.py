@@ -11,25 +11,25 @@ typeDispatch = {'splitter': {None: KFold,
                 }
 
 
-class Data(Dobject):
+class Dataset(Dobject):
     """
     Object for managing data and helping prevent leakage
 
     :param obj raws: raw data
     :param dict queries: queries to execute to fetch data if not directly passed
     :param func querier: default function to execute queries
-    :param bool copyRaws: option to have contents return copy of raws to preserve fetch
+    :param bool copyRaws: option to have data return copy of raws to preserve fetch
     :param obj X: option to specify design directly
     :param obj y: option to specify target directly
     :param obj type splitType: type of splitter to leverage in iterator
-    :param obj splitKwargs: kwargs for split type to instantiate with in constructor
+    :param obj splitDeclaration: kwargs for split type to instantiate with in constructor
     """
     @init_time
     def __init__(self, raws=None, queries=None,
-                 querier=pd.read_csv, copyRaws=True,
+                 querier=pd.read_csv, copyRaws=False,
                  X=None, y=None, mlType=None,
                  typeDispatch=typeDispatch,
-                 splitKwargs={'n_splits': 5,
+                 splitDeclaration={'n_splits': 5,
                               'shuffle': True,
                               'random_state': 22},
                  groupKey=None,
@@ -41,14 +41,14 @@ class Data(Dobject):
         self.queries = queries
         self.querier = querier
         self.typeDispatch = typeDispatch
-        self.splitter = typeDispatch.get('splitter').get(mlType)(**splitKwargs)
+        self.splitter = typeDispatch.get('splitter').get(mlType)(**splitDeclaration)
         self.groupKey = groupKey
         self.params = {'mlType': mlType, 'typeDispatch': typeDispatch,
-                       'splitKwargs': splitKwargs, 'groupKey': groupKey}
+                       'splitDeclaration': splitDeclaration, 'groupKey': groupKey}
 
     @property
-    def contents(self):
-        value = getattr(self, '_contents', None)
+    def data(self):
+        value = getattr(self, '_data', None)
         if value is None:
             if self.copyRaws and self.raws is not None:
                 value = self.raws.copy()
@@ -56,16 +56,16 @@ class Data(Dobject):
                 value = self.raws
         return value
 
-    @contents.setter
-    def contents(self, value):
-        self._contents = value
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     @property
-    def hasContents(self):
-        if isinstance(self.contents, dict):
-            state = self.contents != {}
+    def hasData(self):
+        if isinstance(self.data, dict):
+            state = self.data != {}
         else:
-            state = self.contents is not None
+            state = self.data is not None
         return state
 
     def link(self, raws=None, X=None, y=None):
@@ -82,7 +82,7 @@ class Data(Dobject):
         """
         Execute data extraction via cascading querying dependencies
         Attaches return to :py:attr:`Data.raws`, which can be
-        accessed via py:attr:`Data.contents`
+        accessed via py:attr:`Data.data`
 
         :param dict queries: payload of queries
         :param func querier: option to specify executor at the execution\
@@ -90,7 +90,7 @@ class Data(Dobject):
         """
 
         if not queries:
-            self.raws = querier
+            self.raws = querier()
         else:
             for name, query in queries.items():
                 querier = query.get('querier', querier)
@@ -128,26 +128,26 @@ class Data(Dobject):
 
 
 @decorator
-def package_data(wrapped, instance, args, kwargs):
+def package_dataset(wrapped, instance, args, kwargs):
     """
     Package X (and y if supervised) in Data object via mlType
     """
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
-    data = kwargs.pop('data', None)
+    dataset = kwargs.pop('dataset', None)
 
-    if not data:
-        if X is None and hasattr(instance, 'data'):
-            data = instance.data
+    if not dataset:
+        if X is None and hasattr(instance, 'dataset'):
+            dataset = instance.dataset
         elif X is not None and hasattr(instance, 'data'):
-            data = Data(X=X, y=y, **instance.data.get_params())
+            dataset = Dataset(X=X, y=y, **instance.dataset.get_params())
 
         elif X is not None:
             mlType = getattr(instance, '_mlType', None)
-            data = Data(X=X, y=y, mlType=mlType)
+            dataset = Dataset(X=X, y=y, mlType=mlType)
 
-    if not data.hasContents and data.queries is not None:
-        data.execute_queries(data.queries)
+    if not dataset.hasData and dataset.queries is not None:
+        dataset.execute_queries(dataset.queries)
 
-    result = wrapped(data=data, **kwargs)
+    result = wrapped(dataset=dataset, **kwargs)
     return result

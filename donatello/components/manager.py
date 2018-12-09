@@ -7,48 +7,47 @@ from sklearn import clone
 from sklearn.base import BaseEstimator as _BaseEstimator
 from sklearn.utils import Bunch
 
-from donatello.components.data import Data
+from donatello.components.data import Dataset, package_dataset
 from donatello.components.splitter import Splitter
 from donatello.components.hook import Local
 from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
                                          ScorerSupervised)
 from donatello.utils.helpers import has_nested_attribute, nvl, now_string
-from donatello.utils.decorators import split_data, prepare_design, fallback
+from donatello.utils.decorators import split_dataset, prepare_design, fallback
 from donatello.utils.base import Dobject
-from donatello.components.data import package_data
 
 
 class DM(Dobject, _BaseEstimator):
     """
-    Manager for model process. [a-z]*Kwargs parameters map 1:1 to
+    Manager for model process. [a-z]*Declaration parameters map 1:1 to
     component objects attached via property setters. Other parameters
     attached directly.
 
     Manager accessors will fallback to accessing from estimator attributes
 
-    :param dict dataKwargs: :py:class:`donatello.Data`
-    :param dict splitterKwargs: arguments for :py:class:`donatello.Splitter`
+    :param dict dataDeclaration: :py:class:`donatello.Dataset`
+    :param dict splitterDeclaration: arguments for :py:class:`donatello.Splitter`
     :param object combiner: object with fit_transform method to\
             combine multiple datasets to prepare design matrix -\
             leveraged in :py:func:`donatello.utils.decorators.combine_data`
     :param donatello.BaseEstimator estimator: estimator for\
             training and predicting
-    :param dict scorerKwargs: arguments for :py:class:`donatello.Scorer`
+    :param dict scorerDeclaration: arguments for :py:class:`donatello.Scorer`
     :param bool validation: flag for calculating scoring metrics from
             nested cross val of training + validation sets
     :param bool holdOut: flag for fitting estimator on entire training set
             and scoring test set
     :param iterable metrics: list or dict of metrics for scorer
-    :param dict hookKwargs: arguments for :py:class:`donatello.Local`
+    :param dict hookDeclaration: arguments for :py:class:`donatello.Local`
     :param tuple writeAttrs: attributes to write out to disk
     :param str nowFormat: format for creation time string
     """
 
-    def __init__(self, dataKwargs=None, splitterKwargs=None,
-                 combiner=None, estimator=None, scorerKwargs=None,
+    def __init__(self, dataDeclaration=None, splitterDeclaration=None,
+                 combiner=None, estimator=None, scorerDeclaration=None,
                  validation=True, holdOut=True, entire=False,
-                 metrics=None, hookKwargs=None,
+                 metrics=None, hookDeclaration=None,
                  storeReferences=True,
                  mlType='classification',
                  typeDispatch={'scorer': {'classification': ScorerClassification,
@@ -63,17 +62,17 @@ class DM(Dobject, _BaseEstimator):
         self._initTime = now_string(timeFormat)
 
         # Preserve params
-        self.dataKwargs = dataKwargs
-        self.splitterKwargs = splitterKwargs
-        self.scorerKwargs = scorerKwargs
-        self.hookKwargs = hookKwargs
+        # self.dataDeclaration = dataDeclaration
+        # self.splitterDeclaration = splitterDeclaration
+        # self.scorerDeclaration = scorerDeclaration
+        # self.hookDeclaration = hookDeclaration
 
         self.mlType = mlType
         self.typeDispatch = typeDispatch
         self.metrics = metrics
         self.combiner = combiner
 
-        self.estimator = clone(estimator)
+        self.estimator = estimator
 
         # Build options
         self.validation = validation
@@ -81,10 +80,10 @@ class DM(Dobject, _BaseEstimator):
         self.entire = entire
 
         # Uses setters to instantiate components
-        self.data = dataKwargs
-        self.splitter = splitterKwargs
-        self.scorer = scorerKwargs
-        self.hook = hookKwargs
+        self.dataset = dataDeclaration
+        self.splitter = splitterDeclaration
+        self.scorer = scorerDeclaration
+        self.hook = hookDeclaration
 
         # Other
         self.writeAttrs = writeAttrs
@@ -106,17 +105,17 @@ class DM(Dobject, _BaseEstimator):
 
     # components
     @property
-    def data(self):
+    def dataset(self):
         """
-        Data object attached to manager
+        Dataset object attached to manager
         """
-        return self._data
+        return self._dataset
 
-    @data.setter
-    def data(self, kwargs):
+    @dataset.setter
+    def dataset(self, kwargs):
         kwargs = kwargs if kwargs else {}
         kwargs.update({'mlType': self.mlType}) if 'mlType' not in kwargs else None
-        self._data = Data(**kwargs)
+        self._dataset = Dataset(**kwargs)
 
     @property
     def splitter(self):
@@ -156,48 +155,50 @@ class DM(Dobject, _BaseEstimator):
         kwargs = {} if kwargs is None else kwargs
         self._hook = self.typeDispatch.get('hook')(**kwargs)
 
-    def _build_cross_validation(self, data, **fitParams):
+    def _build_cross_validation(self, dataset, **fitParams):
         """
         Build cross validated scores over training data of models
         """
-
-        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'data': data}
+        print('Building Over Cross Validation')
+        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'dataset': dataset}
         self.scorerCrossValidation = self.scorer.buildCV(**payload)
         self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
         self._references['cross_validation'] = self.estimator if self.storeReferences else None
 
-    def _build_holdout(self, data, **fitParams):
+    def _build_holdout(self, dataset, **fitParams):
         """
         Build model over training data and score
         """
-        self.estimator.fit(X=data.designTrain, y=data.targetTrain, gridSearch=True, **fitParams)
+        print('Building Over Holdout')
+        self.estimator.fit(X=dataset.designTrain, y=dataset.targetTrain, gridSearch=True, **fitParams)
 
-        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'X': data.designTest, 'y': data.targetTest}
+        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'X': dataset.designTest, 'y': dataset.targetTest}
         self.scorerHoldout = self.scorer.build_holdout(**payload)
         self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
         self._references['holdout'] = self.estimator if self.storeReferences else None
 
-    def _build_entire(self, data, **fitParams):
+    def _build_entire(self, dataset, **fitParams):
         """
         Build model over entire data set
         """
+        print('Building Over Entire Dataset')
         self.estimator = clone(self.estimator)
-        self.estimator.fit(X=data.designData, y=data.targetData,
+        self.estimator.fit(X=dataset.designData, y=dataset.targetData,
                            gridSearch=True, **fitParams)
         self._references['entire'] = self.estimator if self.storeReferences else None
 
     @fallback('writeAttrs')
-    @package_data
-    @split_data
+    @package_dataset
+    @split_dataset
     @prepare_design
-    def fit(self, data=None, X=None, y=None, writeAttrs=None, **fitParams):
+    def fit(self, dataset=None, X=None, y=None, writeAttrs=None, **fitParams):
         """
         Build models, tune hyperparameters, and evaluate
         """
 
-        self._build_cross_validation(data, **fitParams) if self.validation else None
-        self._build_holdout(data, **fitParams) if self.holdOut else None
-        self._build_entire(data, **fitParams) if self.entire else None
+        self._build_cross_validation(dataset, **fitParams) if self.validation else None
+        self._build_holdout(dataset, **fitParams) if self.holdOut else None
+        self._build_entire(dataset, **fitParams) if self.entire else None
 
         self.write(writeAttrs=writeAttrs)
 
