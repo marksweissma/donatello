@@ -1,6 +1,6 @@
 from sklearn.model_selection import (KFold,
                                      StratifiedKFold,
-                                     GroupKFold)
+                                     GroupShuffleSplit)
 
 from donatello.utils.helpers import access
 from donatello.utils.decorators import fallback, init_time
@@ -8,12 +8,18 @@ from donatello.utils.decorators import fallback, init_time
 typeDispatch = {None: KFold,
                 'classification': StratifiedKFold,
                 'regression': KFold,
-                'group': GroupKFold
+                'group': GroupShuffleSplit
                 }
 
-foldKwargs = {'n_splits': 5,
-               'shuffle': True,
-               'random_state': 22}
+_base = {'n_splits': 5,
+         'shuffle': True,
+         'random_state': 22}
+
+foldDispatch = {None: _base,
+                'classification': _base,
+                'regression': _base,
+                'group': {'n_splits': 5, 'random_state': 22}
+                }
 
 
 class Splitter(object):
@@ -32,7 +38,7 @@ class Splitter(object):
                  target=None,
                  primaryKey=None,
                  splitOver=None,
-                 foldKwargs=foldKwargs,
+                 foldDispatch=foldDispatch,
                  typeDispatch=typeDispatch,
                  runTimeAccess=None,
                  mlType=None
@@ -41,10 +47,8 @@ class Splitter(object):
         self.target = target
         self.primaryKey = primaryKey
         self.splitOver = splitOver
-        self.foldKwargs = foldKwargs
-        self.typeDispatch = typeDispatch
         self.runTimeAccess = runTimeAccess if runTimeAccess else {}
-        self.folder = typeDispatch.get(mlType)(**foldKwargs)
+        self.folder = typeDispatch.get(mlType)(**foldDispatch.get(mlType))
         self.mlType = mlType
 
     @fallback('target', 'primaryKey')
@@ -60,7 +64,7 @@ class Splitter(object):
         """
         df = data.contents if not primaryKey else data.contents[primaryKey]
 
-        kwargs = {key: access(df, **value) for key, value in self.runTimeAccess} if self.runTimeAccess else {}
+        kwargs = {key: access(df, **value) for key, value in self.runTimeAccess.items()} if self.runTimeAccess else {}
 
         self.indices = [(trainValues, testValues) for trainValues, testValues
                         in self.folder.split(df.index, df[target], **kwargs)]

@@ -35,7 +35,7 @@ def load_data_split(asDf, group):
                      })
 
         split.update({'mlType': 'group',
-                      'runTimeAccess': {'group': ['grouper', 'values']}
+            'runTimeAccess': {'groups': {'attrPath': ['grouper', 'values'], 'slicers': (pd.DataFrame, dict)}}
                       })
 
     return data, split
@@ -87,7 +87,7 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
 def load_random_forest_declaration(group=True, asDf=True, metrics=None):
     data, split = load_data_split(asDf, group)
 
-    estimator = Estimator(model=RandomForestClassifier(n_estimators=100),
+    estimator = Estimator(model=RandomForestClassifier(n_estimators=10),
                           transformer=Selector(['grouper'], reverse=True),
                           paramGrid={'model__max_depth': [3, 5, 7]},
                           gridKwargs={'scoring': 'f1', 'cv': 5},
