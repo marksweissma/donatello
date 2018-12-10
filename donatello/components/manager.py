@@ -9,7 +9,7 @@ from sklearn.utils import Bunch
 
 from donatello.components.data import Dataset, package_dataset
 from donatello.components.splitter import Splitter
-from donatello.components.hook import Local
+from donatello.components.disk import Local
 from donatello.components.scorer import (Scorer,
                                          ScorerClassification,
                                          ScorerSupervised)
