@@ -53,7 +53,7 @@ class Dataset(Dobject):
             if self.copyRaws and self.raws is not None:
                 value = self.raws.copy()
             else:
-                value = self.raws
+                value = getattr(self, 'raws', None)
         return value
 
     @data.setter
