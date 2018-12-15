@@ -1,7 +1,7 @@
 from sklearn.model_selection import GridSearchCV
 
 from donatello.utils.base import BaseTransformer
-from donatello.utils.decorators import pandas_series
+from donatello.utils.decorators import pandas_series, fallback
 from donatello.utils.helpers import now_string, nvl
 from donatello.utils.transformers import Selector
 
@@ -104,13 +104,11 @@ class Estimator(BaseTransformer):
         self.gridSearch.fit(X=X, y=y, gridSearch=False)
         self.set_params(**self.gridSearch.best_params_)
 
+    @fallback('paramGrid', 'gridKwargs')
     def grid_search(self, X=None, y=None, gridSearch=True,
                     paramGrid=None, gridKwargs=None):
         """
         """
-        paramGrid = nvl(paramGrid, self.paramGrid)
-        gridKwargs = nvl(gridKwargs, self.gridKwargs)
-
         if paramGrid and gridSearch:
             self.sklearn_grid_search(X=X, y=y, paramGrid=paramGrid, gridKwargs=gridKwargs)
 

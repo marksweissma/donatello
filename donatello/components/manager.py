@@ -1,7 +1,3 @@
-from warnings import warn
-
-from abc import ABCMeta, abstractproperty
-from copy import deepcopy
 
 from sklearn import clone
 from sklearn.base import BaseEstimator as _BaseEstimator
@@ -10,10 +6,9 @@ from sklearn.utils import Bunch
 from donatello.components.data import Dataset, package_dataset
 from donatello.components.splitter import Splitter
 from donatello.components.disk import Local
-from donatello.components.scorer import (Scorer,
-                                         ScorerClassification,
+from donatello.components.scorer import (ScorerClassification,
                                          ScorerSupervised)
-from donatello.utils.helpers import has_nested_attribute, nvl, now_string
+from donatello.utils.helpers import has_nested_attribute, now_string
 from donatello.utils.decorators import split_dataset, prepare_design, fallback
 from donatello.utils.base import Dobject
 
@@ -60,12 +55,6 @@ class DM(Dobject, _BaseEstimator):
                  timeFormat="%Y_%m_%d_%H_%M"):
 
         self._initTime = now_string(timeFormat)
-
-        # Preserve params
-        # self.dataDeclaration = dataDeclaration
-        # self.splitterDeclaration = splitterDeclaration
-        # self.scorerDeclaration = scorerDeclaration
-        # self.hookDeclaration = hookDeclaration
 
         self.mlType = mlType
         self.typeDispatch = typeDispatch
@@ -172,7 +161,8 @@ class DM(Dobject, _BaseEstimator):
         print('Building Over Holdout')
         self.estimator.fit(X=dataset.designTrain, y=dataset.targetTrain, gridSearch=True, **fitParams)
 
-        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'X': dataset.designTest, 'y': dataset.targetTest}
+        payload = {'estimator': self.estimator, 'metrics': self.metrics,
+                   'X': dataset.designTest, 'y': dataset.targetTest}
         self.scorerHoldout = self.scorer.build_holdout(**payload)
         self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
         self._references['holdout'] = self.estimator if self.storeReferences else None
