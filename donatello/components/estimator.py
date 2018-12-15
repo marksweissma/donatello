@@ -12,6 +12,7 @@ class Estimator(BaseTransformer):
     design and an ML model to fit and predict. Supports options for grid searching for
     hyperparameter optimization
 
+    Args:
         transformer (donatello.utils.base.BaseTransformer): object implementing fit, transform, fit_transform
         model (sklearn.base.BaseEstimator): ML model implementing fit, predict[a-z]*
         method (str): string name of prediction method

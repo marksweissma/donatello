@@ -7,6 +7,7 @@ class Local(object):
     """
     Object to provide disk interface
 
+    Args:
         reader (func): default function to read files
         writer (func): default function to write files
     """

@@ -9,27 +9,31 @@ from sklearn import clone
 from sklearn.utils import Bunch
 from sklearn.metrics import confusion_matrix
 
-from donatello.utils.helpers import nvl
-from donatello.utils.decorators import init_time
+from donatello.utils.decorators import init_time, fallback
 from donatello.utils.base import Dobject
 from donatello.components.data import package_dataset
 
 
 class Scorer(Dobject):
+    """
+    Object for scoring model performance
+
+    Args:
+        mlType (str): denotes ml context classification / regression / clustering etc
+        method (str): name of prediction method from estimator to call
+        gridSearchFlag (bool): whether or not to grid search during fitting
+    """
     @init_time
     def __init__(self,
                  mlType=None,
                  method=None,
-                 gridSearchFlag=True,
-                 verbose=True,
-                 nowFormat="%Y_%m_%d_%H_%M"
+                 gridSearchFlag=True
                  ):
 
         # Preserve Args
         self.mlType = mlType
         self.gridSearchFlag = gridSearchFlag
         self.method = method
-        self.verbose = verbose
 
     @abstractproperty
     def name(self):
@@ -43,10 +47,12 @@ class Scorer(Dobject):
 
         Will automatically pull `coef_` and `feature_importances_`
 
+        Args:
             estimator (donatello.Estimator): has `features` and `model` attributes
             attr (str): option to specify additional attribute to pull
-        :return: featureValues
-        :rtype: :py:class:`pandas.DataFrame`
+
+        Returns:
+            pandas.DataFrame: featureValues
         """
 
         names = estimator.features
@@ -56,9 +62,6 @@ class Scorer(Dobject):
         if hasattr(model, attr):
             columnNames.append(attr)
             values.append(getattr(model, attr))
-        if hasattr(model, 'feature_importances_'):
-            columnNames.append('feature_importances')
-            values.append(model.feature_importances_)
         if hasattr(model, 'coef_'):
             columnNames.append('coefficients')
             if hasattr(model, 'intercept_'):
@@ -66,6 +69,9 @@ class Scorer(Dobject):
                 values.append(np.hstack((model.coef_[0], model.intercept_)))
             else:
                 values.append(model.coef_[0])
+        if hasattr(model, 'feature_importances_'):
+            columnNames.append('feature_importances')
+            values.append(model.feature_importances_)
         if values:
             names = pd.Series(np.asarray(names), name=columnNames[0])
             vectors = pd.DataFrame(np.asarray(values).T, columns=columnNames[1:])
@@ -85,7 +91,9 @@ class ScorerSupervised(Scorer):
     """
     Base class for evaluating estimators and datasets
 
+    Args:
         predict (str)_method: method to call from estimator for predicting
+        **kwargs: kwargs for Scorer
     """
     def __init__(self,
                  method='score',
@@ -142,13 +150,15 @@ class ScorerSupervised(Scorer):
         """
         Cross validating scorer, clones and fits estimator on each fold of X|y
 
+        Args:
             estimator (BaseEstimator): Fit estimator to evaluate
-            dataset (donatello.Data.dataset:) object to cross val over
+            dataset (donatello.data.Dataset) object to cross val over
             X (pandas.DataFrame): design
             y (pandas.Series): target
             metrics (dict): metrics to evaluate
-        :return: scored, scores
-        :rtype: pandas.Series, metric evaluations
+
+        Returns:
+            tuple(pandas.Series, metric evaluations): scored, scores
         """
         scored = pd.DataFrame()
         estimators = {}
@@ -250,20 +260,19 @@ class ScorerClassification(ScorerSupervised):
         return super(ScorerClassification, self).evaluate_scored_folds(
                      estimators=estimators, metrics=metrics, scored=scored, X=X, **kwargs)
 
+    @fallback('thresholds')
     def threshold_rates(self, scored=None, thresholds=None, spacing=101, threshKwargs={}, **kwargs):
         """
         """
-        thresholds = nvl(thresholds, self.thresholds)
-
-        # Vectorize this, threshold iter is slow
         data = np.array([np.hstack((i,
                                     confusion_matrix(scored.truth.values, (scored.predicted > i).values).reshape(4,)
                                     )
                                    ) for i in thresholds])
 
         df = pd.DataFrame(data=data,
-                          columns=['thresholds', 'true_negative', 'false_positive', 'false_negative', 'true_positive'],
-                          index=range(spacing))
+                          columns=['thresholds', 'true_negative', 'false_positive',
+                                   'false_negative', 'true_positive']
+                          )
 
         df = df.set_index('thresholds').apply(lambda x: x / np.sum(x), axis=1).reset_index()
         df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
@@ -275,7 +284,3 @@ class ScorerClassification(ScorerSupervised):
         df['fall_out'] = 1 - df.specificity
         df['false_discovery_rate'] = 1 - df.precision
         return df
-
-
-class ScorerUnsupervised(Scorer):
-    pass

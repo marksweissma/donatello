@@ -15,6 +15,7 @@ class Dataset(Dobject):
     """
     Object for managing data and helping prevent leakage
 
+    Args:
         raws (obj): raw data
         queries (dict): queries to execute to fetch data if not directly passed
         querier (func): default function to execute queries

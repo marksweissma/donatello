@@ -23,6 +23,7 @@ class DM(Dobject, BaseEstimator):
 
     Manager accessors will fallback to accessing from estimator attributes
 
+    Args:
         dataDeclaration (dict): :py:class:`donatello.Dataset`
         splitterDeclaration (dict): arguments for :py:class:`donatello.Splitter`
         combiner (object): object with fit_transform method to\
@@ -43,7 +44,7 @@ class DM(Dobject, BaseEstimator):
 
     def __init__(self, dataDeclaration=None, splitterDeclaration=None,
                  combiner=None, estimator=None, scorerDeclaration=None,
-                 validation=True, holdOut=True, entire=False,
+                 validation=True, holdOut=False, entire=False,
                  metrics=None, hookDeclaration=None,
                  storeReferences=True,
                  mlType='classification',
@@ -179,18 +180,19 @@ class DM(Dobject, BaseEstimator):
                            gridSearch=True, **fitParams)
         self._references['entire'] = self.estimator if self.storeReferences else None
 
-    @fallback('writeAttrs')
+    @fallback('writeAttrs', 'validation', 'holdOut', 'entire')
     @package_dataset
     @split_dataset
     @prepare_design
-    def fit(self, dataset=None, X=None, y=None, writeAttrs=None, **fitParams):
+    def fit(self, dataset=None, X=None, y=None, writeAttrs=None,
+            validation=None, holdOut=None, entire=None, **fitParams):
         """
         Build models, tune hyperparameters, and evaluate
         """
 
-        self._build_cross_validation(dataset, **fitParams) if self.validation else None
-        self._build_holdout(dataset, **fitParams) if self.holdOut else None
-        self._build_entire(dataset, **fitParams) if self.entire else None
+        self._build_cross_validation(dataset, **fitParams) if validation else None
+        self._build_holdout(dataset, **fitParams) if holdOut else None
+        self._build_entire(dataset, **fitParams) if entire else None
 
         self.write(writeAttrs=writeAttrs)
 
