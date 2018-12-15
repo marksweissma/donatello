@@ -1,6 +1,8 @@
-
+"""
+Donatello Manager for orchestrating end to end ML
+"""
 from sklearn import clone
-from sklearn.base import BaseEstimator as _BaseEstimator
+from sklearn.base import BaseEstimator
 from sklearn.utils import Bunch
 
 from donatello.components.data import Dataset, package_dataset
@@ -13,7 +15,7 @@ from donatello.utils.decorators import split_dataset, prepare_design, fallback
 from donatello.utils.base import Dobject
 
 
-class DM(Dobject, _BaseEstimator):
+class DM(Dobject, BaseEstimator):
     """
     Manager for model process. [a-z]*Declaration parameters map 1:1 to
     component objects attached via property setters. Other parameters
@@ -21,22 +23,22 @@ class DM(Dobject, _BaseEstimator):
 
     Manager accessors will fallback to accessing from estimator attributes
 
-    :param dict dataDeclaration: :py:class:`donatello.Dataset`
-    :param dict splitterDeclaration: arguments for :py:class:`donatello.Splitter`
-    :param object combiner: object with fit_transform method to\
+        dataDeclaration (dict): :py:class:`donatello.Dataset`
+        splitterDeclaration (dict): arguments for :py:class:`donatello.Splitter`
+        combiner (object): object with fit_transform method to\
             combine multiple datasets to prepare design matrix -\
             leveraged in :py:func:`donatello.utils.decorators.combine_data`
-    :param donatello.BaseEstimator estimator: estimator for\
+        estimator (donatello.BaseEstimator): estimator for\
             training and predicting
-    :param dict scorerDeclaration: arguments for :py:class:`donatello.Scorer`
-    :param bool validation: flag for calculating scoring metrics from
+        scorerDeclaration (dict): arguments for :py:class:`donatello.Scorer`
+        validation (bool): flag for calculating scoring metrics from
             nested cross val of training + validation sets
-    :param bool holdOut: flag for fitting estimator on entire training set
+        holdOut (bool): flag for fitting estimator on entire training set
             and scoring test set
-    :param iterable metrics: list or dict of metrics for scorer
-    :param dict hookDeclaration: arguments for :py:class:`donatello.Local`
-    :param tuple writeAttrs: attributes to write out to disk
-    :param str nowFormat: format for creation time string
+        metrics (iterable): list or dict of metrics for scorer
+        hookDeclaration (dict): arguments for :py:class:`donatello.Local`
+        writeAttrs (tuple): attributes to write out to disk
+        nowFormat (str): format for creation time string
     """
 
     def __init__(self, dataDeclaration=None, splitterDeclaration=None,

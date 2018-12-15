@@ -43,8 +43,8 @@ class Scorer(Dobject):
 
         Will automatically pull `coef_` and `feature_importances_`
 
-        :param donatello.Estimator estimator: has `features` and `model` attributes
-        :param str attr: option to specify additional attribute to pull
+            estimator (donatello.Estimator): has `features` and `model` attributes
+            attr (str): option to specify additional attribute to pull
         :return: featureValues
         :rtype: :py:class:`pandas.DataFrame`
         """
@@ -85,7 +85,7 @@ class ScorerSupervised(Scorer):
     """
     Base class for evaluating estimators and datasets
 
-    :param str predict_method: method to call from estimator for predicting
+        predict (str)_method: method to call from estimator for predicting
     """
     def __init__(self,
                  method='score',
@@ -126,10 +126,10 @@ class ScorerSupervised(Scorer):
         """
         Score the fitted estimator on y and evaluate metrics
 
-        :param BaseEstimator estimator: Fit estimator to evaluate
-        :param pandas.DataFrame X: design
-        :param pandas.Series y: target
-        :param dict metrics: metrics to evaluate
+            estimator (BaseEstimator): Fit estimator to evaluate
+            X (pandas.DataFrame): design
+            y (pandas.Series): target
+            metrics (dict): metrics to evaluate
         :return: scored, scores
         :rtype: pandas.Series, metric evaluations
         """
@@ -142,11 +142,11 @@ class ScorerSupervised(Scorer):
         """
         Cross validating scorer, clones and fits estimator on each fold of X|y
 
-        :param BaseEstimator estimator: Fit estimator to evaluate
-        :param donatello.Data.dataset: dataset object to cross val over
-        :param pandas.DataFrame X: design
-        :param pandas.Series y: target
-        :param dict metrics: metrics to evaluate
+            estimator (BaseEstimator): Fit estimator to evaluate
+            dataset (donatello.Data.dataset:) object to cross val over
+            X (pandas.DataFrame): design
+            y (pandas.Series): target
+            metrics (dict): metrics to evaluate
         :return: scored, scores
         :rtype: pandas.Series, metric evaluations
         """

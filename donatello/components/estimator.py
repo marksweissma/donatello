@@ -12,12 +12,12 @@ class Estimator(BaseTransformer):
     design and an ML model to fit and predict. Supports options for grid searching for
     hyperparameter optimization
 
-    :param donatello.utils.base.BaseTransformer transformer: object implementing fit, transform, fit_transform
-    :param sklearn.base.BaseEstimator model: ML model implementing fit, predict[a-z]*
-    :param str method: string name of prediction method
-    :param dict paramGrid: specificiont of  HPs to grid search
-    :param dict gridKwargs: options for grid search
-    :param str timeFormat: option to specify timestamp format
+        transformer (donatello.utils.base.BaseTransformer): object implementing fit, transform, fit_transform
+        model (sklearn.base.BaseEstimator): ML model implementing fit, predict[a-z]*
+        method (str): string name of prediction method
+        paramGrid (dict): specificiont of  HPs to grid search
+        gridKwargs (dict): options for grid search
+        timeFormat (str): option to specify timestamp format
     """
 
     # this is to provide interface and not call super
@@ -118,9 +118,7 @@ class Estimator(BaseTransformer):
         """
         Fit method with options for grid searching hyperparameters
         """
-        if gridSearch:
-            self.grid_search(X=X, y=y,
-                    gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
+        self.grid_search(X=X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
 
         transformed = self.transformer.fit_transform(X=X, y=y, **kwargs)
         self.model.fit(transformed, y)

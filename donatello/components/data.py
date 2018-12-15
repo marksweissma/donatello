@@ -15,14 +15,14 @@ class Dataset(Dobject):
     """
     Object for managing data and helping prevent leakage
 
-    :param obj raws: raw data
-    :param dict queries: queries to execute to fetch data if not directly passed
-    :param func querier: default function to execute queries
-    :param bool copyRaws: option to have data return copy of raws to preserve fetch
-    :param obj X: option to specify design directly
-    :param obj y: option to specify target directly
-    :param obj type splitType: type of splitter to leverage in iterator
-    :param obj splitDeclaration: kwargs for split type to instantiate with in constructor
+        raws (obj): raw data
+        queries (dict): queries to execute to fetch data if not directly passed
+        querier (func): default function to execute queries
+        copyRaws (bool): option to have data return copy of raws to preserve fetch
+        X (obj): option to specify design directly
+        y (obj): option to specify target directly
+        type (obj) splitType: type of splitter to leverage in iterator
+        splitDeclaration (obj): kwargs for split type to instantiate with in constructor
     """
     @init_time
     def __init__(self, raws=None, queries=None,
@@ -84,8 +84,8 @@ class Dataset(Dobject):
         Attaches return to :py:attr:`Data.raws`, which can be
         accessed via py:attr:`Data.data`
 
-        :param dict queries: payload of queries
-        :param func querier: option to specify executor at the execution\
+            queries (dict): payload of queries
+            querier (func): option to specify executor at the execution\
                 level rather than the query level
         """
 

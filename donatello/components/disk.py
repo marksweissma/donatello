@@ -7,8 +7,8 @@ class Local(object):
     """
     Object to provide disk interface
 
-    :param func reader: default function to read files
-    :param func writer: default function to write files
+        reader (func): default function to read files
+        writer (func): default function to write files
     """
     def __init__(self, reader=joblib.load, writer=joblib.dump):
         self.reader = reader

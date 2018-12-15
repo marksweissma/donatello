@@ -27,10 +27,10 @@ class Splitter(object):
     Object to split data into training and testing/validation groups.
     Packages dataframes and dictionaries of dataframes
 
-    :param str target: name of target field if supervised
-    :param str primaryKey: if dictionary of dataframes, key of dictionary\
+        target (str): name of target field if supervised
+        primaryKey (str): if dictionary of dataframes, key of dictionary\
             containing primrary df
-    :param splitOver str: option to split over unique values instead \
+        str (splitOver): option to split over unique values instead \
             of random or startification
     """
     @init_time
@@ -56,9 +56,9 @@ class Splitter(object):
         """
         fit splitter => finds and store values for each set
 
-        :param donatello.components.dataset dataset: dataset to fit on
-        :param str target: str name of target field to separate
-        :param str primaryKey: key for primary field (if dataset.data \
+            dataset (donatello.components.dataset): dataset to fit on
+            target (str): str name of target field to separate
+            primaryKey (str): key for primary field (if dataset.data \
                 is dict (not df)
         :returns: fit transformer
         """
@@ -99,8 +99,8 @@ class Splitter(object):
         """
         Split data data into design/target train/test/data
 
-        :param donatello.components.dataset dataset: dataset to fit on
-        :param str target: str name of target field to separate
+            dataset (donatello.components.dataset): dataset to fit on
+            target (str): str name of target field to separate
         :returns: paylod of train/test/data <> design/target subsets
         :rtype: dict
         """
