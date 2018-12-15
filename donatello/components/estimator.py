@@ -127,20 +127,19 @@ class Estimator(BaseTransformer):
 
     @pandas_series
     def score(self, X, name=''):
-        scores = getattr(self, self.typeDispatch[self.mlType]['score'])(X, name)
+        scores = getattr(self, self.typeDispatch[self.mlType]['score'])(X)
         return scores
 
-    def score_all(self, X, name=''):
+    def score_all(self, X):
         """
         Scoring function
         """
         return self.predict_method(X=X)
 
-    def score_first(self, X, name=''):
+    def score_first(self, X):
         """
         Scoring function
         """
-
         return self.predict_method(X=X)[:, 1]
 
     def transform(self, X=None, **kwargs):

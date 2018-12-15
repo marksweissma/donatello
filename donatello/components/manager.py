@@ -27,15 +27,12 @@ class DM(Dobject, BaseEstimator):
         dataDeclaration (dict): :py:class:`donatello.Dataset`
         splitterDeclaration (dict): arguments for :py:class:`donatello.Splitter`
         combiner (object): object with fit_transform method to\
-            combine multiple datasets to prepare design matrix -\
+            combine multiple data items to prepare design matrix -\
             leveraged in :py:func:`donatello.utils.decorators.combine_data`
-        estimator (donatello.BaseEstimator): estimator for\
-            training and predicting
+        estimator (donatello.BaseEstimator): estimator for training and predicting
         scorerDeclaration (dict): arguments for :py:class:`donatello.Scorer`
-        validation (bool): flag for calculating scoring metrics from
-            nested cross val of training + validation sets
-        holdOut (bool): flag for fitting estimator on entire training set
-            and scoring test set
+        validation (bool): flag for calculating scoring metrics from nested cross val of training + validation sets
+        holdOut (bool): flag for fitting estimator on entire training set and scoring test set
         metrics (iterable): list or dict of metrics for scorer
         hookDeclaration (dict): arguments for :py:class:`donatello.Local`
         writeAttrs (tuple): attributes to write out to disk
