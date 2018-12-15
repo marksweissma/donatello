@@ -11,7 +11,7 @@ Welcome to donatello's documentation!
    :caption: Contents:
 
    breast_cancer_simple
-   modules.rst
+   donatello
 
 
 

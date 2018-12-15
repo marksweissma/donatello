@@ -1,12 +1,17 @@
 donatello.examples package
 ==========================
 
-Subpackages
------------
+Submodules
+----------
 
-.. toctree::
+donatello.examples.declaration module
+-------------------------------------
 
-    donatello.examples.breast_cancer_simple
+.. automodule:: donatello.examples.declaration
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

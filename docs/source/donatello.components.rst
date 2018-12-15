@@ -12,14 +12,6 @@ donatello.components.manager module
     :undoc-members:
     :show-inheritance:
 
-donatello.components.estimator module
--------------------------------------
-
-.. automodule:: donatello.components.estimator
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 donatello.components.data module
 --------------------------------
 
@@ -36,6 +28,14 @@ donatello.components.splitter module
     :undoc-members:
     :show-inheritance:
 
+donatello.components.estimator module
+-------------------------------------
+
+.. automodule:: donatello.components.estimator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 donatello.components.scorer module
 ----------------------------------
 
@@ -44,10 +44,10 @@ donatello.components.scorer module
     :undoc-members:
     :show-inheritance:
 
-donatello.components.hook module
+donatello.components.disk module
 --------------------------------
 
-.. automodule:: donatello.components.hook
+.. automodule:: donatello.components.disk
     :members:
     :undoc-members:
     :show-inheritance:
