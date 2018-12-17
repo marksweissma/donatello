@@ -126,9 +126,9 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         """
         Name of object, defaults to class name + model name
         """
-        name = "_".join([self.__class__.__name__,
-                         self.model.__class__.__name__])
-        return name
+        _name = self.__class__.__name__
+        name = [_name, self.model.__class__.__name__] if hasattr(self, 'model') else  [_name]
+        return "_".join(name)
 
     def __repr__(self):
         rep = ['{model} created at {time}'.format(model=self.name,

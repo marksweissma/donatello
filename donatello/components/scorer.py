@@ -125,7 +125,9 @@ class ScorerSupervised(Scorer):
                 output = getattr(self, metric)(**payload)
             else:
                 warn('metric {metric} inaccesible'.format(metric=metric))
+                output = None
 
+            # collect and concat
             scores[name] = scores[name].append(output)
 
         return scores
@@ -134,12 +136,14 @@ class ScorerSupervised(Scorer):
         """
         Score the fitted estimator on y and evaluate metrics
 
+        Args:
             estimator (BaseEstimator): Fit estimator to evaluate
             X (pandas.DataFrame): design
             y (pandas.Series): target
             metrics (dict): metrics to evaluate
-        :return: scored, scores
-        :rtype: pandas.Series, metric evaluations
+
+        Returns:
+            tuple(pandas.Series, metric evaluations): scored, scores
         """
         scored = self._score(estimator, X, y)
         scores = self._evaluate(estimator, scored, metrics)
