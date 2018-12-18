@@ -1,5 +1,4 @@
-from warnings import warn
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
@@ -21,7 +20,7 @@ class Dobject(object):
             #. classificaiton
             #. clustering
        """
-        return self._mlType
+        return getattr(self, '_mlType', None)
 
     @mlType.setter
     def mlType(self, value):

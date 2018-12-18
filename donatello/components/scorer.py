@@ -200,6 +200,8 @@ class ScorerSupervised(Scorer):
                                   for key in set(df.columns.get_level_values(current))})
             return output
 
+        [metric.fit(scored) for metric in metrics]
+
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
@@ -241,50 +243,3 @@ class ScorerSupervised(Scorer):
         estimators = {0: estimator}
         scores = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'scores': scores}
-
-
-class ScorerClassification(ScorerSupervised):
-    """
-    Scorer for classifcation models
-    """
-    def __init__(self, thresholds=None, spacing=101, **kwargs):
-        super(ScorerClassification, self).__init__(**kwargs)
-        self.thresholds = thresholds
-        self.spacing = spacing
-
-    def find_thresholds(self, scored, thresholds=None, spacing=101, **kwargs):
-        if not thresholds:
-            percentiles = np.linspace(0, 1, spacing)
-            self.thresholds = scored.predicted.quantile(percentiles)
-        else:
-            self.thresholds = thresholds
-
-    def evaluate_scored_folds(self, estimators=None, metrics=None, scored=None, X=None, **kwargs):
-        self.find_thresholds(scored)
-        return super(ScorerClassification, self).evaluate_scored_folds(
-                     estimators=estimators, metrics=metrics, scored=scored, X=X, **kwargs)
-
-    @fallback('thresholds')
-    def threshold_rates(self, scored=None, thresholds=None, spacing=101, threshKwargs={}, **kwargs):
-        """
-        """
-        data = np.array([np.hstack((i,
-                                    confusion_matrix(scored.truth.values, (scored.predicted > i).values).reshape(4,)
-                                    )
-                                   ) for i in thresholds])
-
-        df = pd.DataFrame(data=data,
-                          columns=['thresholds', 'true_negative', 'false_positive',
-                                   'false_negative', 'true_positive']
-                          )
-
-        df = df.set_index('thresholds').apply(lambda x: x / np.sum(x), axis=1).reset_index()
-        df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
-        df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
-        df['recall'] = df.true_positive / (df.true_positive + df.false_negative)
-        df['specificity'] = df.true_negative / (df.true_negative + df.false_positive)
-        df['precision'] = df.true_positive / (df.true_positive + df.false_positive)
-        df['negative_predictive_value'] = df.true_negative / (df.true_negative + df.false_negative)
-        df['fall_out'] = 1 - df.specificity
-        df['false_discovery_rate'] = 1 - df.precision
-        return df

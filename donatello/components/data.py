@@ -1,12 +1,13 @@
 import pandas as pd
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.model_selection import KFold, StratifiedKFold, GroupShuffleSplit
 from donatello.utils.base import Dobject
 from donatello.utils.decorators import decorator, init_time, fallback
 
 
 typeDispatch = {'splitter': {None: KFold,
                              'classification': StratifiedKFold,
-                             'regression': KFold
+                             'regression': KFold,
+                             'group': GroupShuffleSplit
                              }
                 }
 
@@ -31,8 +32,8 @@ class Dataset(Dobject):
                  X=None, y=None, mlType=None,
                  typeDispatch=typeDispatch,
                  splitDeclaration={'n_splits': 5,
-                              'shuffle': True,
-                              'random_state': 22},
+                                   'shuffle': True,
+                                   'random_state': 22},
                  groupKey=None,
                  ):
 
@@ -85,6 +86,7 @@ class Dataset(Dobject):
         Attaches return to :py:attr:`Data.raws`, which can be
         accessed via py:attr:`Data.data`
 
+        Args:
             queries (dict): payload of queries
             querier (func): option to specify executor at the execution\
                 level rather than the query level
@@ -131,7 +133,7 @@ class Dataset(Dobject):
 @decorator
 def package_dataset(wrapped, instance, args, kwargs):
     """
-    Package X (and y if supervised) in Data object via mlType
+    Frome keyword arguments ackage X (and y if supervised) in Data object via mlType
     """
     X = kwargs.pop('X', None)
     y = kwargs.pop('y', None)
