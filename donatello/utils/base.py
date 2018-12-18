@@ -10,7 +10,12 @@ class Dobject(object):
 
     @property
     def name(self):
-        return self.__class__.__name__
+        name = getattr(self, '_name',  self.__class__.__name__)
+        return name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def mlType(self):

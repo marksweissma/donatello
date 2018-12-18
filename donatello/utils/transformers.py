@@ -3,19 +3,16 @@ import pandas as pd
 
 from inspect import getmembers
 
-from sklearn.preprocessing import Imputer, StandardScaler, OneHotEncoder
-from sklearn.base import TransformerMixin
-from sklearn.pipeline import (Pipeline, FeatureUnion,
-                              _fit_transform_one, _transform_one)
-from sklearn.externals.joblib import Parallel, delayed
+from sklearn.preprocessing import OneHotEncoder  # ,Imputer,  StandardScaler
+from sklearn import clone
 
 from donatello.utils.base import PandasAttrs, BaseTransformer
-from donatello.utils.decorators import init_time
+from donatello.utils.decorators import init_time, package_data, name
 
 
 def _base_methods():
     methods = set([])
-    for _type in [BaseTransformer, Pipeline, FeatureUnion]:
+    for _type in [BaseTransformer]:
         methods = methods.union(set([i[0] for i in getmembers(_type)]))
     return methods
 
@@ -85,10 +82,6 @@ class PandasMixin(PandasAttrs):
     def transform(self, *args, **kwargs):
         return super(PandasMixin, self).transform(*args, **kwargs)
 
-    # def fit_transform(self, *args, **kwargs):
-        # self.fit(*args, **kwargs)
-        # return self.transform(*args, **kwargs)
-
     @extract_fields
     @enforce_features
     def fit_transform(self, *args, **kwargs):
@@ -150,7 +143,7 @@ class Selector(PandasTransformer):
         return X.reindex(columns=self.inclusions)
 
 
-class AttributeTransformer(PandasTransformer):
+class AccessTransformer(PandasTransformer):
     """
     Transformer leveraing attribute methods of the design object
     """
@@ -164,22 +157,9 @@ class AttributeTransformer(PandasTransformer):
         return X
 
 
-class CallbackTransformer(PandasTransformer):
-    """
-    Transformer to apply call back on design object
-    """
-    def __init__(self, callback=None, args=(), kwargs={}):
-        self.callback
-        self.args = args
-        self.kwargs = kwargs
-
-    def transform(self, X=None, **fitParams):
-        X = self.callback(X, *self.args, **self.kwargs)
-        return X
-
-
 class Node(object):
     @init_time
+    @name
     def __init__(self, name='transformer', transformers=None, aggregator=None):
         self.name = name
         self.transformers = transformers
@@ -194,8 +174,9 @@ class Node(object):
         self.information = None
         self.transformers = [clone(transformer) for transformer in self.transformers]
 
-    def fit(self, data,  **kwargs):
-        [transformer.fit(X=X, y=y, **kwargs) for transformer in self.transformers]
+    @package_data
+    def fit(self, dataset=None, X=None, y=None, **kwargs):
+        [transformer.fit(X=dataset.designData, y=dataset.targetData, **kwargs) for transformer in self.transformers]
         return self
 
     def transform(self, X=None, y=None, **kwargs):
@@ -209,6 +190,7 @@ class Node(object):
 
 
 class TransformationDAG(object):
+    @name
     def __init__(self, graph=None, attr='executor'):
         self.graph = graph
         self.attr = attr
@@ -225,8 +207,7 @@ class TransformationDAG(object):
             fields = [self.graph.nodes[parent][self.attr].information for parent in parents]
             information = self.graph.nodes[node][self.attr].fit_transform(fields)
         else:
-            information = self.graph.nodes[node][self.attr].fit_transform([self.flush(parent, data) for parent in parents])
+            information = self.graph.nodes[node][self.attr].fit_transform([self.flush(parent, data)
+                                                                           for parent in parents])
 
         return information
-
-

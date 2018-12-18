@@ -55,7 +55,7 @@ def pandas_series(wrapped, instance, args, kwargs):
 
     name = nvl(name, instance.name)
     index = X[index] if index in X else X.index
-    result =  pd.Series(yhat, index=index, name=name)
+    result = pd.Series(yhat, index=index, name=name)
     return result
 
 
@@ -114,3 +114,11 @@ def update(**defaults):
         result = wrapped(*tuple(args), **kwargs)
         return result
     return _wrapper
+
+
+@decorator
+def name(wrapped, instance, args, kwargs):
+        _name = getattr(instance, '_name', instance.__class___.__name__)
+        instance._name = _name
+        result = wrapped(*tuple(args), **kwargs)
+        return result

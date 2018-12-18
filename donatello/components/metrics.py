@@ -10,16 +10,13 @@ from donatello.utils.decorators import init_time, coelesce, fallback
 class Metric(Dobject):
     @init_time
     @coelesce(columns=['score'])
+    #  @name
     def __init__(self, scorer=None, columns=None, name='', mlType=None):
         self.columns = columns
         self.scorer = scorer
-        self._name = name if name else getattr(scorer, '__name__',
-                                               self.__class__.__name__)
+        _name = getattr(scorer, '__name__', self.__class___.__name__)
+        self._name = name if name else _name
         self.mlType = mlType
-
-    @property
-    def name(self):
-        return self._name
 
     def fit(self, scored):
         return self
