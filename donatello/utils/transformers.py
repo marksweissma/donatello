@@ -7,7 +7,8 @@ from sklearn.preprocessing import OneHotEncoder  # ,Imputer,  StandardScaler
 from sklearn import clone
 
 from donatello.utils.base import PandasAttrs, BaseTransformer
-from donatello.utils.decorators import init_time, package_data, name
+from donatello.utils.decorators import init_time, package_data, name, fallback
+from donatell.utils.helpers import access
 
 
 def _base_methods():
@@ -179,6 +180,7 @@ class Node(object):
         [transformer.fit(X=dataset.designData, y=dataset.targetData, **kwargs) for transformer in self.transformers]
         return self
 
+    @package_data
     def transform(self, X=None, y=None, **kwargs):
         if not self.information_available:
             information = pd.concat([transformer.transform(X=X, y=y) for
@@ -198,16 +200,30 @@ class TransformationDAG(object):
     def clean(self):
         [self.graph.nodes[node][self.attr].reset() for node in self.graph]
 
-    def flush(self, node, data):
+    @property
+    def root(self):
+        root = [node for node in self.graph.nodes() if
+                self.graph.out_degree(node) == 0 and self.graph.in_degree(node) == 1][0]
+        return root
+
+    @fallback('root')
+    def fit(self, data, root=None):
         self.clean_graph()
+        terminal = self.root
+        parent = tuple(self.graph.succesors(terminal))
+        information = self._fit(parent, data, 'fit_transform') if parent else data
+        terminal.fit(information)
+        return self
+
+    def _fit(self, node, data, method):
         parents = tuple(self.graph.succesors(node))
         if not parents:
-            information = self.graph.nodes[node][self.attr].transform(data)
+            information = access(self.graph.nodes, [node, self.attr], method=method, methodArgs=(data))
         elif all([self.graph.nodex[parent][self.attr].information_available for parent in parents]):
-            fields = [self.graph.nodes[parent][self.attr].information for parent in parents]
-            information = self.graph.nodes[node][self.attr].fit_transform(fields)
+            fields = pd.concat([self.graph.nodes[parent][self.attr].information for parent in parents], axis=1)
+            information = access(self.graph.nodes, [node, self.attr], method=method, methodArgs=(fields))
         else:
-            information = self.graph.nodes[node][self.attr].fit_transform([self.flush(parent, data)
-                                                                           for parent in parents])
+            fields = pd.concat([self.flush(parent, data) for parent in parents], axis=1)
+            information = access(self.graph.nodes, [node, self.attr], method=method, methodArgs=(fields))
 
         return information

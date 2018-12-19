@@ -4,13 +4,13 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 from donatello.utils.base import Dobject
-from donatello.utils.decorators import init_time, coelesce, fallback
+from donatello.utils.decorators import init_time, coelesce, fallback, name
 
 
 class Metric(Dobject):
     @init_time
     @coelesce(columns=['score'])
-    #  @name
+    @name
     def __init__(self, scorer=None, columns=None, name='', mlType=None):
         self.columns = columns
         self.scorer = scorer
