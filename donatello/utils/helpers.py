@@ -5,7 +5,8 @@ def now_string(strFormat="%Y_%m_%d_%H_%M"):
     """
     Pandas formatted string from time
 
-    :param str strFormat: format for time
+    Args:
+        strFormat (str): format for time
     """
     return pd.datetime.now().strftime(strFormat)
 
@@ -28,10 +29,11 @@ def has_nested_attribute(obj, attrPath, separator='_'):
     """
     Check whether nested attribute exists via string name
 
-    :param object obj: Object to traverse.
-    :param str attrPath: Path to attribute location split by separator,\
+    Args:
+        obj (object): Object to traverse.
+        attrPath (str): Path to attribute location split by separator,\
             use empty string "" to return obj
-    :param str separator: separator for nesting levels in string representation
+        separator (str): separator for nesting levels in string representation
     """
     if hasattr(obj, attrPath):
         return True
@@ -58,10 +60,11 @@ def get_nested_attribute(obj, attrPath, separator='_'):
     """
     Get nested attribute via string name. passing empty string returns obj
 
-    :param object obj: Object to traverse.
-    :param str attrPath: Path to attribute location split by separator,\
+    Args:
+        obj (object): Object to traverse.
+        attrPath (str): Path to attribute location split by separator,\
             use empty string "" to return obj
-    :param str separator: separator for nesting levels in string representation
+        separator (str): separator for nesting levels in string representation
     """
     if attrPath and not has_nested_attribute(obj, attrPath, separator):
         raise AttributeError('{obj} does not have {attrPath}'.format(
@@ -111,19 +114,21 @@ def access(obj=None, attrPath=None,
     """
     Access information from nested object
 
-    :param object obj: object to access from
-    :param list attrPath: sequence of traversal
-    :param str method: (optional) method to call at end of path
-    :param tuple methodArgs: positional args for method
-    :param tuple methodKwargs: keyword args for method
-    :param str cb: (optional) cb to call at end of path
-    :param tuple cbArgs: positional args for cb
-    :param tuple cbKwargs: keyword args for cb
-    :param tuple slicers: object types to use ``__getitem__`` slice rather than getattr
-    :param obj default: option to return default (if not rasiing errors)
-    :param str errors: option to raise errors ('raise') or ignore ('ignore')
+    Args:
+        obj (object): object to access from
+        attrPath (list): sequence of traversal
+        method (str): (optional) method to call at end of path
+        methodArgs (tuple): positional args for method
+        methodKwargs (tuple): keyword args for method
+        cb (str): (optional) cb to call at end of path
+        cbArgs (tuple): positional args for cb
+        cbKwargs (tuple): keyword args for cb
+        slicers (tuple): object types to use ``__getitem__`` slice rather than getattr
+        default (obj): option to return default (if not rasiing errors)
+        errors (str): option to raise errors ('raise') or ignore ('ignore')
 
-    :return: value of given prescription
+    Returns:
+        obj: value of given prescription
     """
 
     if not attrPath or not attrPath[0]:

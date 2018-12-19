@@ -100,13 +100,14 @@ class Selector(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
-    :param obj selectValue: values used for selection
-    :param str selectMethod: type of selection
+    Args:
+        selectValue (obj): values used for selection
+        selectMethod (str): type of selection
             #. None / '' -> direct key /value look up (i.e. column names to\
                     slice with)
             # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes`\
                     to select by data type.
-    :param bool reverse: option to select all except those fields isolated\
+        reverse (bool): option to select all except those fields isolated\
             by selectValue and selectMethod
     """
     def __init__(self, selectValue=(), selectMethod=None, reverse=False):
@@ -145,7 +146,6 @@ class Selector(PandasTransformer):
 
 class AccessTransformer(PandasTransformer):
     """
-    Transformer leveraing attribute methods of the design object
     """
     def __init__(self, attribute=None, args=(), kwargs={}):
         self.attribute = attribute
