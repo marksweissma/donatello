@@ -6,6 +6,8 @@ from inspect import getmembers
 from sklearn.preprocessing import OneHotEncoder  # ,Imputer,  StandardScaler
 from sklearn import clone
 
+import networkx as nx
+
 from donatello.utils.base import PandasAttrs, BaseTransformer
 from donatello.utils.decorators import init_time, package_data, name, fallback
 from donatell.utils.helpers import access
@@ -191,39 +193,52 @@ class Node(object):
         return self.information
 
 
-class TransformationDAG(object):
+class DAG(nx.DiGraph):
+    @init_time
     @name
-    def __init__(self, graph=None, attr='executor'):
-        self.graph = graph
-        self.attr = attr
+    def __init__(self, executor='executor', *args, **kwargs):
+        super(DAG, self).__init__(*args, **kwargs)
+        self.executor = executor
 
     def clean(self):
-        [self.graph.nodes[node][self.attr].reset() for node in self.graph]
+        [self.nodes[node][self.executor].reset() for node in self]
 
     @property
     def root(self):
-        root = [node for node in self.graph.nodes() if
-                self.graph.out_degree(node) == 0 and self.graph.in_degree(node) == 1][0]
+        root = [node for node in self.nodes if self.out_degree(node) == 0 and self.in_degree(node) == 1][0]
         return root
 
     @fallback('root')
     def fit(self, data, root=None):
         self.clean_graph()
-        terminal = self.root
-        parent = tuple(self.graph.succesors(terminal))
-        information = self._fit(parent, data, 'fit_transform') if parent else data
-        terminal.fit(information)
+        head = self.root
+        parents = tuple(self.succesors(head))
+        if len(parents) > 1:
+            raise ValueError('Terminal transformation is not unified')
+        data = self.apply(data, parents[0], 'fit_transform') if parents else data
+        self.nodes[head].fit(data)
         return self
 
-    def _fit(self, node, data, method):
-        parents = tuple(self.graph.succesors(node))
-        if not parents:
-            information = access(self.graph.nodes, [node, self.attr], method=method, methodArgs=(data))
-        elif all([self.graph.nodex[parent][self.attr].information_available for parent in parents]):
-            fields = pd.concat([self.graph.nodes[parent][self.attr].information for parent in parents], axis=1)
-            information = access(self.graph.nodes, [node, self.attr], method=method, methodArgs=(fields))
-        else:
-            fields = pd.concat([self.flush(parent, data) for parent in parents], axis=1)
-            information = access(self.graph.nodes, [node, self.attr], method=method, methodArgs=(fields))
+    # replace concat with combine
+    def apply(self, node, data, method):
+        parents = tuple(self.succesors(node))
+        if parents and all([self.nodes[parent][self.executor].information_available for parent in parents]):
+            data = pd.concat([self.nodes[parent][self.executor].information for parent in parents], axis=1)
+        elif parents:
+            data = pd.concat([self.apply(parent, data, method) for parent in parents], axis=1)
+        information = access(self.nodes, [node, self.executor], method=method, methodArgs=(data))
 
         return information
+
+    # def __fit(self, node, data, method):
+        # parents = tuple(self.succesors(node))
+        # if not parents:
+            # information = access(self.nodes, [node, self.executor], method=method, methodArgs=(data))
+        # elif all([self.nodes[parent][self.executor].information_available for parent in parents]):
+            # df = pd.concat([self.nodes[parent][self.executor].information for parent in parents], axis=1)
+            # information = access(self.nodes, [node, self.executor], method=method, methodArgs=(df))
+        # else:
+            # df = pd.concat([self.flush(parent, data) for parent in parents], axis=1)
+            # information = access(self.nodes, [node, self.executor], method=method, methodArgs=(df))
+
+        # return information

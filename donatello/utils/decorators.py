@@ -1,5 +1,7 @@
+import inspect
 import pandas as pd
 from wrapt import decorator
+
 from donatello.utils.helpers import now_string, nvl
 
 
@@ -94,24 +96,13 @@ def fallback(*defaults):
     """
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):
+        spec = inspect.getargspec(wrapped)
         for default in defaults:
-            kwargs[default] = kwargs.get(default, getattr(instance, default, None))
+            index = spec.args.index(default)
+            if index > len(args):
+                kwargs[default] = kwargs.get(default, getattr(instance, default, None))
+
         result = wrapped(*args, **kwargs)
-        return result
-    return _wrapper
-
-
-def update(**defaults):
-    """
-    update first arg payload with attr from obj
-    """
-    @decorator
-    def _wrapper(wrapped, instance, args, kwargs):
-        args = list(args)
-        for default, index in defaults.items():
-            args[index] = args[index] if args[index] else {}
-            args[index][default] = args[index][default] if default in args[index] else getattr(instance, default, None)
-        result = wrapped(*tuple(args), **kwargs)
         return result
     return _wrapper
 
@@ -120,5 +111,5 @@ def update(**defaults):
 def name(wrapped, instance, args, kwargs):
         _name = getattr(instance, '_name', instance.__class___.__name__)
         instance._name = _name
-        result = wrapped(*tuple(args), **kwargs)
+        result = wrapped(*args, **kwargs)
         return result
