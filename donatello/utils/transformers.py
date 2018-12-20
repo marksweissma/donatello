@@ -8,7 +8,7 @@ from sklearn import clone
 
 import networkx as nx
 
-from donatello.utils.base import PandasAttrs, BaseTransformer
+from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
 from donatello.utils.decorators import init_time, package_data, name, fallback
 from donatell.utils.helpers import access
 
@@ -127,8 +127,9 @@ class Selector(PandasTransformer):
         inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
         return inclusions
 
-    @extract_fields
-    def fit(self, X=None, y=None):
+    def fit(self, X=None, y=None, **fitParams):
+        super(Selector, self).fit(X=X, y=y, **fitParams)
+
         if self.selectMethod:
             inclusions = getattr(self, self.selectMethod)(X, self.selectValue)
         else:
@@ -142,25 +143,23 @@ class Selector(PandasTransformer):
 
         return self
 
-    @enforce_features
     def transform(self, X=None, y=None):
-        return X.reindex(columns=self.inclusions)
+        X = X.reindex(columns=self.inclusions)
+        return super(Selector, self).transform(X=X, y=y)
 
 
 class AccessTransformer(PandasTransformer):
     """
     """
-    def __init__(self, attribute=None, args=(), kwargs={}):
-        self.attribute = attribute
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(self, **kwargs):
+        self._kwargs = kwargs
 
-    def transform(self, X=None, **fitParams):
-        X = getattr(X, self.attribute)(*self.args, **self.kwargs)
-        return X
+    def transform(self, X=None, y=None):
+        X = access(X, **self._kwargs)
+        return super(Selector, self).transform(X=X, y=y)
 
 
-class Node(object):
+class Node(Dobject):
     @init_time
     @name
     def __init__(self, name='transformer', transformers=None, aggregator=None):
@@ -193,15 +192,18 @@ class Node(object):
         return self.information
 
 
-class DAG(nx.DiGraph):
+class ModelDAG(nx.DiGraph):
     @init_time
     @name
     def __init__(self, executor='executor', *args, **kwargs):
-        super(DAG, self).__init__(*args, **kwargs)
+        super(ModelDAG, self).__init__(*args, **kwargs)
         self.executor = executor
 
+    def nodes_exec(self, node):
+        return self.nodes[node][self.executor]
+
     def clean(self):
-        [self.nodes[node][self.executor].reset() for node in self]
+        [self.nodes_exec(node).reset() for node in self]
 
     @property
     def root(self):
@@ -212,21 +214,23 @@ class DAG(nx.DiGraph):
     def fit(self, data, root=None):
         self.clean_graph()
         head = self.root
+
         parents = tuple(self.succesors(head))
         if len(parents) > 1:
             raise ValueError('Terminal transformation is not unified')
+
         data = self.apply(data, parents[0], 'fit_transform') if parents else data
-        self.nodes[head].fit(data)
+        self.nodes_exec(head).fit(data)
         return self
 
     # replace concat with combine
     def apply(self, node, data, method):
         parents = tuple(self.succesors(node))
-        if parents and all([self.nodes[parent][self.executor].information_available for parent in parents]):
-            data = pd.concat([self.nodes[parent][self.executor].information for parent in parents], axis=1)
+        if parents and all([self.nodes_exec(parent).information_available for parent in parents]):
+            data = pd.concat([self.nodes_exec(parent).information for parent in parents], axis=1)
         elif parents:
             data = pd.concat([self.apply(parent, data, method) for parent in parents], axis=1)
-        information = access(self.nodes, [node, self.executor], method=method, methodArgs=(data))
+        information = access(self.nodes_exec(node), method=method, methodArgs=(data))
 
         return information
 
