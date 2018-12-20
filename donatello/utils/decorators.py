@@ -34,18 +34,6 @@ def split_dataset(wrapped, instance, args, kwargs):
 
 
 @decorator
-def prepare_design(wrapped, instance, args, kwargs):
-    """
-    Apply `combiner` to dataset to create final design (if applicable)
-    """
-    dataset = kwargs.pop('dataset', None)
-    if getattr(instance, 'combiner', None):
-        dataset = instance.combiner.fit_transform(dataset)
-    result = wrapped(dataset=dataset, *args, **kwargs)
-    return result
-
-
-@decorator
 def pandas_series(wrapped, instance, args, kwargs):
     """
     Enforce output as :py:class:`pandas.Series`
@@ -83,8 +71,11 @@ def coelesce(**defaults):
     """
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):
+        spec = inspect.getargspec(wrapped)
         for key, default in defaults.items():
-            kwargs[key] = kwargs.get(key, default)
+            index = spec.args.index(default)
+            if index > len(args):
+                kwargs[key] = kwargs.get(key, default)
         result = wrapped(*args, **kwargs)
         return result
     return _wrapper

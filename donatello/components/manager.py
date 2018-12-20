@@ -11,7 +11,7 @@ from donatello.components.disk import Local
 from donatello.components.scorer import (ScorerClassification,
                                          ScorerSupervised)
 from donatello.utils.helpers import has_nested_attribute, now_string
-from donatello.utils.decorators import split_dataset, prepare_design, fallback
+from donatello.utils.decorators import split_dataset, fallback
 from donatello.utils.base import Dobject
 
 
@@ -180,7 +180,6 @@ class DM(Dobject, BaseEstimator):
     @fallback('writeAttrs', 'validation', 'holdOut', 'entire')
     @package_dataset
     @split_dataset
-    @prepare_design
     def fit(self, dataset=None, X=None, y=None, writeAttrs=None,
             validation=None, holdOut=None, entire=None, **fitParams):
         """
