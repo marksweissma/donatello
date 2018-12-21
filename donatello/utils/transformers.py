@@ -229,20 +229,21 @@ class ModelDAG(nx.DiGraph):
         if parents and all([self.nodes_exec(parent).information_available for parent in parents]):
             data = pd.concat([self.nodes_exec(parent).information for parent in parents], axis=1)
         elif parents:
-            data = pd.concat([self.apply(parent, data, method) for parent in parents], axis=1)
+
+            output = [self.apply(parent,
+                                 access(self.get_edge_data(parent, node)[self.executor], method)(data),
+                                 method
+                                 )
+                      for parent in parents]
+            data = self.node_exec(node).combine(output)
+
         information = access(self.nodes_exec(node), method=method, methodArgs=(data))
 
         return information
 
-    # def __fit(self, node, data, method):
-        # parents = tuple(self.succesors(node))
-        # if not parents:
-            # information = access(self.nodes, [node, self.executor], method=method, methodArgs=(data))
-        # elif all([self.nodes[parent][self.executor].information_available for parent in parents]):
-            # df = pd.concat([self.nodes[parent][self.executor].information for parent in parents], axis=1)
-            # information = access(self.nodes, [node, self.executor], method=method, methodArgs=(df))
-        # else:
-            # df = pd.concat([self.flush(parent, data) for parent in parents], axis=1)
-            # information = access(self.nodes, [node, self.executor], method=method, methodArgs=(df))
+    def add_node_transformer(self, node):
+        self.add_node(node.name, **{self.executor: node})
 
-        # return information
+    def add_edge_selector(self, node_from, node_to, *args, **kwargs):
+        selector = Selector(*args, **kwargs)
+        self.add_edge(node_from.name, node_to.name, **{self.executor: selector})
