@@ -18,18 +18,18 @@ class Dobject(object):
         self._name = value
 
     @property
-    def mlType(self):
+    def mlClay(self):
         """
         Define type of learning
             #. regression
             #. classificaiton
             #. clustering
        """
-        return getattr(self, '_mlType', None)
+        return getattr(self, '_mlClay', None)
 
-    @mlType.setter
-    def mlType(self, value):
-        self._mlType = value
+    @mlClay.setter
+    def mlClay(self, value):
+        self._mlClay = value
 
     def __repr__(self):
         time = getattr(self, '_initTime', '[no_init_time]')

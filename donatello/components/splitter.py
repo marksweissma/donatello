@@ -41,15 +41,15 @@ class Splitter(object):
                  foldDispatch=foldDispatch,
                  typeDispatch=typeDispatch,
                  runTimeAccess=None,
-                 mlType=None
+                 mlClay=None
                  ):
 
         self.target = target
         self.primaryKey = primaryKey
         self.splitOver = splitOver
         self.runTimeAccess = runTimeAccess if runTimeAccess else {}
-        self.folder = typeDispatch.get(mlType)(**foldDispatch.get(mlType))
-        self.mlType = mlType
+        self.folder = typeDispatch.get(mlClay)(**foldDispatch.get(mlClay))
+        self.mlClay = mlClay
 
     @fallback('target', 'primaryKey')
     def fit(self, dataset=None, target=None, primaryKey=None, **fitParams):

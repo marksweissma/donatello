@@ -9,7 +9,7 @@ from sklearn.model_selection import GroupKFold
 
 from donatello.components.manager import DM
 from donatello.components.estimator import Estimator
-from donatello.utils.transformers import Selector
+from donatello.utils.transformers import KeySelector
 from donatello.utils.helpers import reformat_aggs
 from donatello.components.scorer import Scorer
 
@@ -34,7 +34,7 @@ def load_data_split(asDf, group):
                      'splitDeclaration': {}
                      })
 
-        split.update({'mlType': 'group',
+        split.update({'mlClay': 'group',
             'runTimeAccess': {'groups': {'attrPath': ['grouper', 'values'], 'slicers': (pd.DataFrame, dict)}}
                       })
 
@@ -66,10 +66,10 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
     data, split = load_data_split(asDf, group)
 
     estimator = Estimator(model=LogisticRegression(),
-                          transformer=Selector(['grouper'], reverse=True),
+                          transformer=KeySelector(['grouper'], reverse=True),
                           paramGrid={'model__C': list(pd.np.logspace(-2, 0, 10))},
                           gridKwargs={'scoring': 'f1', 'cv': 5},
-                          mlType='classification'
+                          mlClay='classification'
                           )
 
     metrics = load_metrics(metrics)
@@ -77,7 +77,7 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
                    'splitterDeclaration': split,
                    'estimator': estimator,
                    'metrics': metrics,
-                   'mlType': 'classification',
+                   'mlClay': 'classification',
                    'validation': True,
                    'holdOut': True
                    }
@@ -89,10 +89,10 @@ def load_random_forest_declaration(group=True, asDf=True, metrics=None):
     data, split = load_data_split(asDf, group)
 
     estimator = Estimator(model=RandomForestClassifier(n_estimators=10),
-                          transformer=Selector(['grouper'], reverse=True),
+                          transformer=KeySelector(['grouper'], reverse=True),
                           paramGrid={'model__max_depth': [3, 5, 7]},
                           gridKwargs={'scoring': 'f1', 'cv': 5},
-                          mlType='classification'
+                          mlClay='classification'
                           )
 
     metrics = load_metrics(metrics, 'feature_importances')
@@ -101,7 +101,7 @@ def load_random_forest_declaration(group=True, asDf=True, metrics=None):
                    'splitterDeclaration': split,
                    'estimator': estimator,
                    'metrics': metrics,
-                   'mlType': 'classification',
+                   'mlClay': 'classification',
                    'validation': True,
                    'holdOut': True
                    }
@@ -115,7 +115,7 @@ def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_
     estimator = Estimator(model=IsolationForest(),
                           typeDispatch={'classification': {'method': 'decision_function', 'score': 'score_all'}},
                           gridKwargs={'scoring': 'f1', 'cv': 5},
-                          mlType='classification'
+                          mlClay='classification'
                           )
 
     metrics = load_metrics(metrics)
@@ -123,7 +123,7 @@ def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_
                    'splitterDeclaration': split,
                    'estimator': estimator,
                    'metrics': metrics,
-                   'mlType': 'classification',
+                   'mlClay': 'classification',
                    'validation': True,
                    'holdOut': True
                    }

@@ -5,13 +5,14 @@ from sklearn import clone
 from sklearn.base import BaseEstimator
 from sklearn.utils import Bunch
 
-from donatello.components.data import Dataset, package_dataset
 from donatello.components.splitter import Splitter
-from donatello.components.disk import Local
+from donatello.components.data import Dataset, package_dataset
+from donatello.components.estimator import Estimator
 from donatello.components.scorer import ScorerSupervised
-                                         
+from donatello.components.disk import Local
+
 from donatello.utils.helpers import has_nested_attribute, now_string
-from donatello.utils.decorators import split_dataset, fallback
+from donatello.utils.decorators import fallback
 from donatello.utils.base import Dobject
 
 
@@ -25,26 +26,23 @@ class DM(Dobject, BaseEstimator):
 
     Args:
         dataDeclaration (dict): :py:class:`donatello.Dataset`
-        splitterDeclaration (dict): arguments for :py:class:`donatello.Splitter`
-        combiner (object): object with fit_transform method to\
-            combine multiple data items to prepare design matrix -\
-            leveraged in :py:func:`donatello.utils.decorators.combine_data`
-        estimator (donatello.BaseEstimator): estimator for training and predicting
+        splitterDeclaration (dict): arguments for :py:class:`donatello.splitter.Splitter`
+        estimatorDeclaration (dict): arguments for :py:class:`donatello.Estimator.estimator`
         scorerDeclaration (dict): arguments for :py:class:`donatello.Scorer`
         validation (bool): flag for calculating scoring metrics from nested cross val of training + validation sets
-        holdOut (bool): flag for fitting estimator on entire training set and scoring test set
+        holdOut (bool): flag for fitting estimator on single training set and scoring on test set
         metrics (iterable): list or dict of metrics for scorer
         hookDeclaration (dict): arguments for :py:class:`donatello.Local`
         writeAttrs (tuple): attributes to write out to disk
-        nowFormat (str): format for creation time string
+        timeFormat (str): format for creation time string
     """
 
     def __init__(self, dataDeclaration=None, splitterDeclaration=None,
-                 combiner=None, estimator=None, scorerDeclaration=None,
+                 estimatorDeclaration=None, scorerDeclaration=None,
                  validation=True, holdOut=False, entire=False,
                  metrics=None, hookDeclaration=None,
                  storeReferences=True,
-                 mlType='classification',
+                 mlClay='classification',
                  typeDispatch={'scorer': {'classification': ScorerSupervised,
                                           'regression': ScorerSupervised
                                           },
@@ -56,12 +54,9 @@ class DM(Dobject, BaseEstimator):
 
         self._initTime = now_string(timeFormat)
 
-        self.mlType = mlType
+        self.mlClay = mlClay
         self.typeDispatch = typeDispatch
         self.metrics = metrics
-        self.combiner = combiner
-
-        self.estimator = estimator
 
         # Build options
         self.validation = validation
@@ -69,8 +64,9 @@ class DM(Dobject, BaseEstimator):
         self.entire = entire
 
         # Uses setters to instantiate components
-        self.dataset = dataDeclaration
         self.splitter = splitterDeclaration
+        self.dataset = dataDeclaration
+        self.estimator = estimatorDeclaration
         self.scorer = scorerDeclaration
         self.hook = hookDeclaration
 
@@ -94,19 +90,6 @@ class DM(Dobject, BaseEstimator):
 
     # components
     @property
-    def dataset(self):
-        """
-        Dataset object attached to manager
-        """
-        return self._dataset
-
-    @dataset.setter
-    def dataset(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        kwargs.update({'mlType': self.mlType}) if 'mlType' not in kwargs else None
-        self._dataset = Dataset(**kwargs)
-
-    @property
     def splitter(self):
         """
         Splitter object attached to manager
@@ -116,8 +99,34 @@ class DM(Dobject, BaseEstimator):
     @splitter.setter
     def splitter(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        kwargs.update({'mlType': self.mlType}) if 'mlType' not in kwargs else None
+        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
         self._splitter = self.typeDispatch.get('splitter')(**kwargs)
+
+    @property
+    def dataset(self):
+        """
+        Dataset object attached to manager
+        """
+        return self._dataset
+
+    @dataset.setter
+    def dataset(self, kwargs):
+        kwargs = kwargs if kwargs else {}
+        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
+        self._dataset = Dataset(**kwargs)
+
+    @property
+    def estimator(self):
+        """
+        Dataset object attached to manager
+        """
+        return self._estimator
+
+    @estimator.setter
+    def estimator(self, kwargs):
+        kwargs = kwargs if kwargs else {}
+        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
+        self._estimator = Estimator(**kwargs)
 
     @property
     def scorer(self):
@@ -129,8 +138,8 @@ class DM(Dobject, BaseEstimator):
     @scorer.setter
     def scorer(self, kwargs):
         kwargs = kwargs if kwargs else {}
-        kwargs.update({'mlType': self.mlType}) if 'mlType' not in kwargs else None
-        self._scorer = self.typeDispatch.get('scorer').get(self.mlType)(**kwargs)
+        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
+        self._scorer = self.typeDispatch.get('scorer').get(self.mlClay)(**kwargs)
 
     @property
     def hook(self):
@@ -179,7 +188,7 @@ class DM(Dobject, BaseEstimator):
 
     @fallback('writeAttrs', 'validation', 'holdOut', 'entire')
     @package_dataset
-    @split_dataset
+    # @split_dataset
     def fit(self, dataset=None, X=None, y=None, writeAttrs=None,
             validation=None, holdOut=None, entire=None, **fitParams):
         """

@@ -11,12 +11,12 @@ class Metric(Dobject):
     @init_time
     @coelesce(columns=['score'])
     @name
-    def __init__(self, scorer=None, columns=None, name='', mlType=None):
+    def __init__(self, scorer=None, columns=None, name='', mlClay=None):
         self.columns = columns
         self.scorer = scorer
         _name = getattr(scorer, '__name__', self.__class___.__name__)
         self._name = name if name else _name
-        self.mlType = mlType
+        self.mlClay = mlClay
 
     def fit(self, scored):
         return self

@@ -2,8 +2,7 @@ from sklearn.model_selection import GridSearchCV
 
 from donatello.utils.base import BaseTransformer
 from donatello.utils.decorators import pandas_series, fallback
-from donatello.utils.helpers import now_string, nvl
-from donatello.utils.transformers import Selector
+from donatello.utils.helpers import now_string
 
 
 class Estimator(BaseTransformer):
@@ -23,9 +22,8 @@ class Estimator(BaseTransformer):
 
     # this is to provide interface and not call super
     def __init__(self,
-                 transformer=None,
                  model=None,
-                 mlType='regression',
+                 mlClay='regression',
                  typeDispatch={'regression': {'method': 'predict', 'score': 'score_all'},
                                'classification': {'method': 'predict_proba', 'score': 'score_first'}
                                },
@@ -36,9 +34,8 @@ class Estimator(BaseTransformer):
 
         self._initTime = now_string(timeFormat)
 
-        self.transformer = nvl(transformer, Selector(reverse=True))
         self.model = model
-        self._mlType = mlType
+        self._mlClay = mlClay
         self._typeDispatch = typeDispatch
 
         self.paramGrid = paramGrid
@@ -59,12 +56,12 @@ class Estimator(BaseTransformer):
         self._declaration = value
 
     @property
-    def mlType(self):
-        return self._mlType
+    def mlClay(self):
+        return self._mlClay
 
     @property
     def method(self):
-        return self.typeDispatch[self.mlType]['method']
+        return self.typeDispatch[self.mlClay]['method']
 
     @property
     def typeDispatch(self):
@@ -81,21 +78,21 @@ class Estimator(BaseTransformer):
     @property
     def fields(self):
         """
-        Fields passed into transformer
+        Fields passed into model
         """
-        return getattr(self.transformer, '_fields', [])
+        return getattr(self.model, '_fields', [])
 
     @property
     def features(self):
         """
-        Features coming from transformer
+        Features coming from model
         """
-        return getattr(self.transformer, '_features', [])
+        return getattr(self.model, '_features', [])
 
 # Fitting
     def sklearn_grid_search(self, X=None, y=None,
-                    paramGrid=None, gridKwargs=None
-                    ):
+                            paramGrid=None, gridKwargs=None
+                            ):
         """
         """
 
@@ -120,14 +117,12 @@ class Estimator(BaseTransformer):
         Fit method with options for grid searching hyperparameters
         """
         self.grid_search(X=X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
-
-        transformed = self.transformer.fit_transform(X=X, y=y, **kwargs)
-        self.model.fit(transformed, y)
+        self.model.fit(X=X, y=y, **kwargs)
         return self
 
     @pandas_series
     def score(self, X, name=''):
-        scores = getattr(self, self.typeDispatch[self.mlType]['score'])(X)
+        scores = getattr(self, self.typeDispatch[self.mlClay]['score'])(X)
         return scores
 
     def score_all(self, X):
@@ -142,25 +137,8 @@ class Estimator(BaseTransformer):
         """
         return self.predict_method(X=X)[:, 1]
 
-    def transform(self, X=None, **kwargs):
-        """
-        Apply fit transformer to X
-        """
-        return self.transformer.transform(X=X, **kwargs)
-
     def __getattr__(self, name):
-        prediction_methods = ['predict', 'predict_proba',
-                              'predict_log_proba', 'decision_function']
-        if name in prediction_methods:
-            attr = getattr(self.model, name)
-
-            def wrapped(X, *args, **kwargs):
-                X = self.transform(X=X, **kwargs)
-                result = attr(X=X, *args, **kwargs)
-                return result
-            return wrapped
-        else:
-            return getattr(self.model, name)
+        return getattr(self.model, name)
 
     def get_feature_names(self):
         return getattr(self, 'features', [])

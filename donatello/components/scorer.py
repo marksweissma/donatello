@@ -19,19 +19,19 @@ class Scorer(Dobject):
     Object for scoring model performance
 
     Args:
-        mlType (str): denotes ml context classification / regression / clustering etc
+        mlClay (str): denotes ml context classification / regression / clustering etc
         method (str): name of prediction method from estimator to call
         gridSearchFlag (bool): whether or not to grid search during fitting
     """
     @init_time
     def __init__(self,
-                 mlType=None,
+                 mlClay=None,
                  method=None,
                  gridSearchFlag=True
                  ):
 
         # Preserve Args
-        self.mlType = mlType
+        self.mlClay = mlClay
         self.gridSearchFlag = gridSearchFlag
         self.method = method
 

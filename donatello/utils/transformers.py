@@ -1,7 +1,7 @@
 import re
 import pandas as pd
 
-from inspect import getmembers
+import inspect
 
 from sklearn.preprocessing import OneHotEncoder  # ,Imputer,  StandardScaler
 from sklearn.base import TransformerMixin
@@ -11,29 +11,32 @@ import networkx as nx
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
 from donatello.utils.decorators import init_time, name, fallback
-from donatello.utils.helpers import access
+from donatello.utils.helpers import access, nvl
 from donatello.components import data
 
 
 def _base_methods():
     methods = set([])
     for _type in [BaseTransformer]:
-        methods = methods.union(set([i[0] for i in getmembers(_type)]))
+        methods = methods.union(set([i[0] for i in inspect.getmembers(_type)]))
     return methods
 
 
 base_methods = _base_methods()
 
 
+def find_value(func, args, kwargs, accessKey):
+    spec = inspect.getargspec(func)
+    index = spec.args.index(accessKey)
+    value = kwargs.get(accessKey, None) if index > len(args) else args[index]
+    return value
+
+
 def extract_fields(func):
     def wrapped(self, *args, **kwargs):
-        try:
-            self.fields = kwargs.get('X', pd.DataFrame()).columns.tolist()
-        except:
-            try:
-                self.fields = args[0].columns.tolist()
-            except:
-                self.fields = args[1].columns.tolist()
+        X = find_value(args, kwargs, accessKey='X')
+        self.fields = nvl(*[access(X, [attr], errors='ignore') for attr in ['columns', 'keys']])
+        self.fieldDtypes = access(X, ['dtypes'], method='to_dict', errors='ignore')
 
         self.features = None
         result = func(self, *args, **kwargs)
@@ -65,7 +68,7 @@ def enforce_features(func):
             result = pd.DataFrame(result, columns=self.features, index=index)
 
         if postFit:
-            self.transformedDtypes = result.dtypes.to_dict()
+            self.featureDtypes = result.dtypes.to_dict()
         else:
             result = result.reindex(columns=self.features)
 
@@ -101,7 +104,7 @@ class OneHotEncoder(PandasMixin, OneHotEncoder):
     pass
 
 
-class Selector(PandasTransformer):
+class KeySelector(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
@@ -130,7 +133,7 @@ class Selector(PandasTransformer):
         return inclusions
 
     def fit(self, X=None, y=None, **fitParams):
-        super(Selector, self).fit(X=X, y=y, **fitParams)
+        super(KeySelector, self).fit(X=X, y=y, **fitParams)
 
         if self.selectMethod:
             inclusions = getattr(self, self.selectMethod)(X, self.selectValue)
@@ -147,7 +150,7 @@ class Selector(PandasTransformer):
 
     def transform(self, X=None, y=None):
         X = X.reindex(columns=self.inclusions)
-        return super(Selector, self).transform(X=X, y=y)
+        return super(KeySelector, self).transform(X=X, y=y)
 
 
 class AccessTransformer(PandasTransformer):
@@ -158,7 +161,7 @@ class AccessTransformer(PandasTransformer):
 
     def transform(self, X=None, y=None):
         X = access(X, **self._kwargs)
-        return super(Selector, self).transform(X=X, y=y)
+        return super(KeySelector, self).transform(X=X, y=y)
 
 
 class Node(TransformerMixin, Dobject):
@@ -213,7 +216,7 @@ class Node(TransformerMixin, Dobject):
 class ModelDAG(nx.DiGraph):
     @init_time
     @name
-    def __init__(self, executor='executor', selectType=Selector, *args, **kwargs):
+    def __init__(self, executor='executor', selectType=KeySelector, *args, **kwargs):
         super(ModelDAG, self).__init__(*args, **kwargs)
         self.executor = executor
         self.selectType = selectType

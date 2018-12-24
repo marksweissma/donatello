@@ -30,7 +30,7 @@ class Dataset(Dobject):
     @init_time
     def __init__(self, raws=None, queries=None,
                  querier=pd.read_csv, copyRaws=False,
-                 X=None, y=None, mlType=None,
+                 X=None, y=None, mlClay=None,
                  typeDispatch=typeDispatch,
                  splitDeclaration={'n_splits': 5,
                                    'shuffle': True,
@@ -39,14 +39,14 @@ class Dataset(Dobject):
                  ):
 
         self.copyRaws = copyRaws
-        self._mlType = mlType
+        self._mlClay = mlClay
         self.link(raws, X, y)
         self.queries = queries
         self.querier = querier
         self.typeDispatch = typeDispatch
-        self.splitter = typeDispatch.get('splitter').get(mlType)(**splitDeclaration)
+        self.splitter = typeDispatch.get('splitter').get(mlClay)(**splitDeclaration)
         self.groupKey = groupKey
-        self.params = {'mlType': mlType, 'typeDispatch': typeDispatch,
+        self.params = {'mlClay': mlClay, 'typeDispatch': typeDispatch,
                        'splitDeclaration': splitDeclaration, 'groupKey': groupKey}
 
     @property
@@ -153,8 +153,8 @@ def package_dataset(wrapped, instance, args, kwargs):
             dataset = Dataset(X=X, y=y, **instance.dataset.get_params())
 
         elif X is not None:
-            mlType = getattr(instance, '_mlType', None)
-            dataset = Dataset(X=X, y=y, mlType=mlType)
+            mlClay = getattr(instance, '_mlClay', None)
+            dataset = Dataset(X=X, y=y, mlClay=mlClay)
 
     if not dataset.hasData and dataset.queries is not None:
         dataset.execute_queries(dataset.queries)
