@@ -80,41 +80,6 @@ class PandasAttrs(Dobject):
         return self.features
 
 
-class PandasWrapper(PandasAttrs):
-    """
-    Object for class factory to bind pandas and scikit-learn
-    """
-    @property
-    def fields(self):
-        """
-        Incoming column names
-        """
-        return self.transformerWrapped.fields
-
-    @fields.setter
-    def fields(self, value):
-        self.transformerWrapped.fields = value
-
-    @property
-    def features(self):
-        """
-        Outgoing column names
-        """
-        return self.transformerWrapped.features
-
-    @features.setter
-    def features(self, value):
-        self.transformerWrapped.features = value
-
-    @property
-    def transformedDtypes(self):
-        return self.transformerWrapped.dtypes
-
-    @transformedDtypes.setter
-    def transformedDtypes(self, value):
-        self.transformerWrapped.transformedDtypes = value
-
-
 class BaseTransformer(BaseEstimator, TransformerMixin):
     """
     Base scikit-learn style transformer
@@ -123,7 +88,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X=None, y=None, **kwargs):
-        return X
+        return X, y
 
     @property
     def name(self):
@@ -131,11 +96,12 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         Name of object, defaults to class name + model name
         """
         _name = self.__class__.__name__
-        name = [_name, self.model.__class__.__name__] if hasattr(self, 'model') else  [_name]
+        name = [_name, self.model.__class__.__name__] if hasattr(self, 'model') else [_name]
         return "_".join(name)
 
     def __repr__(self):
+        time = getattr(self, '_initTime', '[no init time]')
         rep = ['{model} created at {time}'.format(model=self.name,
-                                                  time=self._initTime),
+                                                  time=time),
                super(BaseTransformer, self).__repr__()]
         return "\n --- \n **sklearn repr** \n --- \n".join(rep)

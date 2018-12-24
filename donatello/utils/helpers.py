@@ -132,14 +132,14 @@ def access(obj=None, attrPath=None,
     """
 
     if not attrPath or not attrPath[0]:
-        obj = obj if not method else getattr(obj, method)(*methodArgs, **methodKwargs)
-        value = obj if not cb else cb(obj, *cbArgs, **cbKwargs)
+        obj = obj if not method else getattr(obj, method)(*nvl(methodArgs, ()), **nvl(methodKwargs, {}))
+        value = obj if not cb else cb(obj, *nvl(cbArgs, ()), **nvl(cbKwargs, {}))
 
     else:
-        head, tail = attrPath[0], attrPath[1:]
+        head = attrPath.pop(0)
         obj = get(obj, head, slicers, errors, default)
 
-        value = access(obj, attrPath=tail,
+        value = access(obj, attrPath=attrPath,
                        method=method, methodArgs=methodArgs, methodKwargs=methodKwargs,
                        cb=cb, cbArgs=cbArgs, cbKwargs=cbKwargs,
                        slicers=slicers, errors=errors, default=default)

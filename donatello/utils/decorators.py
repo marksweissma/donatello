@@ -100,7 +100,7 @@ def fallback(*defaults):
 
 @decorator
 def name(wrapped, instance, args, kwargs):
-        _name = getattr(instance, '_name', instance.__class___.__name__)
+        _name = getattr(instance, '_name', instance.__class__.__name__)
         instance._name = _name
         result = wrapped(*args, **kwargs)
         return result

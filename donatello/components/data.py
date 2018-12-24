@@ -1,3 +1,4 @@
+import inspect
 import pandas as pd
 from sklearn.model_selection import KFold, StratifiedKFold, GroupShuffleSplit
 from donatello.utils.base import Dobject
@@ -133,13 +134,19 @@ class Dataset(Dobject):
 @decorator
 def package_dataset(wrapped, instance, args, kwargs):
     """
-    Frome keyword arguments ackage X (and y if supervised) in Data object via mlType
+    Frome keyword arguments - package X (and y if supervised) in Data object via type
     """
-    X = kwargs.pop('X', None)
-    y = kwargs.pop('y', None)
-    dataset = kwargs.pop('dataset', None)
-
+    offset = int(bool(instance))
+    spec = inspect.getargspec(wrapped)
+    index = spec.args.index('dataset') - offset
+    dataset = kwargs.pop('dataset', None) if index > len(args) else args[index]
     if not dataset:
+        index = spec.args.index('X') - offset
+        X = kwargs.pop('X', None) if index > len(args) else args[index]
+
+        index = spec.args.index('y') - offset
+        y = kwargs.pop('y', None) if index > len(args) else args[index]
+
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
         elif X is not None and hasattr(instance, 'data'):

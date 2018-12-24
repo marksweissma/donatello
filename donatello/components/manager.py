@@ -8,8 +8,8 @@ from sklearn.utils import Bunch
 from donatello.components.data import Dataset, package_dataset
 from donatello.components.splitter import Splitter
 from donatello.components.disk import Local
-from donatello.components.scorer import (ScorerClassification,
-                                         ScorerSupervised)
+from donatello.components.scorer import ScorerSupervised
+                                         
 from donatello.utils.helpers import has_nested_attribute, now_string
 from donatello.utils.decorators import split_dataset, fallback
 from donatello.utils.base import Dobject
@@ -45,7 +45,7 @@ class DM(Dobject, BaseEstimator):
                  metrics=None, hookDeclaration=None,
                  storeReferences=True,
                  mlType='classification',
-                 typeDispatch={'scorer': {'classification': ScorerClassification,
+                 typeDispatch={'scorer': {'classification': ScorerSupervised,
                                           'regression': ScorerSupervised
                                           },
                                'splitter': Splitter,
