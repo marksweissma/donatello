@@ -13,15 +13,13 @@ _base = {'n_splits': 5,
 
 
 typeDispatch = {None: KFold,
-                'classification': StratifiedKFold,
-                'regression': KFold,
+                'stratify': StratifiedKFold,
                 'group': GroupShuffleSplit
                 }
 
 
 kwargDispatch = {None: _base,
-                 'classification': _base,
-                 'regression': _base,
+                 'stratify': _base,
                  'group': {'n_splits': 5, 'random_state': 22}
                  }
 
@@ -76,7 +74,7 @@ class Folder(Dobject):
                                        groups=groups, **kwargs)
                             )
 
-        blank = access(df, self.runTimeAccess['groups']) if 'groups' in self.runTimeAccess else None
+        blank = access(df, **self.runTimeAccess['groups']) if 'groups' in self.runTimeAccess else None
         values = blank if blank is not None else df.index.to_series()
 
         self.ids = [(values.iloc[trainIndices].values, values.iloc[testIndices].values)

@@ -5,12 +5,9 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import roc_auc_score, average_precision_score
-from sklearn.model_selection import GroupKFold
 
 from donatello.components.manager import DM
 from donatello.components.estimator import Estimator
-from donatello.utils.helpers import reformat_aggs
-from donatello.components.scorer import Scorer
 from donatello.components.metrics import Metric, FeatureWeights, ThresholdRates
 
 
@@ -28,22 +25,19 @@ def _load_sklearn_bc_dataset(group=True):
 def load_data_fold(asDf, group):
     data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset, 'group': group}}}
     fold = {'target': 'is_malignant'}
-    if group:
-        typeDispatch = {'folder': {'classification': GroupKFold}}
-        data.update({'typeDispatch': typeDispatch, 'groupKey': 'grouper',
-                     'foldDeclaration': {}
-                     })
 
-        fold.update({'scoreClay': 'group',
-            'runTimeAccess': {'groups': {'attrPath': ['grouper', 'values'], 'slicers': (pd.DataFrame, dict)}}
-                      })
+    if group:
+        # fold['foldClay'] = 'group'
+        # data['foldClay'] = 'group'
+
+        fold['runTimeAccess'] = {'groups': {'attrPath': ['grouper'], 'slicers': (pd.DataFrame, dict)}}
 
     return data, fold
 
 
 def load_metrics(metrics=None, featureName='coefficients'):
 
-    metrics = [Metric(roc_auc_score), Metric(average_precision_score)]
+    metrics = [Metric(roc_auc_score), Metric(average_precision_score), FeatureWeights(sort=featureName)]
     # _metrics = {roc_auc_score: {},
                 # average_precision_score: {},
                 # 'feature_weights': {'key': 'names',
@@ -61,22 +55,23 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
     return metrics
 
+
 def load_logit_declaration(group=True, asDf=False, metrics=None):
 
     data, fold = load_data_fold(asDf, group)
 
-    estimator = Estimator(model=LogisticRegression(),
-                          paramGrid={'model__C': list(pd.np.logspace(-2, 0, 10))},
-                          gridKwargs={'scoring': 'f1', 'cv': 5},
-                          scoreClay='classification'
-                          )
+    estimator = {'model': LogisticRegression(),
+                 'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
+                 'gridKwargs': {'scoring': 'f1', 'cv': 5}
+                 }
 
     metrics = load_metrics(metrics)
     declaration = {'dataDeclaration': data,
                    'folderDeclaration': fold,
-                   'estimator': estimator,
+                   'estimatorDeclaration': estimator,
                    'metrics': metrics,
                    'scoreClay': 'classification',
+                   'foldClay': 'stratify',
                    'validation': True,
                    'holdOut': True
                    }
@@ -111,18 +106,17 @@ def load_random_forest_declaration(group=True, asDf=True, metrics=None):
 def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_score', 'average_percision_score', 'threshold_rates']):
     data, fold = load_data_fold(asDf, group)
 
-    estimator = Estimator(model=IsolationForest(),
-                          typeDispatch={'classification': {'method': 'decision_function', 'score': 'score_all'}},
-                          gridKwargs={'scoring': 'f1', 'cv': 5},
-                          scoreClay='classification'
-                          )
-
     metrics = load_metrics(metrics)
+
+    estimator = {'model': IsolationForest(), 'scoreClay': 'anomaly'}
+
+
     declaration = {'dataDeclaration': data,
                    'folderDeclaration': fold,
-                   'estimator': estimator,
+                   'estimatorDeclaration': estimator,
                    'metrics': metrics,
-                   'scoreClay': 'classification',
+                   'scoreClay': 'anomaly',
+                   'foldClay': 'classification',
                    'validation': True,
                    'holdOut': True
                    }

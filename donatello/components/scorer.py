@@ -55,7 +55,7 @@ class ScorerSupervised(Scorer):
         return scored
 
     def _evaluate(self, estimator, scored, metrics, X):
-        scores = {metric.name: metric(scored.truth, scored.predicted, X) for metric in metrics}
+        scores = {metric.name: metric(estimator, scored.truth, scored.predicted, X) for metric in metrics}
         return scores
 
     def score_evaluate(self, estimator=None, X=None, y=None, metrics=None):

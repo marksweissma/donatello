@@ -40,7 +40,7 @@ class DM(Dobject, BaseEstimator):
     def __init__(self, dataDeclaration=None, folderDeclaration=None,
                  estimatorDeclaration=None, scorerDeclaration=None,
                  validation=True, holdOut=False, entire=False, metrics=None,
-                 scoreClay='classification', foldClay='stratify',
+                 scoreClay=None, foldClay=None,
                  scoreType=ScorerSupervised, foldType=Folder,
                  hook=Local(), storeReferences=True,
                  writeAttrs=('', 'estimator'), timeFormat="%Y_%m_%d_%H_%M"):

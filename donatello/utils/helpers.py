@@ -136,7 +136,7 @@ def access(obj=None, attrPath=None,
         value = obj if not cb else cb(obj, *nvl(cbArgs, ()), **nvl(cbKwargs, {}))
 
     else:
-        head = attrPath.pop(0)
+        head, attrPath = attrPath[0], attrPath[1:]
         obj = get(obj, head, slicers, errors, default)
 
         value = access(obj, attrPath=attrPath,

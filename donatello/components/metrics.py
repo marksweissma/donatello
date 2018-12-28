@@ -6,9 +6,7 @@ from sklearn.metrics import confusion_matrix
 from donatello.utils.base import Dobject
 from donatello.utils.decorators import (init_time,
                                         coelesce,
-                                        fallback,
-                                        name,
-                                        pandas_series
+                                        name
                                         )
 
 
@@ -44,10 +42,10 @@ class Metric(Dobject):
     def fit(self, scored):
         return self
 
-    def evaluate(self, truth, predicted, *args, **kwargs):
+    def evaluate(self, estimator, truth, predicted, X):
         df = pd.DataFrame([self.scorer(truth, predicted)])
         if not hasattr(self, '_key'):
-            df['_'] = 1
+            df['_'] = range(len(df))
         return df
 
     def __call__(self, *args, **kwargs):
@@ -55,16 +53,16 @@ class Metric(Dobject):
 
 
 class FeatureWeights(Metric):
-    def __init__(self, attr='', *args, **kwargs):
-        super(FeatureWeights, self).__init__(*args, **kwargs)
+    def __init__(self, attr='', name='feature_weights', key='names',
+                 callback=pass_through, agg=['mean', 'std'], sort=None):
+
+        super(FeatureWeights, self).__init__(name=name, key=key,
+            callback=callback, agg=agg, sort=sort)
+
         self.attr = attr
 
-    def evaluate(self, estimator, *args, **kwargs):
+    def evaluate(self, estimator, truth, predicted, X):
         """
-        Extract feature weights from a model
-
-        Will automatically pull `coef_` and `feature_importances_`
-
         Args:
             estimator (donatello.estimator.Estimator): has `features` and `model` attributes
             attr (str): option to specify additional attribute to pull
@@ -73,7 +71,7 @@ class FeatureWeights(Metric):
             pandas.DataFrame: values of feature weights
         """
 
-        names = estimator.features
+        names = estimator.features if estimator.features else X.columns.tolist()
         model = estimator.model
         columnNames = ['names']
         values = []
@@ -106,17 +104,16 @@ class ThresholdRates(Metric):
         else:
             self.thresholds = thresholds
 
-    @fallback('thresholds')
-    def evaluate(self, scored=None, thresholds=None, spacing=101, threshKwargs={}, **kwargs):
+    def evaluate(self, estimator, truth, predicted, X):
         """
         """
-        data = [confusion_matrix(scored.truth.values, (scored.predicted > i).values).reshape(4,)
-                for i in thresholds]
+        data = [confusion_matrix(truth.values, (predicted > i).values).reshape(4,)
+                for i in self.thresholds]
 
         df = pd.DataFrame(data=data,
                           columns=['true_negative', 'false_positive',
                                    'false_negative', 'true_positive'],
-                          index=pd.Series(thresholds, name='thresholds')
+                          index=pd.Series(self.thresholds, name='thresholds')
                           )
 
         df = df.apply(lambda x: x / np.sum(x), axis=1).reset_index()
