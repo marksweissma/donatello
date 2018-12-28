@@ -9,7 +9,7 @@ from sklearn import clone
 
 import networkx as nx
 
-from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
+from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer, find_value
 from donatello.utils.decorators import init_time, name, fallback
 from donatello.utils.helpers import access, nvl
 from donatello.components import data
@@ -25,16 +25,9 @@ def _base_methods():
 base_methods = _base_methods()
 
 
-def find_value(func, args, kwargs, accessKey):
-    spec = inspect.getargspec(func)
-    index = spec.args.index(accessKey)
-    value = kwargs.get(accessKey, None) if index > len(args) else args[index]
-    return value
-
-
 def extract_fields(func):
     def wrapped(self, *args, **kwargs):
-        X = find_value(args, kwargs, accessKey='X')
+        X = find_value(func, args, kwargs, accessKey='X')
         self.fields = nvl(*[access(X, [attr], errors='ignore') for attr in ['columns', 'keys']])
         self.fieldDtypes = access(X, ['dtypes'], method='to_dict', errors='ignore')
 

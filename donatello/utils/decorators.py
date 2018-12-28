@@ -19,14 +19,14 @@ def init_time(wrapped, instance, args, kwargs):
 
 
 @decorator
-def split_dataset(wrapped, instance, args, kwargs):
+def fold_dataset(wrapped, instance, args, kwargs):
     """
-    Split dataset data into train and test sets
+    Fold dataset data into train and test sets
     """
     dataset = kwargs.pop('dataset', None)
 
-    if dataset and dataset.hasData and instance.splitter:
-        dataset.unpack_splits(next(instance.splitter.fit_split(dataset)))
+    if dataset and dataset.hasData and instance.folder:
+        dataset.unpack_folds(next(instance.folder.fit_fold(dataset)))
     else:
         dataset.designData = dataset.data
     result = wrapped(dataset=dataset, *args, **kwargs)
@@ -73,8 +73,8 @@ def coelesce(**defaults):
     def _wrapper(wrapped, instance, args, kwargs):
         spec = inspect.getargspec(wrapped)
         for key, default in defaults.items():
-            index = spec.args.index(default)
-            if index > len(args):
+            index = spec.args.index(key) - bool(inspect.ismethod(wrapped))
+            if index >= len(args):
                 kwargs[key] = kwargs.get(key, default)
         result = wrapped(*args, **kwargs)
         return result
@@ -98,9 +98,20 @@ def fallback(*defaults):
     return _wrapper
 
 
+# fix this, should check - default - execute
 @decorator
 def name(wrapped, instance, args, kwargs):
+        spec = inspect.getargspec(wrapped)
         _name = getattr(instance, '_name', instance.__class__.__name__)
         instance._name = _name
         result = wrapped(*args, **kwargs)
         return result
+
+
+@decorator
+def to_kwargs(wrapped, instance, args, kwargs):
+    spec = inspect.getargspec(wrapped)
+    offset = int(bool(instance))
+    update = {argSpec: arg for argSpec, arg in zip(spec.args[offset:], args)}
+    kwargs.update(update)
+    return wrapped(**kwargs)

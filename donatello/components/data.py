@@ -1,21 +1,13 @@
 import inspect
 import pandas as pd
-from sklearn.model_selection import KFold, StratifiedKFold, GroupShuffleSplit
-from donatello.utils.base import Dobject
+from donatello.utils.base import Dobject, find_value
+from donatello.components.folder import Folder
 from donatello.utils.decorators import decorator, init_time, fallback
-
-
-typeDispatch = {'splitter': {None: KFold,
-                             'classification': StratifiedKFold,
-                             'regression': KFold,
-                             'group': GroupShuffleSplit
-                             }
-                }
 
 
 class Dataset(Dobject):
     """
-    Object for managing data and helping prevent leakage
+    Object for owning a dataset
 
     Args:
         raws (obj): raw data
@@ -24,30 +16,37 @@ class Dataset(Dobject):
         copyRaws (bool): option to have data return copy of raws to preserve fetch
         X (obj): option to specify design directly
         y (obj): option to specify target directly
-        type (obj) splitType: type of splitter to leverage in iterator
-        splitDeclaration (obj): kwargs for split type to instantiate with in constructor
+        type (obj) foldType: type of folder to leverage in iterator
+        foldDeclaration (obj): kwargs for split type to instantiate with in constructor
     """
     @init_time
-    def __init__(self, raws=None, queries=None,
-                 querier=pd.read_csv, copyRaws=False,
-                 X=None, y=None, mlClay=None,
-                 typeDispatch=typeDispatch,
-                 splitDeclaration={'n_splits': 5,
-                                   'shuffle': True,
-                                   'random_state': 22},
-                 groupKey=None,
+    def __init__(self, raws=None, X=None, y=None,
+                 queries=None, querier=pd.read_csv, copyRaws=False,
+                 foldClay=None, folder=Folder,
+                 scoreClay=None,
+                 target=None, primaryKey=None,
+                 runTimeAccess=None
                  ):
 
         self.copyRaws = copyRaws
-        self._mlClay = mlClay
-        self.link(raws, X, y)
         self.queries = queries
         self.querier = querier
-        self.typeDispatch = typeDispatch
-        self.splitter = typeDispatch.get('splitter').get(mlClay)(**splitDeclaration)
-        self.groupKey = groupKey
-        self.params = {'mlClay': mlClay, 'typeDispatch': typeDispatch,
-                       'splitDeclaration': splitDeclaration, 'groupKey': groupKey}
+
+        self.link(raws, X, y)
+
+        self._foldClay = foldClay
+        self.folder = folder(foldClay=foldClay, target=target, primaryKey=primaryKey, runTimeAccess=runTimeAccess)
+
+        self.target = target
+        self.primaryKey = primaryKey
+        self.runTimeAccess = runTimeAccess
+
+    @property
+    def params(self):
+        spec = inspect.getargspec(self.__init__)
+        exclusions = set(['self', 'raws', 'X', 'y'])
+        params = {param: getattr(self, param) for param in spec.args if param not in exclusions}
+        return params
 
     @property
     def data(self):
@@ -105,18 +104,16 @@ class Dataset(Dobject):
                 else:
                     self.raws[name] = querier(**payload)
 
-    def unpack_splits(self, splitResults):
-        for attr, result in splitResults.items():
-            setattr(self, attr, result)
-
-    def package_split_kwargs(self):
-        kwargs = {'groups': self.designData[self.groupKey].values} if self.groupKey else {}
-        return kwargs
+    def unpack_folds(self, foldResults):
+        if isinstance(foldResults, dict):
+            [setattr(self, attr, result) for attr, result in foldResults.items()]
+        else:
+            attrs = ['designTrain', 'designTest', 'designData',
+                     'targetTrain', 'targetTest', 'targetData']
+            [setattr(self, attr, result) for attr, result in zip(attrs, foldResults)]
 
     def __iter__(self):
-        kwargs = self.package_split_kwargs()
-        for train, test in self.splitter.split(self.designData,
-                                               self.targetData, **kwargs):
+        for train, test in self.folder.split(self.designData, self.targetData):
             results = [self.designData.iloc[train], self.designData.iloc[test]]
             if self.targetData is not None:
                 results.extend([self.targetData.iloc[train],
@@ -136,16 +133,11 @@ def package_dataset(wrapped, instance, args, kwargs):
     """
     Frome keyword arguments - package X (and y if supervised) in Data object via type
     """
-    offset = int(bool(instance))
-    spec = inspect.getargspec(wrapped)
-    index = spec.args.index('dataset') - offset
-    dataset = kwargs.pop('dataset', None) if index > len(args) else args[index]
-    if not dataset:
-        index = spec.args.index('X') - offset
-        X = kwargs.pop('X', None) if index > len(args) else args[index]
+    dataset = find_value(wrapped, args, kwargs, 'dataset')
 
-        index = spec.args.index('y') - offset
-        y = kwargs.pop('y', None) if index > len(args) else args[index]
+    if not dataset:
+        X = find_value(wrapped, args, kwargs, 'X')
+        y = find_value(wrapped, args, kwargs, 'y')
 
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
@@ -153,11 +145,12 @@ def package_dataset(wrapped, instance, args, kwargs):
             dataset = Dataset(X=X, y=y, **instance.dataset.get_params())
 
         elif X is not None:
-            mlClay = getattr(instance, '_mlClay', None)
-            dataset = Dataset(X=X, y=y, mlClay=mlClay)
+            scoreClay = getattr(instance, '_scoreClay', None)
+            dataset = Dataset(X=X, y=y, scoreClay=scoreClay)
 
     if not dataset.hasData and dataset.queries is not None:
         dataset.execute_queries(dataset.queries)
 
-    result = wrapped(dataset=dataset, **kwargs)
+    exclusions = set(['X', 'y', 'dataset'])
+    result = wrapped(dataset=dataset, **{i: j for i, j in kwargs.items() if i not in exclusions})
     return result

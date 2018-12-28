@@ -1,5 +1,7 @@
+import inspect
 from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
+from donatello.utils.decorators import coelesce
 
 
 class Dobject(object):
@@ -7,6 +9,12 @@ class Dobject(object):
     Base object for Donatello - templates in name and __repr___
     """
     __meta__ = ABCMeta
+
+    @coelesce(kwargs={})
+    def _update_to(self, kwargs, *names):
+        kwargs = kwargs if kwargs else {}
+        kwargs.update({name: getattr(self, name) for name in names})
+        return kwargs
 
     @property
     def name(self):
@@ -18,18 +26,28 @@ class Dobject(object):
         self._name = value
 
     @property
-    def mlClay(self):
+    def foldClay(self):
+        """
+        """
+        return getattr(self, '_foldClay', None)
+
+    @foldClay.setter
+    def foldClay(self, value):
+        self._foldClay = value
+
+    @property
+    def scoreClay(self):
         """
         Define type of learning
             #. regression
             #. classificaiton
             #. clustering
        """
-        return getattr(self, '_mlClay', None)
+        return getattr(self, '_scoreClay', None)
 
-    @mlClay.setter
-    def mlClay(self, value):
-        self._mlClay = value
+    @scoreClay.setter
+    def scoreClay(self, value):
+        self._scoreClay = value
 
     def __repr__(self):
         time = getattr(self, '_initTime', '[no_init_time]')
@@ -105,3 +123,19 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
                                                   time=time),
                super(BaseTransformer, self).__repr__()]
         return "\n --- \n **sklearn repr** \n --- \n".join(rep)
+
+
+def find_value(func, args, kwargs, accessKey):
+    """
+    Find a value from a function signature
+    """
+    spec = inspect.getargspec(func)
+    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
+
+    index = _args.index(accessKey)
+    offset = len(_args) - len(spec.defaults)
+    default = spec.defaults[index - offset] if index >= offset else None
+    value = kwargs.get(accessKey, default) if index >= len(args) else args[index]
+    return value
+
+

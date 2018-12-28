@@ -2,8 +2,15 @@ from sklearn.model_selection import (KFold,
                                      StratifiedKFold,
                                      GroupShuffleSplit)
 
+from donatello.utils.base import Dobject
 from donatello.utils.helpers import access
 from donatello.utils.decorators import fallback, init_time
+
+
+_base = {'n_splits': 5,
+         'shuffle': True,
+         'random_state': 22}
+
 
 typeDispatch = {None: KFold,
                 'classification': StratifiedKFold,
@@ -11,22 +18,20 @@ typeDispatch = {None: KFold,
                 'group': GroupShuffleSplit
                 }
 
-_base = {'n_splits': 5,
-         'shuffle': True,
-         'random_state': 22}
 
-foldDispatch = {None: _base,
-                'classification': _base,
-                'regression': _base,
-                'group': {'n_splits': 5, 'random_state': 22}
-                }
+kwargDispatch = {None: _base,
+                 'classification': _base,
+                 'regression': _base,
+                 'group': {'n_splits': 5, 'random_state': 22}
+                 }
 
 
-class Splitter(object):
+class Folder(Dobject):
     """
     Object to split data into training and testing/validation groups.
     Packages dataframes and dictionaries of dataframes
 
+    Args:
         target (str): name of target field if supervised
         primaryKey (str): if dictionary of dataframes, key of dictionary\
             containing primrary df
@@ -37,42 +42,45 @@ class Splitter(object):
     def __init__(self,
                  target=None,
                  primaryKey=None,
-                 splitOver=None,
-                 foldDispatch=foldDispatch,
-                 typeDispatch=typeDispatch,
-                 runTimeAccess=None,
-                 mlClay=None
+                 scoreClay=None,
+                 foldClay=None,
+                 splitDispatch=typeDispatch,
+                 kwargDispatch=kwargDispatch,
+                 runTimeAccess=None
                  ):
 
         self.target = target
         self.primaryKey = primaryKey
-        self.splitOver = splitOver
         self.runTimeAccess = runTimeAccess if runTimeAccess else {}
-        self.folder = typeDispatch.get(mlClay)(**foldDispatch.get(mlClay))
-        self.mlClay = mlClay
+        self.scoreClay = scoreClay
+        self.foldClay = foldClay
+        self.folder = typeDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
 
     @fallback('target', 'primaryKey')
-    def fit(self, dataset=None, target=None, primaryKey=None, **fitParams):
+    def fit(self, dataset=None, target=None, primaryKey=None, groups=None, **kwargs):
         """
-        fit splitter => finds and store values for each set
+        fit folder  => finds and store values for each set
 
+        Args:
             dataset (donatello.components.dataset): dataset to fit on
             target (str): str name of target field to separate
             primaryKey (str): key for primary field (if dataset.data \
                 is dict (not df)
-        :returns: fit transformer
+        Returns:
+            object: fit transformer
         """
         df = dataset.data if not primaryKey else dataset.data[primaryKey]
 
-        kwargs = {key: access(df, **value) for key, value in self.runTimeAccess.items()} if self.runTimeAccess else {}
+        self.indices = list(self.split(df.drop(target, axis=1) if target else df,
+                                       df[target] if target else None,
+                                       groups=groups, **kwargs)
+                            )
 
-        self.indices = [(trainValues, testValues) for trainValues, testValues
-                        in self.folder.split(df.index, df[target], **kwargs)]
+        blank = access(df, self.runTimeAccess['groups']) if 'groups' in self.runTimeAccess else None
+        values = blank if blank is not None else df.index.to_series()
 
-        values = df[self.splitOver] if self.splitOver else df.index.to_series()
-
-        self.ids = [(values.iloc[trainValues].values, values.iloc[testValues].values)
-                    for (trainValues, testValues) in self.indices]
+        self.ids = [(values.iloc[trainIndices].values, values.iloc[testIndices].values)
+                    for (trainIndices, testIndices) in self.indices]
         return self
 
     @staticmethod
@@ -94,15 +102,24 @@ class Splitter(object):
         test = data.loc[testMask]
         return train, test
 
+    def split(self, X, y=None, groups=None, **kwargs):
+        kwargs.update({key: access(X, **value) for key, value in self.runTimeAccess.items()}
+                      if self.runTimeAccess else {})
+        [kwargs.update({i: j}) for i, j in zip(['X', 'y', 'groups'], [X, y, groups]) if j is not None]
+
+        return self.folder.split(**kwargs)
+
     @fallback('target', 'primaryKey')
-    def split(self, dataset=None, target=None, primaryKey=None, **fitParams):
+    def fold(self, dataset=None, target=None, primaryKey=None, **fitParams):
         """
         Split data data into design/target train/test/data
 
+        Args:
             dataset (donatello.components.dataset): dataset to fit on
             target (str): str name of target field to separate
-        :returns: paylod of train/test/data <> design/target subsets
-        :rtype: dict
+
+        Returns:
+            dict: paylod of train/test/data <> design/target subsets
         """
         df = dataset.data[primaryKey] if primaryKey else dataset.data
         designData = df.drop(target, axis=1) if target else df
@@ -114,8 +131,8 @@ class Splitter(object):
             return _designTrain[key], _designTest[key]
 
         for train, test in self.ids:
-            trainMask, testMask = self._build_masks(df, self.splitOver if self.splitOver else 'index',
-                                                    target, train=train, test=test)
+            over = self.runTimeAccess['groups']['attrPath'][0] if 'groups' in self.runTimeAccess else 'index'
+            trainMask, testMask = self._build_masks(df, over, target, train=train, test=test)
 
             designTrain, designTest = self._split(df, trainMask, testMask, target)
 
@@ -151,6 +168,6 @@ class Splitter(object):
         raise StopIteration
 
     @fallback('target', 'primaryKey')
-    def fit_split(self, dataset=None, target=None, primaryKey=None, **fitParams):
+    def fit_fold(self, dataset=None, target=None, primaryKey=None, **fitParams):
         self.fit(dataset=dataset, target=target, primaryKey=primaryKey, **fitParams)
-        return self.split(dataset=dataset, target=target, primaryKey=primaryKey, **fitParams)
+        return self.fold(dataset=dataset, target=target, primaryKey=primaryKey, **fitParams)

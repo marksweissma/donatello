@@ -4,25 +4,51 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 from donatello.utils.base import Dobject
-from donatello.utils.decorators import init_time, coelesce, fallback, name
+from donatello.utils.decorators import (init_time,
+                                        coelesce,
+                                        fallback,
+                                        name,
+                                        pandas_series
+                                        )
+
+
+def pass_through(x):
+    return x
 
 
 class Metric(Dobject):
     @init_time
-    @coelesce(columns=['score'])
     @name
-    def __init__(self, scorer=None, columns=None, name='', mlClay=None):
+    @coelesce(columns=['score'])
+    def __init__(self, scorer=None, columns=None, name='', key=None, scoreClay=None,
+                 callback=pass_through, agg=['mean', 'std'], sort=None):
         self.columns = columns
         self.scorer = scorer
-        _name = getattr(scorer, '__name__', self.__class___.__name__)
+        _name = getattr(scorer, '__name__', self.__class__.__name__)
         self._name = name if name else _name
-        self.mlClay = mlClay
+        self.scoreClay = scoreClay
+        self.callback = callback
+        self.agg = agg
+        if key:
+            self.key = key
+        self.sort = sort
+
+    @property
+    def key(self):
+        return getattr(self, '_key', ['_'])
+
+    @key.setter
+    def key(self, value):
+        self._key = value
 
     def fit(self, scored):
         return self
 
-    def evaluate(self, *args, **kwargs):
-        return self.scorer(*args, **kwargs)
+    def evaluate(self, truth, predicted, *args, **kwargs):
+        df = pd.DataFrame([self.scorer(truth, predicted)])
+        if not hasattr(self, '_key'):
+            df['_'] = 1
+        return df
 
     def __call__(self, *args, **kwargs):
         return self.evaluate(*args, **kwargs)
@@ -74,7 +100,7 @@ class FeatureWeights(Metric):
 
 class ThresholdRates(Metric):
     def fit(self, scored, thresholds=None, spacing=101, **kwargs):
-        if not thresholds:
+        if thresholds is not None:
             percentiles = np.linspace(0, 1, spacing)
             self.thresholds = scored.predicted.quantile(percentiles)
         else:
@@ -84,23 +110,25 @@ class ThresholdRates(Metric):
     def evaluate(self, scored=None, thresholds=None, spacing=101, threshKwargs={}, **kwargs):
         """
         """
-        data = np.array([np.hstack((i,
-                                    confusion_matrix(scored.truth.values, (scored.predicted > i).values).reshape(4,)
-                                    )
-                                   ) for i in thresholds])
+        data = [confusion_matrix(scored.truth.values, (scored.predicted > i).values).reshape(4,)
+                for i in thresholds]
 
         df = pd.DataFrame(data=data,
-                          columns=['thresholds', 'true_negative', 'false_positive',
-                                   'false_negative', 'true_positive']
+                          columns=['true_negative', 'false_positive',
+                                   'false_negative', 'true_positive'],
+                          index=pd.Series(thresholds, name='thresholds')
                           )
 
-        df = df.set_index('thresholds').apply(lambda x: x / np.sum(x), axis=1).reset_index()
+        df = df.apply(lambda x: x / np.sum(x), axis=1).reset_index()
+
         df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
         df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
         df['recall'] = df.true_positive / (df.true_positive + df.false_negative)
         df['specificity'] = df.true_negative / (df.true_negative + df.false_positive)
         df['precision'] = df.true_positive / (df.true_positive + df.false_positive)
         df['negative_predictive_value'] = df.true_negative / (df.true_negative + df.false_negative)
+
         df['fall_out'] = 1 - df.specificity
         df['false_discovery_rate'] = 1 - df.precision
+
         return df

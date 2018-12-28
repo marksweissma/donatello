@@ -5,14 +5,14 @@ from sklearn import clone
 from sklearn.base import BaseEstimator
 from sklearn.utils import Bunch
 
-from donatello.components.splitter import Splitter
+from donatello.components.folder import Folder
 from donatello.components.data import Dataset, package_dataset
 from donatello.components.estimator import Estimator
 from donatello.components.scorer import ScorerSupervised
 from donatello.components.disk import Local
 
 from donatello.utils.helpers import has_nested_attribute, now_string
-from donatello.utils.decorators import fallback
+from donatello.utils.decorators import fallback, fold_dataset
 from donatello.utils.base import Dobject
 
 
@@ -26,7 +26,7 @@ class DM(Dobject, BaseEstimator):
 
     Args:
         dataDeclaration (dict): :py:class:`donatello.Dataset`
-        splitterDeclaration (dict): arguments for :py:class:`donatello.splitter.Splitter`
+        folderDeclaration (dict): arguments for :py:class:`donatello.folder.Folder`
         estimatorDeclaration (dict): arguments for :py:class:`donatello.Estimator.estimator`
         scorerDeclaration (dict): arguments for :py:class:`donatello.Scorer`
         validation (bool): flag for calculating scoring metrics from nested cross val of training + validation sets
@@ -37,25 +37,27 @@ class DM(Dobject, BaseEstimator):
         timeFormat (str): format for creation time string
     """
 
-    def __init__(self, dataDeclaration=None, splitterDeclaration=None,
+    def __init__(self, dataDeclaration=None, folderDeclaration=None,
                  estimatorDeclaration=None, scorerDeclaration=None,
-                 validation=True, holdOut=False, entire=False,
-                 metrics=None, hookDeclaration=None,
-                 storeReferences=True,
-                 mlClay='classification',
-                 typeDispatch={'scorer': {'classification': ScorerSupervised,
-                                          'regression': ScorerSupervised
-                                          },
-                               'splitter': Splitter,
-                               'hook': Local
-                               },
-                 writeAttrs=('', 'estimator'),
-                 timeFormat="%Y_%m_%d_%H_%M"):
+                 validation=True, holdOut=False, entire=False, metrics=None,
+                 scoreClay='classification', foldClay='stratify',
+                 scoreType=ScorerSupervised, foldType=Folder,
+                 hook=Local(), storeReferences=True,
+                 writeAttrs=('', 'estimator'), timeFormat="%Y_%m_%d_%H_%M"):
 
         self._initTime = now_string(timeFormat)
 
-        self.mlClay = mlClay
-        self.typeDispatch = typeDispatch
+        self.folderDeclaration = folderDeclaration
+        self.datasetDeclaration = dataDeclaration
+        self.estimatorDeclaration = estimatorDeclaration
+        self.scorerDeclaration = scorerDeclaration
+
+        self.scoreClay = scoreClay
+        self.scoreType = scoreType
+
+        self.foldClay = foldClay
+        self.foldType = foldType
+
         self.metrics = metrics
 
         # Build options
@@ -63,19 +65,20 @@ class DM(Dobject, BaseEstimator):
         self.holdOut = holdOut
         self.entire = entire
 
-        # Uses setters to instantiate components
-        self.splitter = splitterDeclaration
         self.dataset = dataDeclaration
+        self.dataParams = self.dataset.params
+
+        self.folder = folderDeclaration
         self.estimator = estimatorDeclaration
         self.scorer = scorerDeclaration
-        self.hook = hookDeclaration
+        self.hook = hook
 
         # Other
         self.writeAttrs = writeAttrs
         self.storeReferences = storeReferences
         self._references = {}
-        self.declaration = self.get_params(deep=False)
         self.scores = Bunch()
+        self.declaration = self.get_params(deep=False)
 
     @property
     def declaration(self):
@@ -90,17 +93,16 @@ class DM(Dobject, BaseEstimator):
 
     # components
     @property
-    def splitter(self):
+    def folder(self):
         """
-        Splitter object attached to manager
+        Folder object attached to manager
         """
-        return self._splitter
+        return self._folder
 
-    @splitter.setter
-    def splitter(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
-        self._splitter = self.typeDispatch.get('splitter')(**kwargs)
+    @folder.setter
+    def folder(self, kwargs):
+        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
+        self._folder = self.foldType(**kwargs)
 
     @property
     def dataset(self):
@@ -111,8 +113,7 @@ class DM(Dobject, BaseEstimator):
 
     @dataset.setter
     def dataset(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
+        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
         self._dataset = Dataset(**kwargs)
 
     @property
@@ -124,8 +125,7 @@ class DM(Dobject, BaseEstimator):
 
     @estimator.setter
     def estimator(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
+        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
         self._estimator = Estimator(**kwargs)
 
     @property
@@ -137,21 +137,8 @@ class DM(Dobject, BaseEstimator):
 
     @scorer.setter
     def scorer(self, kwargs):
-        kwargs = kwargs if kwargs else {}
-        kwargs.update({'mlClay': self.mlClay}) if 'mlClay' not in kwargs else None
-        self._scorer = self.typeDispatch.get('scorer').get(self.mlClay)(**kwargs)
-
-    @property
-    def hook(self):
-        """
-        Local object attached to manager
-        """
-        return self._hook
-
-    @hook.setter
-    def hook(self, kwargs):
-        kwargs = {} if kwargs is None else kwargs
-        self._hook = self.typeDispatch.get('hook')(**kwargs)
+        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
+        self._scorer = self.scoreType(**kwargs)
 
     def _build_cross_validation(self, dataset, **fitParams):
         """
@@ -188,7 +175,7 @@ class DM(Dobject, BaseEstimator):
 
     @fallback('writeAttrs', 'validation', 'holdOut', 'entire')
     @package_dataset
-    # @split_dataset
+    @fold_dataset
     def fit(self, dataset=None, X=None, y=None, writeAttrs=None,
             validation=None, holdOut=None, entire=None, **fitParams):
         """
@@ -209,11 +196,6 @@ class DM(Dobject, BaseEstimator):
     @fallback('writeAttrs')
     def write(self, writeAttrs=None):
         """
-        Write objects to disk
+        Write objects
         """
-        writeAttrs = filter(self.has_attribute, writeAttrs)
-        writePayloads = [{'obj': self, 'attr': attr} for attr in writeAttrs]
-        [self.hook.write(**writePayload) for writePayload in writePayloads]
-
-    def __getattr__(self, name):
-        return getattr(self.estimator, name)
+        [self.hook.write(obj=self, attr=attr) for attr in filter(self.has_attribute, writeAttrs)]
