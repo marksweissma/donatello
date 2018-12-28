@@ -37,7 +37,8 @@ def load_data_fold(asDf, group):
 
 def load_metrics(metrics=None, featureName='coefficients'):
 
-    metrics = [Metric(roc_auc_score), Metric(average_precision_score), FeatureWeights(sort=featureName)]
+    metrics = [Metric(roc_auc_score), Metric(average_precision_score),
+               FeatureWeights(sort=featureName), ThresholdRates()]
     # _metrics = {roc_auc_score: {},
                 # average_precision_score: {},
                 # 'feature_weights': {'key': 'names',

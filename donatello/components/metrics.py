@@ -97,8 +97,11 @@ class FeatureWeights(Metric):
 
 
 class ThresholdRates(Metric):
+    def __init__(self, key='thresholds', sort='thresholds'):
+        super(ThresholdRates, self).__init__(key=key, sort=sort)
+
     def fit(self, scored, thresholds=None, spacing=101, **kwargs):
-        if thresholds is not None:
+        if thresholds is None:
             percentiles = np.linspace(0, 1, spacing)
             self.thresholds = scored.predicted.quantile(percentiles)
         else:
