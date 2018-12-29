@@ -16,7 +16,7 @@ from donatello.utils.decorators import fallback, fold_dataset
 from donatello.utils.base import Dobject
 
 
-class DM(Dobject, BaseEstimator):
+class Sculpture(Dobject, BaseEstimator):
     """
     Manager for model process. [a-z]*Declaration parameters map 1:1 to
     component objects attached via property setters. Other parameters

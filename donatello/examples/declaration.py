@@ -30,7 +30,7 @@ def load_data_fold(asDf, group):
         # fold['foldClay'] = 'group'
         # data['foldClay'] = 'group'
 
-        fold['runTimeAccess'] = {'groups': {'attrPath': ['grouper'], 'slicers': (pd.DataFrame, dict)}}
+        fold['dap'] = {'groups': {'attrPath': ['grouper'], 'slicers': (pd.DataFrame, dict)}}
 
     return data, fold
 

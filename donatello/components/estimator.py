@@ -23,7 +23,7 @@ class Estimator(Dobject, BaseTransformer):
     def __init__(self,
                  model=None,
                  foldClay=None,
-                 scoreClay='regression',
+                 scoreClay=None,
                  foldDispatch=None,
                  scoreDispatch={'regression': {'method': 'predict', 'score': 'score_all'},
                                 'classification': {'method': 'predict_proba', 'score': 'score_first'},
@@ -37,10 +37,10 @@ class Estimator(Dobject, BaseTransformer):
         self._initTime = now_string(timeFormat)
 
         self.model = model
-        self._foldClay = foldClay
-        self._scoreClay = scoreClay
+        self.foldClay = foldClay
+        self.scoreClay = scoreClay
         self.foldDispatch = foldDispatch
-        self._scoreDispatch = scoreDispatch
+        self.scoreDispatch = scoreDispatch
 
         self.paramGrid = paramGrid
         self.gridKwargs = gridKwargs
@@ -113,6 +113,7 @@ class Estimator(Dobject, BaseTransformer):
         self.model.fit(X=X, y=y, **kwargs)
         return self
 
+    # Move to dispatch
     @pandas_series
     def score(self, X, name=''):
         scores = getattr(self, self.scoreDispatch[self.scoreClay]['score'])(X)

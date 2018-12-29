@@ -1,16 +1,21 @@
 import re
 import pandas as pd
 
+
+def warn(arg):
+    print(arg)
+
+
 import inspect
 
-from sklearn.preprocessing import OneHotEncoder  # ,Imputer,  StandardScaler
+from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
 from sklearn import clone
 
 import networkx as nx
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer, find_value
-from donatello.utils.decorators import init_time, name, fallback
+from donatello.utils.decorators import init_time, fallback
 from donatello.utils.helpers import access, nvl
 from donatello.components import data
 
@@ -97,6 +102,14 @@ class OneHotEncoder(PandasMixin, OneHotEncoder):
     pass
 
 
+class Imputer(PandasMixin, Imputer):
+    pass
+
+
+class StandardScaler(PandasMixin, StandardScaler):
+    pass
+
+
 class KeySelector(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
@@ -149,23 +162,48 @@ class KeySelector(PandasTransformer):
 class AccessTransformer(PandasTransformer):
     """
     """
-    def __init__(self, **kwargs):
-        self._kwargs = kwargs
+    def __init__(self, dap):
+        self.dap = dap
 
     def transform(self, X=None, y=None):
-        X = access(X, **self._kwargs)
-        return super(KeySelector, self).transform(X=X, y=y)
+        X = access(X, **self.dap)
+        return super(AccessTransformer, self).transform(X=X, y=y)
 
 
-class Node(TransformerMixin, Dobject):
-    @init_time
-    @name
-    def __init__(self, name='transformer', transformers=None, aggregator=None, combine=None, fitOnly=False):
+def concat(datasets, params=None):
+    """
+
+    Args:
+        datasets (list): list of datasets to combine
+        params (dict): params for dataset object, if None infered from first dataset
+
+    Returns:
+        data.Dataset: combined dataset
+    """
+    if datasets:
+        Xs = [dataset.designData for dataset in datasets if dataset.designData is not None]
+        ys = [dataset.targetData for dataset in datasets if dataset.targetData is not None]
+        Xs = [X for X in Xs if X is not None]
+        ys = [y for y in ys if y is not None]
+
+        X = pd.concat(Xs, axis=1) if Xs else None
+        y = ys[0] if len(y) == 1 else None if len(y) < 1 else pd.concat(ys, axis=1)
+        params = params if params is not None else datasets[0].params
+        dataset = data.Dataset(X=X, y=y, **params)
+    else:
+        dataset = None
+    return dataset
+
+
+class TransformNode(Dobject, BaseTransformer):
+    def __init__(self, name='transformer', transformers=None, aggregator=None,
+                 combine=concat, fitOnly=False):
+
         self.name = name
         self.transformers = transformers if isinstance(transformers, list) else list(transformers)
         self.aggregator = aggregator
-        self.combine = combine
         self.fitOnly = fitOnly
+        self.combine = combine
 
         self.information = None
         self.isFit = False
@@ -198,19 +236,19 @@ class Node(TransformerMixin, Dobject):
                 self.information = information
 
             output = self.information
-        if not isinstance(output, data.Dataset):
-            output = output if isinstance(output, tuple) else tuple([output])
 
-            output = data.Dataset(X=output[0], y=output[1] if len(output) > 1 else dataset.targetData, **dataset.params)
-
+        if not isinstance(output, data.Dataset) and isinstance(output, tuple) and len(output) <= 2:
+            output = data.Dataset(X=output[0], y=output[1] if len(output) > 1 else dataset.targetData,
+                                  **dataset.params)
+        else:
+            warning('unregisted data return, expecting downstream node contracts to be upheld by users')
         return output
 
 
-class ModelDAG(nx.DiGraph):
+class Garden(nx.DiGraph, Dobject):
     @init_time
-    @name
     def __init__(self, executor='executor', selectType=KeySelector, *args, **kwargs):
-        super(ModelDAG, self).__init__(*args, **kwargs)
+        super(Garden, self).__init__(*args, **kwargs)
         self.executor = executor
         self.selectType = selectType
 
@@ -224,25 +262,24 @@ class ModelDAG(nx.DiGraph):
         [self.node_exec(node).reset() for node in self]
 
     @property
-    def root(self):
-        root = [node for node in self.nodes if self.out_degree(node) == 0 and self.in_degree(node) == 1][0]
-        return root
+    def terminal(self):
+        terminal = [node for node in self.nodes if self.out_degree(node) == 0]
+        terminal = terminal[0] if len(terminal) == 1 else terminal
+        return terminal
 
-    @fallback('root')
-    def transform(self, data, root=None):
-        head = self.root
+    @fallback('terminal')
+    def transform(self, data, terminal=None):
+        head = terminal
 
         parents = tuple(self.predecessors(head))
-        if len(parents) > 1:
-            raise ValueError('Terminal transformation is not unified')
 
         data = self.apply(parents[0], data, 'transform') if parents else data
         transformed = self.node_exec(head).transform(data)
         return transformed
 
-    @fallback('root')
-    def fit_transform(self, data, root=None):
-        head = self.root
+    @fallback('terminal')
+    def fit_transform(self, data, terminal=None):
+        head = terminal
         parents = tuple(self.predecessors(head))
         print len(parents)
         if len(parents) > 1:
@@ -252,32 +289,35 @@ class ModelDAG(nx.DiGraph):
         transformed = self.node_exec(head).fit_transform(data)
         return transformed
 
-    @fallback('root')
-    def fit(self, data, root=None):
+    @fallback('terminal')
+    def fit(self, data, terminal=None):
         self.clean()
-        head = self.root
+        head = terminal
 
         parents = tuple(self.predecessors(head))
-        print len(parents)
-        if len(parents) > 1:
-            raise ValueError('Terminal transformation is not unified')
+        data = [self.apply(parent, data, 'fit_transform') for parent in parents] if parents else [data]
 
-        data = self.apply(parents[0], data, 'fit_transform') if parents else data
-        self.node_exec(head).fit(data)
+        # need for to execute edge selection here
+
+        # return subselected data here
+
+        self.node_exec(head).fit(self.node_exec(head).combine(data))
         return self
 
     def apply(self, node, data, method):
         parents = tuple(self.predecessors(node))
-        if parents and all([self.node_exec(parent).information_available for parent in parents]):
-            data = pd.concat([self.node_exec(parent).information for parent in parents], axis=1)
-        elif parents:
 
+        if parents and all([self.node_exec(parent).information_available for parent in parents]):
+            output = [self.node_exec(parent).information for parent in parents]
+
+        elif parents:
             output = [self.apply(parent,
                                  access(self.edge_exec(parent, node), method)(data),
                                  method
                                  ) for
                       parent in parents]
-            data = self.node_exec(node).combine(output)
+
+        data = self.node_exec(node).combine(output)
 
         information = access(self.node_exec(node), method=method, methodArgs=(data,))
 
@@ -286,10 +326,11 @@ class ModelDAG(nx.DiGraph):
     def add_node_transformer(self, node):
         self.add_node(node.name, **{self.executor: node})
 
-    def add_edge_selector(self, node_from, node_to, *args, **kwargs):
+    @fallback('selectType')
+    def add_edge_selector(self, node_from, node_to, selectType=None, *args, **kwargs):
         self.add_node_transformer(node_from) if not isinstance(node_from, str) else None
         self.add_node_transformer(node_to) if not isinstance(node_to, str) else None
 
-        selector = self.selectType(*args, **kwargs)
+        selector = selectType(*args, **kwargs)
 
         self.add_edge(node_from.name, node_to.name, **{self.executor: selector})

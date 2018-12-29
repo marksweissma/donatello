@@ -34,6 +34,7 @@ class Scorer(Dobject):
         self.method = method
 
 
+# Coelesce
 class ScorerSupervised(Scorer):
     """
     Base class for evaluating estimators and datasets

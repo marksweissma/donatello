@@ -44,12 +44,12 @@ class Folder(Dobject):
                  foldClay=None,
                  splitDispatch=typeDispatch,
                  kwargDispatch=kwargDispatch,
-                 runTimeAccess=None
+                 dap=None
                  ):
 
         self.target = target
         self.primaryKey = primaryKey
-        self.runTimeAccess = runTimeAccess if runTimeAccess else {}
+        self.dap = dap if dap else {}
         self.scoreClay = scoreClay
         self.foldClay = foldClay
         self.folder = typeDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
@@ -74,7 +74,7 @@ class Folder(Dobject):
                                        groups=groups, **kwargs)
                             )
 
-        blank = access(df, **self.runTimeAccess['groups']) if 'groups' in self.runTimeAccess else None
+        blank = access(df, **self.dap['groups']) if 'groups' in self.dap else None
         values = blank if blank is not None else df.index.to_series()
 
         self.ids = [(values.iloc[trainIndices].values, values.iloc[testIndices].values)
@@ -101,8 +101,8 @@ class Folder(Dobject):
         return train, test
 
     def split(self, X, y=None, groups=None, **kwargs):
-        kwargs.update({key: access(X, **value) for key, value in self.runTimeAccess.items()}
-                      if self.runTimeAccess else {})
+        kwargs.update({key: access(X, **value) for key, value in self.dap.items()}
+                      if self.dap else {})
         [kwargs.update({i: j}) for i, j in zip(['X', 'y', 'groups'], [X, y, groups]) if j is not None]
 
         return self.folder.split(**kwargs)
@@ -129,7 +129,7 @@ class Folder(Dobject):
             return _designTrain[key], _designTest[key]
 
         for train, test in self.ids:
-            over = self.runTimeAccess['groups']['attrPath'][0] if 'groups' in self.runTimeAccess else 'index'
+            over = self.dap['groups']['attrPath'][0] if 'groups' in self.dap else 'index'
             trainMask, testMask = self._build_masks(df, over, target, train=train, test=test)
 
             designTrain, designTest = self._split(df, trainMask, testMask, target)

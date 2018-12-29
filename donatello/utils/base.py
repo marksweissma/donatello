@@ -10,11 +10,10 @@ class Dobject(object):
     """
     __meta__ = ABCMeta
 
-    @coelesce(kwargs={})
-    def _update_to(self, kwargs, *names):
-        kwargs = kwargs if kwargs else {}
-        kwargs.update({name: getattr(self, name) for name in names})
-        return kwargs
+    @coelesce(kargs={})
+    def _update_to(self, kargs, *names):
+        kargs.update({name: getattr(self, name) for name in names})
+        return kargs
 
     @property
     def name(self):
@@ -28,6 +27,11 @@ class Dobject(object):
     @property
     def foldClay(self):
         """
+        Define type of splitting
+ 
+            #. None -> KFold
+            #. stratify
+            #. group
         """
         return getattr(self, '_foldClay', None)
 
@@ -39,15 +43,36 @@ class Dobject(object):
     def scoreClay(self):
         """
         Define type of learning
-            #. regression
+
+            #. None -> regression
             #. classificaiton
-            #. clustering
+            #. anomaly
        """
         return getattr(self, '_scoreClay', None)
 
     @scoreClay.setter
     def scoreClay(self, value):
         self._scoreClay = value
+
+    @property
+    def foldDispatch(self):
+        """
+        """
+        return getattr(self, '_foldDispatch', None)
+
+    @foldDispatch.setter
+    def foldDispatch(self, value):
+        self._foldDispatch = value
+
+    @property
+    def scoreDispatch(self):
+        """
+        """
+        return getattr(self, '_scoreDispatch', None)
+
+    @scoreDispatch.setter
+    def scoreDispatch(self, value):
+        self._scoreDispatch = value
 
     def __repr__(self):
         time = getattr(self, '_initTime', '[no_init_time]')

@@ -22,10 +22,10 @@ class Dataset(Dobject):
     @init_time
     def __init__(self, raws=None, X=None, y=None,
                  queries=None, querier=pd.read_csv, copyRaws=False,
-                 foldClay=None, folder=Folder,
+                 foldClay=None, foldDispatch=Folder,
                  scoreClay=None,
                  target=None, primaryKey=None,
-                 runTimeAccess=None
+                 dap=None
                  ):
 
         self.copyRaws = copyRaws
@@ -35,11 +35,12 @@ class Dataset(Dobject):
         self.link(raws, X, y)
 
         self._foldClay = foldClay
-        self.folder = folder(foldClay=foldClay, target=target, primaryKey=primaryKey, runTimeAccess=runTimeAccess)
+        self.foldDispatch = foldDispatch
+        self.folder = foldDispatch(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
 
         self.target = target
         self.primaryKey = primaryKey
-        self.runTimeAccess = runTimeAccess
+        self.dap = dap
 
     @property
     def params(self):
