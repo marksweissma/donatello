@@ -1,8 +1,8 @@
 import inspect
 import pandas as pd
-from donatello.utils.base import Dobject, find_value
+from donatello.utils.base import Dobject, find_value, replace_value
 from donatello.components.folder import Folder
-from donatello.utils.decorators import decorator, init_time, fallback
+from donatello.utils.decorators import decorator, init_time, fallback, to_kwargs
 
 
 class Dataset(Dobject):
@@ -80,6 +80,23 @@ class Dataset(Dobject):
         else:
             self.raws = raws
 
+    # should use folder as temp return
+    @property
+    def designData(self):
+        return getattr(self, '_designData', self.raws.drop(self.target, axis=1, errors='ignore'))
+
+    @designData.setter
+    def designData(self, value):
+        self._designData = value
+
+    @property
+    def targetData(self):
+        return getattr(self, '_targetData', self.raws[self.target] if self.target in self.raws else None)
+
+    @targetData.setter
+    def targetData(self, value):
+        self._targetData = value
+
     @fallback('querier')
     def execute_queries(self, queries=None, querier=None):
         """
@@ -113,6 +130,31 @@ class Dataset(Dobject):
                      'targetTrain', 'targetTest', 'targetData']
             [setattr(self, attr, result) for attr, result in zip(attrs, foldResults)]
 
+    def subset(self, subset='train'):
+        if isinstance(subset, str) and subset:
+            subset[0] = subset[0].upper()
+            attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
+            X, y = tuple(getattr(self,  attr) for attr in attrs)
+        elif subset > 1:
+            pass
+        elif subset <= 1:
+            pass
+        return type(self)(X=X, y=y, **self.params)
+
+    @property
+    def __next__(self):
+        return self.next
+
+    def next(self):
+        for train, test in self.folder.split(self.designData, self.targetData):
+            results = [self.designData.iloc[train], self.designData.iloc[test]]
+            if self.targetData is not None:
+                results.extend([self.targetData.iloc[train],
+                                self.targetData.iloc[test]])
+            else:
+                results.extend([None, None])  # Something better here
+            return results
+
     def __iter__(self):
         for train, test in self.folder.split(self.designData, self.targetData):
             results = [self.designData.iloc[train], self.designData.iloc[test]]
@@ -124,19 +166,14 @@ class Dataset(Dobject):
             yield results
         raise StopIteration
 
-    @property
-    def next(self):
-        return self.__next__
 
-
-@decorator
-def package_dataset(wrapped, instance, args, kwargs):
-    """
-    Frome keyword arguments - package X (and y if supervised) in Data object via type
-    """
-    dataset = find_value(wrapped, args, kwargs, 'dataset')
+@to_kwargs
+def pull_dataset(wrapped, instance, args, kwargs):
+    dataset = kwargs.pop('dataset', None)
 
     if not dataset:
+        X = kwargs.pop('X', None)
+        y = kwargs.pop('y', None)
         X = find_value(wrapped, args, kwargs, 'X')
         y = find_value(wrapped, args, kwargs, 'y')
 
@@ -152,6 +189,36 @@ def package_dataset(wrapped, instance, args, kwargs):
     if not dataset.hasData and dataset.queries is not None:
         dataset.execute_queries(dataset.queries)
 
-    exclusions = set(['X', 'y', 'dataset'])
-    result = wrapped(dataset=dataset, **{i: j for i, j in kwargs.items() if i not in exclusions})
+    kwargs.update({'dataset': dataset})
+    return kwargs
+
+
+@decorator
+def package_dataset(wrapped, instance, args, kwargs):
+    """
+    From arguments - package X (and y if supervised) in Data object via type
+    """
+    kwargs = pull_dataset(wrapped, instance, args, kwargs)
+    result = wrapped(**kwargs)
     return result
+
+
+@decorator
+def enforce_dataset(wrapped, instance, args, kwargs):
+    kwargs = pull_dataset(wrapped, instance, args, kwargs)
+    dataset = kwargs['dataset']
+    result = wrapped(**kwargs)
+
+    if not isinstance(result, Dataset) and isinstance(result, tuple) and len(result) <= 2:
+        result = Dataset(X=result[0], y=result[1] if len(result) > 1 else dataset.targetData,
+                         **dataset.params)
+    return result
+
+
+def subset_dataset(subset):
+    @decorator
+    def wrapper(wrapped, instance, args, kwargs):
+        dataset = find_value(wrapped, args, kwargs, 'dataset').subset(subset)
+        replace_value(wrapped, args, kwargs, 'dataset', dataset)
+        result = wrapped(*args, **kwargs)
+        return result

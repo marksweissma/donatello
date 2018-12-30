@@ -164,3 +164,14 @@ def find_value(func, args, kwargs, accessKey):
     return value
 
 
+def replace_value(func, args, kwargs, accessKey, accessValue):
+    """
+    Replace a value from a function signature
+    """
+    spec = inspect.getargspec(func)
+    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
+    index = _args.index(accessKey)
+    if index >= len(args):
+        kwargs[accessKey] = accessValue
+    else:
+        args[index] = accessValue

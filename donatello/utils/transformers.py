@@ -241,7 +241,7 @@ class TransformNode(Dobject, BaseTransformer):
             output = data.Dataset(X=output[0], y=output[1] if len(output) > 1 else dataset.targetData,
                                   **dataset.params)
         else:
-            warning('unregisted data return, expecting downstream node contracts to be upheld by users')
+            warn('unregisted data return, expecting downstream node contracts to be upheld by users')
         return output
 
 
