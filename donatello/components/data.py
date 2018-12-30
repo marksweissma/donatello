@@ -22,7 +22,7 @@ class Dataset(Dobject):
     @init_time
     def __init__(self, raws=None, X=None, y=None,
                  queries=None, querier=pd.read_csv, copyRaws=False,
-                 foldClay=None, foldDispatch=Folder,
+                 foldClay=None, foldType=Folder,
                  scoreClay=None,
                  target=None, primaryKey=None,
                  dap=None
@@ -34,9 +34,8 @@ class Dataset(Dobject):
 
         self.link(raws, X, y)
 
-        self._foldClay = foldClay
-        self.foldDispatch = foldDispatch
-        self.folder = foldDispatch(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
+        self.foldClay = foldClay
+        self.folder = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
 
         self.target = target
         self.primaryKey = primaryKey
@@ -122,14 +121,6 @@ class Dataset(Dobject):
                 else:
                     self.raws[name] = querier(**payload)
 
-    def unpack_folds(self, foldResults):
-        if isinstance(foldResults, dict):
-            [setattr(self, attr, result) for attr, result in foldResults.items()]
-        else:
-            attrs = ['designTrain', 'designTest', 'designData',
-                     'targetTrain', 'targetTest', 'targetData']
-            [setattr(self, attr, result) for attr, result in zip(attrs, foldResults)]
-
     def subset(self, subset='train'):
         if isinstance(subset, str) and subset:
             subset[0] = subset[0].upper()
@@ -141,41 +132,36 @@ class Dataset(Dobject):
             pass
         return type(self)(X=X, y=y, **self.params)
 
-    @property
-    def __next__(self):
-        return self.next
+    def _take(self, train, test):
+        results = [self.designData.iloc[train], self.designData.iloc[test]]
+        if self.targetData is not None:
+            results.extend([self.targetData.iloc[train],
+                            self.targetData.iloc[test]])
+        else:
+            results.extend([None, None])  # Something better here
+        return results
 
-    def next(self):
-        for train, test in self.folder.split(self.designData, self.targetData):
-            results = [self.designData.iloc[train], self.designData.iloc[test]]
-            if self.targetData is not None:
-                results.extend([self.targetData.iloc[train],
-                                self.targetData.iloc[test]])
-            else:
-                results.extend([None, None])  # Something better here
-            return results
+    def take(self):
+        train, test = next(self.folder.split(self.designData, self.targetData))
+        results = self._take(train, test)
+        return results
+
 
     def __iter__(self):
         for train, test in self.folder.split(self.designData, self.targetData):
-            results = [self.designData.iloc[train], self.designData.iloc[test]]
-            if self.targetData is not None:
-                results.extend([self.targetData.iloc[train],
-                                self.targetData.iloc[test]])
-            else:
-                results.extend([None, None])  # Something better here
+            results = self._take(train, test)
             yield results
         raise StopIteration
 
 
+# not a decorator, function for helping data decorators
 @to_kwargs
-def pull_dataset(wrapped, instance, args, kwargs):
+def _pull(wrapped, instance, args, kwargs):
     dataset = kwargs.pop('dataset', None)
 
     if not dataset:
         X = kwargs.pop('X', None)
         y = kwargs.pop('y', None)
-        X = find_value(wrapped, args, kwargs, 'X')
-        y = find_value(wrapped, args, kwargs, 'y')
 
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
@@ -198,14 +184,14 @@ def package_dataset(wrapped, instance, args, kwargs):
     """
     From arguments - package X (and y if supervised) in Data object via type
     """
-    kwargs = pull_dataset(wrapped, instance, args, kwargs)
+    kwargs = _pull(wrapped, instance, args, kwargs)
     result = wrapped(**kwargs)
     return result
 
 
 @decorator
 def enforce_dataset(wrapped, instance, args, kwargs):
-    kwargs = pull_dataset(wrapped, instance, args, kwargs)
+    kwargs = _pull(wrapped, instance, args, kwargs)
     dataset = kwargs['dataset']
     result = wrapped(**kwargs)
 

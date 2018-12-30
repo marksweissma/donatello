@@ -1,6 +1,7 @@
 from sklearn.model_selection import (KFold,
                                      StratifiedKFold,
-                                     GroupShuffleSplit)
+                                     GroupShuffleSplit,
+                                     TimeSeriesSplit)
 
 from donatello.utils.base import Dobject
 from donatello.utils.helpers import access
@@ -14,13 +15,15 @@ _base = {'n_splits': 5,
 
 typeDispatch = {None: KFold,
                 'stratify': StratifiedKFold,
-                'group': GroupShuffleSplit
+                'group': GroupShuffleSplit,
+                'time': TimeSeriesSplit
                 }
 
 
 kwargDispatch = {None: _base,
                  'stratify': _base,
-                 'group': {'n_splits': 5, 'random_state': 22}
+                 'group': {'n_splits': 5, 'random_state': 22},
+                 'time': {'n_splits': 5}
                  }
 
 
@@ -37,13 +40,9 @@ class Folder(Dobject):
             of random or startification
     """
     @init_time
-    def __init__(self,
-                 target=None,
-                 primaryKey=None,
-                 scoreClay=None,
-                 foldClay=None,
-                 splitDispatch=typeDispatch,
-                 kwargDispatch=kwargDispatch,
+    def __init__(self, target=None, primaryKey=None,
+                 scoreClay=None, foldClay=None,
+                 splitDispatch=typeDispatch, kwargDispatch=kwargDispatch,
                  dap=None
                  ):
 
@@ -54,8 +53,8 @@ class Folder(Dobject):
         self.foldClay = foldClay
         self.folder = typeDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
 
-    @fallback('target', 'primaryKey')
-    def fit(self, dataset=None, target=None, primaryKey=None, groups=None, **kwargs):
+    @fallback('target', 'primaryKey', 'dap')
+    def fit(self, dataset=None, target=None, primaryKey=None, dap=None, **kwargs):
         """
         fit folder  => finds and store values for each set
 
@@ -69,13 +68,13 @@ class Folder(Dobject):
         """
         df = dataset.data if not primaryKey else dataset.data[primaryKey]
 
+        groups = access(df, **dap['groups']) if 'groups' in self.dap else None
         self.indices = list(self.split(df.drop(target, axis=1) if target else df,
                                        df[target] if target else None,
                                        groups=groups, **kwargs)
                             )
 
-        blank = access(df, **self.dap['groups']) if 'groups' in self.dap else None
-        values = blank if blank is not None else df.index.to_series()
+        values = groups if groups is not None else df.index.to_series()
 
         self.ids = [(values.iloc[trainIndices].values, values.iloc[testIndices].values)
                     for (trainIndices, testIndices) in self.indices]
@@ -147,20 +146,13 @@ class Folder(Dobject):
             designTrain = _designTrain if None not in _designTrain else _designTrain[None]
             designTest = _designTest if None not in _designTest else _designTest[None]
 
-            results = {'designData': designData,
-                       'designTrain': designTrain,
-                       'designTest': designTest}
-
             if target:
                 targetData = df[target]
                 targetTrain, targetTest = self._split(targetData, trainMask, testMask)
             else:
                 targetData, targetTrain, targetTest = None, None, None
 
-            results.update({'targetData': targetData,
-                            'targetTrain': targetTrain,
-                            'targetTest': targetTest
-                            })
+            results = [designData, designTrain, designTest, targetData, targetTrain, targetTest]
 
             yield results
         raise StopIteration

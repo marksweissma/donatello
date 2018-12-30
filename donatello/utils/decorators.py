@@ -19,21 +19,6 @@ def init_time(wrapped, instance, args, kwargs):
 
 
 @decorator
-def fold_dataset(wrapped, instance, args, kwargs):
-    """
-    Fold dataset data into train and test sets
-    """
-    dataset = kwargs.pop('dataset', None)
-
-    if dataset and dataset.hasData and instance.folder:
-        dataset.unpack_folds(next(instance.folder.fit_fold(dataset)))
-    else:
-        dataset.designData = dataset.data
-    result = wrapped(dataset=dataset, *args, **kwargs)
-    return result
-
-
-@decorator
 def pandas_series(wrapped, instance, args, kwargs):
     """
     Enforce output as :py:class:`pandas.Series`

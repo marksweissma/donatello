@@ -18,7 +18,8 @@ class Dobject(object):
     @property
     def name(self):
         name = getattr(self, '_name',  self.__class__.__name__)
-        return name
+        time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
+        return "_".join(name + [time])
 
     @name.setter
     def name(self, value):
@@ -28,7 +29,7 @@ class Dobject(object):
     def foldClay(self):
         """
         Define type of splitting
- 
+
             #. None -> KFold
             #. stratify
             #. group
@@ -140,7 +141,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         """
         _name = self.__class__.__name__
         name = [_name, self.model.__class__.__name__] if hasattr(self, 'model') else [_name]
-        return "_".join(name)
+        time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
+        return "_".join(name + [time])
 
     def __repr__(self):
         time = getattr(self, '_initTime', '[no init time]')

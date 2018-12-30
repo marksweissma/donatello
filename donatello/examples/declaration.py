@@ -7,7 +7,6 @@ from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 from donatello.components.manager import DM
-from donatello.components.estimator import Estimator
 from donatello.components.metrics import Metric, FeatureWeights, ThresholdRates
 
 
@@ -18,7 +17,7 @@ def _load_sklearn_bc_dataset(group=True):
                                ['is_malignant'])
                       )
     if group:
-        df['grouper'] = df.apply(lambda x: random.choice(range(10)), axis=1)
+        df['a_column'] = df.apply(lambda x: random.choice(range(10)), axis=1)
     return df
 
 
@@ -27,10 +26,10 @@ def load_data_fold(asDf, group):
     fold = {'target': 'is_malignant'}
 
     if group:
-        # fold['foldClay'] = 'group'
-        # data['foldClay'] = 'group'
+        fold['foldClay'] = 'group'
+        data['foldClay'] = 'group'
 
-        fold['dap'] = {'groups': {'attrPath': ['grouper'], 'slicers': (pd.DataFrame, dict)}}
+        fold['dap'] = {'groups': {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}}
 
     return data, fold
 
@@ -39,20 +38,6 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
     metrics = [Metric(roc_auc_score), Metric(average_precision_score),
                FeatureWeights(sort=featureName), ThresholdRates()]
-    # _metrics = {roc_auc_score: {},
-                # average_precision_score: {},
-                # 'feature_weights': {'key': 'names',
-                                    # 'sort': featureName,
-                                    # 'callback': reformat_aggs,
-                                    # 'agg': 'describe',
-                                    # 'callbackKwargs': {'sortValues': 'mean',
-                                                       # 'indexName': 'features'
-                                                       # }
-                                    # },
-                # 'threshold_rates': {'key': 'thresholds',
-                                    # 'sort': 'thresholds',
-                                    # }
-                # }
 
     return metrics
 

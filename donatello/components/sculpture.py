@@ -6,7 +6,6 @@ from sklearn import clone
 from sklearn.base import BaseEstimator
 from sklearn.utils import Bunch
 
-from donatello.components.folder import Folder
 from donatello.components.data import Dataset, package_dataset, subset_dataset
 from donatello.components.estimator import Estimator
 from donatello.components.scorer import ScorerSupervised
@@ -27,7 +26,6 @@ class Sculpture(Dobject, BaseEstimator):
 
     Args:
         dataDeclaration (dict): :py:class:`donatello.components.data.Dataset`
-        folderDeclaration (dict): arguments for :py:class:`donatello.components.folder.Folder`
         estimatorDeclaration (dict): arguments for :py:class:`donatello.components.estimator.Estimator`
         scorerDeclaration (dict): arguments for :py:class:`donatello.components.scorer.Scorer`
         validation (bool): flag for calculating scoring metrics from nested cross val of training + validation sets
@@ -38,17 +36,16 @@ class Sculpture(Dobject, BaseEstimator):
         timeFormat (str): format for creation time string
     """
 
-    def __init__(self, dataDeclaration=None, folderDeclaration=None,
+    def __init__(self, dataDeclaration=None,
                  estimatorDeclaration=None, scorerDeclaration=None,
                  validation=True, holdOut=False, entire=False, metrics=None,
                  scoreClay=None, foldClay=None,
-                 scoreType=ScorerSupervised, foldType=Folder,
+                 scoreType=ScorerSupervised,
                  hook=Local(), storeReferences=True,
                  writeAttrs=('', 'estimator'), timeFormat="%Y_%m_%d_%H_%M"):
 
         self._initTime = now_string(timeFormat)
 
-        self.folderDeclaration = folderDeclaration
         self.datasetDeclaration = dataDeclaration
         self.estimatorDeclaration = estimatorDeclaration
         self.scorerDeclaration = scorerDeclaration
@@ -57,7 +54,6 @@ class Sculpture(Dobject, BaseEstimator):
         self.scoreType = scoreType
 
         self.foldClay = foldClay
-        self.foldType = foldType
 
         self.metrics = metrics
 
@@ -69,7 +65,6 @@ class Sculpture(Dobject, BaseEstimator):
         self.dataset = dataDeclaration
         self.dataParams = self.dataset.params
 
-        self.folder = folderDeclaration
         self.estimator = estimatorDeclaration
         self.scorer = scorerDeclaration
         self.hook = hook
@@ -93,18 +88,6 @@ class Sculpture(Dobject, BaseEstimator):
         self._declaration = value
 
     # components
-    @property
-    def folder(self):
-        """
-        Folder object attached to manager
-        """
-        return self._folder
-
-    @folder.setter
-    def folder(self, kwargs):
-        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
-        self._folder = self.foldType(**kwargs)
-
     @property
     def dataset(self):
         """
