@@ -1,3 +1,4 @@
+import inspect
 import pandas as pd
 
 
@@ -145,3 +146,33 @@ def access(obj=None, attrPath=None,
                        slicers=slicers, errors=errors, default=default)
 
     return value
+
+
+def find_value(func, args, kwargs, accessKey):
+    """
+    Find a value from a function signature
+    """
+    spec = inspect.getargspec(func)
+    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
+
+    index = _args.index(accessKey)
+    offset = len(_args) - len(nvl(spec.defaults, []))
+    default = spec.defaults[index - offset] if index >= offset else None
+    value = kwargs.get(accessKey, default) if index >= len(args) else args[index]
+    return value
+
+
+def replace_value(func, args, kwargs, accessKey, accessValue):
+    """
+    Replace a value from a function signature
+    """
+    spec = inspect.getargspec(func)
+    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
+    index = _args.index(accessKey)
+    if index >= len(args):
+        kwargs[accessKey] = accessValue
+    else:
+        args = list(args)
+        args[index] = accessValue
+        args = tuple(args)
+    return args, kwargs

@@ -14,9 +14,9 @@ from sklearn import clone
 
 import networkx as nx
 
-from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer, find_value
+from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
 from donatello.utils.decorators import init_time, fallback
-from donatello.utils.helpers import access, nvl
+from donatello.utils.helpers import access, nvl, find_value
 from donatello.components import data
 
 
@@ -243,7 +243,7 @@ class TransformNode(Dobject, BaseTransformer):
         return output
 
 
-class Garden(nx.DiGraph, Dobject):
+class ModelDAG(nx.DiGraph, Dobject):
     @init_time
     def __init__(self, executor='executor', selectType=KeySelector, *args, **kwargs):
         super(Garden, self).__init__(*args, **kwargs)

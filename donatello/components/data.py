@@ -1,8 +1,9 @@
 import inspect
 import pandas as pd
-from donatello.utils.base import Dobject, find_value, replace_value
+from donatello.utils.base import Dobject
 from donatello.components.fold import Fold
 from donatello.utils.decorators import decorator, init_time, fallback, to_kwargs
+from donatello.utils.helpers import find_value, replace_value
 
 
 @decorator
@@ -44,13 +45,16 @@ class Dataset(Dobject):
         self.querier = querier
 
         self.foldClay = foldClay
-        self.fold = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
+        self.foldType = foldType
 
         self.target = target
         self.primaryKey = primaryKey
         self.dap = dap
 
-        self.link(raws, X, y)
+        self.fold = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
+
+        if any([i is not None for i in [raws, X, y]]):
+            self.link(raws, X, y)
 
     @property
     def params(self):
@@ -223,7 +227,7 @@ def subset_dataset(subset):
     @decorator
     def wrapper(wrapped, instance, args, kwargs):
         dataset = find_value(wrapped, args, kwargs, 'dataset').subset(subset)
-        replace_value(wrapped, args, kwargs, 'dataset', dataset)
+        args, kwargs = replace_value(wrapped, args, kwargs, 'dataset', dataset)
         result = wrapped(*args, **kwargs)
         return result
     return wrapper

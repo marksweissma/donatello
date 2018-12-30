@@ -104,7 +104,8 @@ class Fold(Dobject):
     def split(self, X, y=None, groups=None, **kwargs):
         kwargs.update({key: access(X, **value) for key, value in self.dap.items()}
                       if self.dap else {})
-        [kwargs.update({i: j}) for i, j in zip(['X', 'y', 'groups'], [X, y, groups]) if j is not None]
+        # [kwargs.update({i: j}) for i, j in zip(['X', 'y', 'groups'], [X, y, groups]) if j is not None]
+        [kwargs.update({i: j}) for i, j in zip(['X', 'y', 'groups'], [X, y, groups])]
 
         return self.folder.split(**kwargs)
 

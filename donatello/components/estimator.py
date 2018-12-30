@@ -64,10 +64,6 @@ class Estimator(Dobject, BaseTransformer):
         return self.scoreDispatch[self.scoreClay]['method']
 
     @property
-    def scoreDispatch(self):
-        return self._scoreDispatch
-
-    @property
     def predict_method(self):
         """
         Unified prediction interface

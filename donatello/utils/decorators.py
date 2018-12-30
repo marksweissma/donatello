@@ -2,7 +2,7 @@ import inspect
 import pandas as pd
 from wrapt import decorator
 
-from donatello.utils.helpers import now_string, nvl
+from donatello.utils.helpers import now_string, nvl, find_value, replace_value
 
 
 @decorator
@@ -56,11 +56,10 @@ def coelesce(**defaults):
     """
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):
-        spec = inspect.getargspec(wrapped)
         for key, default in defaults.items():
-            index = spec.args.index(key) - bool(inspect.ismethod(wrapped))
-            if index >= len(args):
-                kwargs[key] = kwargs.get(key, default)
+            value = find_value(wrapped, args, kwargs, key)
+            args, kwargs = replace_value(wrapped, args, kwargs, key, nvl(value, default))
+
         result = wrapped(*args, **kwargs)
         return result
     return _wrapper
