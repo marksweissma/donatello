@@ -36,8 +36,10 @@ class Sculpture(Dobject, BaseEstimator):
         timeFormat (str): format for creation time string
     """
 
-    def __init__(self, dataDeclaration=None,
-                 estimatorDeclaration=None, scorerDeclaration=None,
+    def __init__(self,
+                 dataDeclaration=None,
+                 estimatorDeclaration=None,
+                 scorerDeclaration=None,
                  validation=True, holdOut=False, entire=False, metrics=None,
                  scoreClay=None, foldClay=None,
                  scoreType=ScorerSupervised,
@@ -160,7 +162,6 @@ class Sculpture(Dobject, BaseEstimator):
 
     @fallback('dataset', 'writeAttrs', 'validation', 'holdOut', 'entire')
     @package_dataset
-    # @dataset_fetch
     def fit(self, dataset=None, X=None, y=None, writeAttrs=None,
             validation=None, holdOut=None, entire=None, **fitParams):
         """

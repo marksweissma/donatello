@@ -183,11 +183,9 @@ def concat(datasets, params=None):
     if datasets:
         Xs = [dataset.designData for dataset in datasets if dataset.designData is not None]
         ys = [dataset.targetData for dataset in datasets if dataset.targetData is not None]
-        Xs = [X for X in Xs if X is not None]
-        ys = [y for y in ys if y is not None]
 
         X = pd.concat(Xs, axis=1) if Xs else None
-        y = ys[0] if len(y) == 1 else None if len(y) < 1 else pd.concat(ys, axis=1)
+        y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1)
         params = params if params is not None else datasets[0].params
         dataset = data.Dataset(X=X, y=y, **params)
     else:

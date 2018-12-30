@@ -19,7 +19,7 @@ class Dobject(object):
     def name(self):
         name = getattr(self, '_name',  self.__class__.__name__)
         time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
-        return "_".join(name + [time])
+        return "_".join([name, time])
 
     @name.setter
     def name(self, value):

@@ -1,8 +1,19 @@
 import inspect
 import pandas as pd
 from donatello.utils.base import Dobject, find_value, replace_value
-from donatello.components.folder import Folder
+from donatello.components.fold import Fold
 from donatello.utils.decorators import decorator, init_time, fallback, to_kwargs
+
+
+@decorator
+def fit_fold(wrapped, instance, args, kwargs):
+    result = wrapped(*args, **kwargs)
+    instance.fold.fit(instance)
+    attrs = ('designTrain', 'designTest',
+             'targetTrain', 'targetTest')
+    folded = next(instance.fold.fold(instance))
+    [setattr(instance, attr, value) for attr, value in zip(attrs, folded)]
+    return result
 
 
 class Dataset(Dobject):
@@ -16,13 +27,13 @@ class Dataset(Dobject):
         copyRaws (bool): option to have data return copy of raws to preserve fetch
         X (obj): option to specify design directly
         y (obj): option to specify target directly
-        type (obj) foldType: type of folder to leverage in iterator
+        type (obj) foldType: type of fold to leverage in iterator
         foldDeclaration (obj): kwargs for split type to instantiate with in constructor
     """
     @init_time
     def __init__(self, raws=None, X=None, y=None,
                  queries=None, querier=pd.read_csv, copyRaws=False,
-                 foldClay=None, foldType=Folder,
+                 foldClay=None, foldType=Fold,
                  scoreClay=None,
                  target=None, primaryKey=None,
                  dap=None
@@ -32,14 +43,14 @@ class Dataset(Dobject):
         self.queries = queries
         self.querier = querier
 
-        self.link(raws, X, y)
-
         self.foldClay = foldClay
-        self.folder = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
+        self.fold = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
 
         self.target = target
         self.primaryKey = primaryKey
         self.dap = dap
+
+        self.link(raws, X, y)
 
     @property
     def params(self):
@@ -70,33 +81,41 @@ class Dataset(Dobject):
             state = self.data is not None
         return state
 
+    @fit_fold
     def link(self, raws=None, X=None, y=None):
         if raws is None and X is not None:
             raws = [X, y] if y is not None else [X]
             self.raws = pd.concat(raws, axis=1)
             self.designData = X
             self.targetData = y
+            name = getattr(y, 'name', getattr(self, 'target', None))
+            self.target = name
         else:
             self.raws = raws
 
-    # should use folder as temp return
+    def _split(self):
+        return next(self.fold.fold(self))  # :(
+
     @property
     def designData(self):
-        return getattr(self, '_designData', self.raws.drop(self.target, axis=1, errors='ignore'))
-
-    @designData.setter
-    def designData(self, value):
-        self._designData = value
+        if hasattr(self, '_designData'):
+            output = self._designData
+        else:
+            train, test, _, __ = self._split()
+            output = pd.concat([train, test])
+        return output
 
     @property
     def targetData(self):
-        return getattr(self, '_targetData', self.raws[self.target] if self.target in self.raws else None)
-
-    @targetData.setter
-    def targetData(self, value):
-        self._targetData = value
+        if hasattr(self, '_targetData'):
+            output = self._targetData
+        else:
+            _, __, train, test = self._split()
+            output = pd.concat([train, test])
+        return output
 
     @fallback('querier')
+    @fit_fold
     def execute_queries(self, queries=None, querier=None):
         """
         Execute data extraction via cascading querying dependencies
@@ -142,15 +161,13 @@ class Dataset(Dobject):
         return results
 
     def take(self):
-        train, test = next(self.folder.split(self.designData, self.targetData))
+        train, test = next(self.fold.split(self.designData, self.targetData))
         results = self._take(train, test)
         return results
 
-
     def __iter__(self):
-        for train, test in self.folder.split(self.designData, self.targetData):
-            results = self._take(train, test)
-            yield results
+        for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
+            yield xTrain, xTest, yTrain, yTest
         raise StopIteration
 
 
@@ -174,6 +191,7 @@ def _pull(wrapped, instance, args, kwargs):
 
     if not dataset.hasData and dataset.queries is not None:
         dataset.execute_queries(dataset.queries)
+        dataset.fold.fit(dataset)
 
     kwargs.update({'dataset': dataset})
     return kwargs
@@ -208,3 +226,4 @@ def subset_dataset(subset):
         replace_value(wrapped, args, kwargs, 'dataset', dataset)
         result = wrapped(*args, **kwargs)
         return result
+    return wrapper

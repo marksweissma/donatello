@@ -6,7 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-from donatello.components.manager import DM
+from donatello.components.sculpture import Sculpture
 from donatello.components.metrics import Metric, FeatureWeights, ThresholdRates
 
 
@@ -22,16 +22,14 @@ def _load_sklearn_bc_dataset(group=True):
 
 
 def load_data_fold(asDf, group):
-    data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset, 'group': group}}}
-    fold = {'target': 'is_malignant'}
-
+    data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier':
+                                                                                      _load_sklearn_bc_dataset,
+                                                                                      'group': group}}}
     if group:
-        fold['foldClay'] = 'group'
         data['foldClay'] = 'group'
+        data['dap'] = {'groups': {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}}
 
-        fold['dap'] = {'groups': {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}}
-
-    return data, fold
+    return data
 
 
 def load_metrics(metrics=None, featureName='coefficients'):
@@ -44,7 +42,7 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
 def load_logit_declaration(group=True, asDf=False, metrics=None):
 
-    data, fold = load_data_fold(asDf, group)
+    data = load_data_fold(asDf, group)
 
     estimator = {'model': LogisticRegression(),
                  'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
@@ -53,7 +51,6 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
 
     metrics = load_metrics(metrics)
     declaration = {'dataDeclaration': data,
-                   'folderDeclaration': fold,
                    'estimatorDeclaration': estimator,
                    'metrics': metrics,
                    'scoreClay': 'classification',
@@ -90,15 +87,13 @@ def load_random_forest_declaration(group=True, asDf=True, metrics=None):
 
 
 def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_score', 'average_percision_score', 'threshold_rates']):
-    data, fold = load_data_fold(asDf, group)
+    data = load_data_fold(asDf, group)
 
     metrics = load_metrics(metrics)
 
     estimator = {'model': IsolationForest(), 'scoreClay': 'anomaly'}
 
-
     declaration = {'dataDeclaration': data,
-                   'folderDeclaration': fold,
                    'estimatorDeclaration': estimator,
                    'metrics': metrics,
                    'scoreClay': 'anomaly',
@@ -123,5 +118,5 @@ def load_dm(model='lr', group=True, asDf=False):
         declaration = load_logit_declaration
 
     declaration = declaration(group=group, asDf=asDf)
-    m = DM(**declaration)
+    m = Sculpture(**declaration)
     return m

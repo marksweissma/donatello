@@ -5,7 +5,7 @@ from sklearn.model_selection import (KFold,
 
 from donatello.utils.base import Dobject
 from donatello.utils.helpers import access
-from donatello.utils.decorators import fallback, init_time
+from donatello.utils.decorators import fallback, init_time, coelesce
 
 
 _base = {'n_splits': 5,
@@ -27,7 +27,7 @@ kwargDispatch = {None: _base,
                  }
 
 
-class Folder(Dobject):
+class Fold(Dobject):
     """
     Object to split data into training and testing/validation groups.
     Packages dataframes and dictionaries of dataframes
@@ -40,6 +40,7 @@ class Folder(Dobject):
             of random or startification
     """
     @init_time
+    @coelesce(dap={})
     def __init__(self, target=None, primaryKey=None,
                  scoreClay=None, foldClay=None,
                  splitDispatch=typeDispatch, kwargDispatch=kwargDispatch,
@@ -56,15 +57,16 @@ class Folder(Dobject):
     @fallback('target', 'primaryKey', 'dap')
     def fit(self, dataset=None, target=None, primaryKey=None, dap=None, **kwargs):
         """
-        fit folder  => finds and store values for each set
+        fit fold  => finds and store values for each set
 
         Args:
             dataset (donatello.components.dataset): dataset to fit on
             target (str): str name of target field to separate
             primaryKey (str): key for primary field (if dataset.data \
-                is dict (not df)
+                is dict not df)
+
         Returns:
-            object: fit transformer
+            object: self
         """
         df = dataset.data if not primaryKey else dataset.data[primaryKey]
 
@@ -107,7 +109,7 @@ class Folder(Dobject):
         return self.folder.split(**kwargs)
 
     @fallback('target', 'primaryKey')
-    def fold(self, dataset=None, target=None, primaryKey=None, **fitParams):
+    def fold(self, dataset=None, target=None, primaryKey=None):
         """
         Split data data into design/target train/test/data
 
@@ -119,12 +121,10 @@ class Folder(Dobject):
             dict: paylod of train/test/data <> design/target subsets
         """
         df = dataset.data[primaryKey] if primaryKey else dataset.data
-        designData = df.drop(target, axis=1) if target else df
 
-        def _wrap_split(key, content, train, test):
-            _designData[key] = content
-            _trainMask, _testMask = self._build_masks(content, self.contentMap.get(key, None), train=train, test=test)
-            _designTrain[key], _designTest[key] = self._split(content, _trainMask, testMask)
+        def _wrap_split(key, data, train, test):
+            _trainMask, _testMask = self._build_masks(data, self.dataMap.get(key, None), train=train, test=test)
+            _designTrain[key], _designTest[key] = self._split(data, _trainMask, testMask)
             return _designTrain[key], _designTest[key]
 
         for train, test in self.ids:
@@ -133,31 +133,23 @@ class Folder(Dobject):
 
             designTrain, designTest = self._split(df, trainMask, testMask, target)
 
-            _designData = {self.primaryKey: designData}
             _designTrain = {self.primaryKey: designTrain}
             _designTest = {self.primaryKey: designTest}
 
             if isinstance(dataset.data, dict):
-                for key, content in self.data.items():
+                for key, data in self.data.items():
                     if key != self.primaryKey:
-                        _designTrain[key], _designTest[key] = _wrap_split(key, content, train, test)
+                        _designTrain[key], _designTest[key] = _wrap_split(key, data, train, test)
 
-            designData = _designData if None not in _designData else _designData[None]
             designTrain = _designTrain if None not in _designTrain else _designTrain[None]
             designTest = _designTest if None not in _designTest else _designTest[None]
 
             if target:
-                targetData = df[target]
-                targetTrain, targetTest = self._split(targetData, trainMask, testMask)
+                targetTrain, targetTest = self._split(df[target], trainMask, testMask)
             else:
-                targetData, targetTrain, targetTest = None, None, None
+                targetTrain, targetTest = None, None
 
-            results = [designData, designTrain, designTest, targetData, targetTrain, targetTest]
+            results = [designTrain, designTest, targetTrain, targetTest]
 
             yield results
         raise StopIteration
-
-    @fallback('target', 'primaryKey')
-    def fit_fold(self, dataset=None, target=None, primaryKey=None, **fitParams):
-        self.fit(dataset=dataset, target=target, primaryKey=primaryKey, **fitParams)
-        return self.fold(dataset=dataset, target=target, primaryKey=primaryKey, **fitParams)
