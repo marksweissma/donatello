@@ -25,6 +25,7 @@ def load_data_fold(asDf, group):
     data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier':
                                                                                       _load_sklearn_bc_dataset,
                                                                                       'group': group}}}
+    data['target'] = 'is_malignant'
     if group:
         data['foldClay'] = 'group'
         data['dap'] = {'groups': {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}}

@@ -1,4 +1,3 @@
-import inspect
 from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
 from donatello.utils.decorators import coelesce
@@ -17,9 +16,13 @@ class Dobject(object):
 
     @property
     def name(self):
-        name = getattr(self, '_name',  self.__class__.__name__)
-        time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
-        return "_".join([name, time])
+        if hasattr(self, '_name'):
+            name =  self._name
+        else:
+            name = getattr(self, '_name',  self.__class__.__name__)
+            time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
+            name = "_".join([name, time])
+        return name
 
     @name.setter
     def name(self, value):
@@ -76,8 +79,7 @@ class Dobject(object):
         self._scoreDispatch = value
 
     def __repr__(self):
-        time = getattr(self, '_initTime', '[no_init_time]')
-        return '{name} created at {time}'.format(name=self.name, time=time)
+        return '{name}'.format(name=self.name)
 
 
 class PandasAttrs(Dobject):

@@ -85,7 +85,6 @@ def fallback(*defaults):
 # fix this, should check - default - execute
 @decorator
 def name(wrapped, instance, args, kwargs):
-        spec = inspect.getargspec(wrapped)
         _name = getattr(instance, '_name', instance.__class__.__name__)
         instance._name = _name
         result = wrapped(*args, **kwargs)

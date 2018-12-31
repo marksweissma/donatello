@@ -181,7 +181,7 @@ class Sculpture(Dobject, BaseEstimator):
         """
         Write objects
         """
-        [self.hook.write(obj=getattr(self, attr)) for attr in writeAttrs]
+        [self.hook.write(obj=self, attr=attr) for attr in writeAttrs]
 
 
 class Garden(Dobject):

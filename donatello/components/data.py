@@ -109,6 +109,10 @@ class Dataset(Dobject):
             output = pd.concat([train, test])
         return output
 
+    @designData.setter
+    def designData(self, value):
+        self._designData = value
+
     @property
     def targetData(self):
         if hasattr(self, '_targetData'):
@@ -117,6 +121,10 @@ class Dataset(Dobject):
             _, __, train, test = self._split()
             output = pd.concat([train, test])
         return output
+
+    @targetData.setter
+    def targetData(self, value):
+        self._targetData = value
 
     @fallback('querier')
     @fit_fold
@@ -146,7 +154,7 @@ class Dataset(Dobject):
 
     def subset(self, subset='train'):
         if isinstance(subset, str) and subset:
-            subset[0] = subset[0].upper()
+            subset = subset.capitalize()
             attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
             X, y = tuple(getattr(self,  attr) for attr in attrs)
         elif subset > 1:
