@@ -1,12 +1,11 @@
 from sklearn.model_selection import GridSearchCV
 
-from donatello.utils.base import BaseTransformer
+from donatello.utils.base import Dobject, BaseTransformer
 from donatello.utils.decorators import pandas_series, fallback
-from donatello.utils.helpers import now_string, nvl
-from donatello.utils.transformers import Selector
+from donatello.utils.helpers import now_string
 
 
-class Estimator(BaseTransformer):
+class Estimator(Dobject, BaseTransformer):
     """
     Donatello's Base Estimation object. Leverages a transformer to prepare and transform
     design and an ML model to fit and predict. Supports options for grid searching for
@@ -21,14 +20,15 @@ class Estimator(BaseTransformer):
         timeFormat (str): option to specify timestamp format
     """
 
-    # this is to provide interface and not call super
     def __init__(self,
-                 transformer=None,
                  model=None,
-                 mlType='regression',
-                 typeDispatch={'regression': {'method': 'predict', 'score': 'score_all'},
-                               'classification': {'method': 'predict_proba', 'score': 'score_first'}
-                               },
+                 foldClay=None,
+                 scoreClay=None,
+                 foldDispatch=None,
+                 scoreDispatch={'regression': {'method': 'predict', 'score': 'score_all'},
+                                'classification': {'method': 'predict_proba', 'score': 'score_first'},
+                                'anomaly': {'method': 'decision_function', 'score': 'score_invert'}
+                                },
                  paramGrid={},
                  gridKwargs={},
                  timeFormat="%Y_%m_%d_%H_%M"
@@ -36,10 +36,11 @@ class Estimator(BaseTransformer):
 
         self._initTime = now_string(timeFormat)
 
-        self.transformer = nvl(transformer, Selector(reverse=True))
         self.model = model
-        self._mlType = mlType
-        self._typeDispatch = typeDispatch
+        self.foldClay = foldClay
+        self.scoreClay = scoreClay
+        self.foldDispatch = foldDispatch
+        self.scoreDispatch = scoreDispatch
 
         self.paramGrid = paramGrid
         self.gridKwargs = gridKwargs
@@ -59,16 +60,8 @@ class Estimator(BaseTransformer):
         self._declaration = value
 
     @property
-    def mlType(self):
-        return self._mlType
-
-    @property
     def method(self):
-        return self.typeDispatch[self.mlType]['method']
-
-    @property
-    def typeDispatch(self):
-        return self._typeDispatch
+        return self.scoreDispatch[self.scoreClay]['method']
 
     @property
     def predict_method(self):
@@ -81,53 +74,45 @@ class Estimator(BaseTransformer):
     @property
     def fields(self):
         """
-        Fields passed into transformer
+        Fields passed into model
         """
-        return getattr(self.transformer, '_fields', [])
+        return getattr(self.model, '_fields', [])
 
     @property
     def features(self):
         """
-        Features coming from transformer
+        Features coming from model
         """
-        return getattr(self.transformer, '_features', [])
+        return getattr(self.model, '_features', [])
 
 # Fitting
-    def sklearn_grid_search(self, X=None, y=None,
-                    paramGrid=None, gridKwargs=None
-                    ):
-        """
-        """
-
-        self.gridSearch = GridSearchCV(estimator=self,
-                                       param_grid=paramGrid,
-                                       **gridKwargs)
-        self.gridSearch.fit(X=X, y=y, gridSearch=False)
-        self.set_params(**self.gridSearch.best_params_)
-
     @fallback('paramGrid', 'gridKwargs')
     def grid_search(self, X=None, y=None, gridSearch=True,
                     paramGrid=None, gridKwargs=None):
         """
+        Grid search over hyperparameter space
         """
         if paramGrid and gridSearch:
-            self.sklearn_grid_search(X=X, y=y, paramGrid=paramGrid, gridKwargs=gridKwargs)
+            self.gridSearch = GridSearchCV(estimator=self,
+                                           param_grid=paramGrid,
+                                           **gridKwargs)
+            self.gridSearch.fit(X=X, y=y, gridSearch=False)
+            self.set_params(**self.gridSearch.best_params_)
 
-    def fit(self, X=None, y=None,
-            gridSearch=True,
+    def fit(self, X=None, y=None, gridSearch=True,
             paramGrid=None, gridKwargs=None, **kwargs):
         """
         Fit method with options for grid searching hyperparameters
         """
-        self.grid_search(X=X, y=y, gridSearch=gridSearch, paramGrid=paramGrid, gridKwargs=gridKwargs)
-
-        transformed = self.transformer.fit_transform(X=X, y=y, **kwargs)
-        self.model.fit(transformed, y)
+        self.grid_search(X=X, y=y, gridSearch=gridSearch,
+                         paramGrid=paramGrid, gridKwargs=gridKwargs)
+        self.model.fit(X=X, y=y, **kwargs)
         return self
 
+    # Move to dispatch
     @pandas_series
     def score(self, X, name=''):
-        scores = getattr(self, self.typeDispatch[self.mlType]['score'])(X)
+        scores = getattr(self, self.scoreDispatch[self.scoreClay]['score'])(X)
         return scores
 
     def score_all(self, X):
@@ -142,25 +127,14 @@ class Estimator(BaseTransformer):
         """
         return self.predict_method(X=X)[:, 1]
 
-    def transform(self, X=None, **kwargs):
+    def score_invert(self, X):
         """
-        Apply fit transformer to X
+        Scoring function
         """
-        return self.transformer.transform(X=X, **kwargs)
+        return -1 * self.predict_method(X=X)
 
     def __getattr__(self, name):
-        prediction_methods = ['predict', 'predict_proba',
-                              'predict_log_proba', 'decision_function']
-        if name in prediction_methods:
-            attr = getattr(self.model, name)
-
-            def wrapped(X, *args, **kwargs):
-                X = self.transform(X=X, **kwargs)
-                result = attr(X=X, *args, **kwargs)
-                return result
-            return wrapped
-        else:
-            return getattr(self.model, name)
+        return getattr(self.model, name)
 
     def get_feature_names(self):
         return getattr(self, 'features', [])

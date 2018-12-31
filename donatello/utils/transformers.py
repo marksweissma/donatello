@@ -1,22 +1,29 @@
 import re
 import pandas as pd
 
-from inspect import getmembers
 
-from sklearn.preprocessing import Imputer, StandardScaler, OneHotEncoder
+def warn(arg):
+    print(arg)
+
+
+import inspect
+
+from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
-from sklearn.pipeline import (Pipeline, FeatureUnion,
-                              _fit_transform_one, _transform_one)
-from sklearn.externals.joblib import Parallel, delayed
+from sklearn import clone
 
-from donatello.utils.base import PandasAttrs, BaseTransformer
-from donatello.utils.decorators import init_time
+import networkx as nx
+
+from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
+from donatello.utils.decorators import init_time, fallback
+from donatello.utils.helpers import access, nvl, find_value
+from donatello.components import data
 
 
 def _base_methods():
     methods = set([])
-    for _type in [BaseTransformer, Pipeline, FeatureUnion]:
-        methods = methods.union(set([i[0] for i in getmembers(_type)]))
+    for _type in [BaseTransformer]:
+        methods = methods.union(set([i[0] for i in inspect.getmembers(_type)]))
     return methods
 
 
@@ -25,13 +32,9 @@ base_methods = _base_methods()
 
 def extract_fields(func):
     def wrapped(self, *args, **kwargs):
-        try:
-            self.fields = kwargs.get('X', pd.DataFrame()).columns.tolist()
-        except:
-            try:
-                self.fields = args[0].columns.tolist()
-            except:
-                self.fields = args[1].columns.tolist()
+        X = find_value(func, args, kwargs, accessKey='X')
+        self.fields = nvl(*[access(X, [attr], errors='ignore') for attr in ['columns', 'keys']])
+        self.fieldDtypes = access(X, ['dtypes'], method='to_dict', errors='ignore')
 
         self.features = None
         result = func(self, *args, **kwargs)
@@ -50,29 +53,28 @@ def enforce_features(func):
                     else list(self.get_feature_names()) if hasattr(self, 'get_feature_names')\
                     else self.fields
             self.features = features
-        try:
-            index = kwargs.get('index', kwargs.get('X').index)
-        except:
+
+        if not isinstance(result, (pd.DataFrame, pd.Series)):
             try:
-                index = args[0].index
+                index = kwargs.get('index', kwargs.get('X').index)
             except:
-                self.fields = args[1].index
+                try:
+                    index = args[0].index
+                except:
+                    self.fields = args[1].index
 
-        result = result if isinstance(result, pd.DataFrame)\
-            else pd.DataFrame(result, columns=self.features,
-                              index=index)
-
-        result = result.reindex(columns=self.features)
+            result = pd.DataFrame(result, columns=self.features, index=index)
 
         if postFit:
-            # DFS to collect data types for feature unions to rm patch
-            self.transformedDtypes = result.dtypes.to_dict()
+            self.featureDtypes = result.dtypes.to_dict()
+        else:
+            result = result.reindex(columns=self.features)
 
         return result
     return wrapped
 
 
-class PandasMixin(PandasAttrs):
+class PandasMixin(TransformerMixin, PandasAttrs):
     """
     Scikit-learn transformer with pandas bindings
     to enforce fields and features
@@ -85,35 +87,41 @@ class PandasMixin(PandasAttrs):
     def transform(self, *args, **kwargs):
         return super(PandasMixin, self).transform(*args, **kwargs)
 
-    # def fit_transform(self, *args, **kwargs):
-        # self.fit(*args, **kwargs)
-        # return self.transform(*args, **kwargs)
 
+class PandasTransformer(BaseTransformer):
     @extract_fields
+    def fit(self, *args, **kwargs):
+        return super(PandasTransformer, self).fit(*args, **kwargs)
+
     @enforce_features
-    def fit_transform(self, *args, **kwargs):
-        return super(PandasMixin, self).fit_transform(*args, **kwargs)
-
-
-class PandasTransformer(PandasMixin, BaseTransformer):
-    pass
+    def transform(self, *args, **kwargs):
+        return super(PandasTransformer, self).transform(*args, **kwargs)
 
 
 class OneHotEncoder(PandasMixin, OneHotEncoder):
     pass
 
 
-class Selector(PandasTransformer):
+class Imputer(PandasMixin, Imputer):
+    pass
+
+
+class StandardScaler(PandasMixin, StandardScaler):
+    pass
+
+
+class KeySelector(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
-    :param obj selectValue: values used for selection
-    :param str selectMethod: type of selection
+    Args:
+        selectValue (obj): values used for selection
+        selectMethod (str): type of selection
             #. None / '' -> direct key /value look up (i.e. column names to\
                     slice with)
             # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes`\
                     to select by data type.
-    :param bool reverse: option to select all except those fields isolated\
+        reverse (bool): option to select all except those fields isolated\
             by selectValue and selectMethod
     """
     def __init__(self, selectValue=(), selectMethod=None, reverse=False):
@@ -130,8 +138,9 @@ class Selector(PandasTransformer):
         inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
         return inclusions
 
-    @extract_fields
-    def fit(self, X=None, y=None):
+    def fit(self, X=None, y=None, **fitParams):
+        super(KeySelector, self).fit(X=X, y=y, **fitParams)
+
         if self.selectMethod:
             inclusions = getattr(self, self.selectMethod)(X, self.selectValue)
         else:
@@ -145,46 +154,57 @@ class Selector(PandasTransformer):
 
         return self
 
-    @enforce_features
     def transform(self, X=None, y=None):
-        return X.reindex(columns=self.inclusions)
+        X = X.reindex(columns=self.inclusions)
+        return super(KeySelector, self).transform(X=X, y=y)
 
 
-class AttributeTransformer(PandasTransformer):
+class AccessTransformer(PandasTransformer):
     """
-    Transformer leveraing attribute methods of the design object
     """
-    def __init__(self, attribute=None, args=(), kwargs={}):
-        self.attribute = attribute
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(self, dap):
+        self.dap = dap
 
-    def transform(self, X=None, **fitParams):
-        X = getattr(X, self.attribute)(*self.args, **self.kwargs)
-        return X
+    def transform(self, X=None, y=None):
+        X = access(X, **self.dap)
+        return super(AccessTransformer, self).transform(X=X, y=y)
 
 
-class CallbackTransformer(PandasTransformer):
+def concat(datasets, params=None):
     """
-    Transformer to apply call back on design object
+
+    Args:
+        datasets (list): list of datasets to combine
+        params (dict): params for dataset object, if None infered from first dataset
+
+    Returns:
+        data.Dataset: combined dataset
     """
-    def __init__(self, callback=None, args=(), kwargs={}):
-        self.callback
-        self.args = args
-        self.kwargs = kwargs
+    if datasets:
+        Xs = [dataset.designData for dataset in datasets if dataset.designData is not None]
+        ys = [dataset.targetData for dataset in datasets if dataset.targetData is not None]
 
-    def transform(self, X=None, **fitParams):
-        X = self.callback(X, *self.args, **self.kwargs)
-        return X
+        X = pd.concat(Xs, axis=1) if Xs else None
+        y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1)
+        params = params if params is not None else datasets[0].params
+        dataset = data.Dataset(X=X, y=y, **params)
+    else:
+        dataset = None
+    return dataset
 
 
-class Node(object):
-    @init_time
-    def __init__(self, name='transformer', transformers=None, aggregator=None):
+class TransformNode(Dobject, BaseTransformer):
+    def __init__(self, name='transformer', transformers=None, aggregator=None,
+                 combine=concat, fitOnly=False):
+
         self.name = name
-        self.transformers = transformers
+        self.transformers = transformers if isinstance(transformers, list) else list(transformers)
         self.aggregator = aggregator
+        self.fitOnly = fitOnly
+        self.combine = combine
+
         self.information = None
+        self.isFit = False
 
     @property
     def information_available(self):
@@ -192,41 +212,123 @@ class Node(object):
 
     def reset(self):
         self.information = None
+        self.isFit = False
         self.transformers = [clone(transformer) for transformer in self.transformers]
 
-    def fit(self, data,  **kwargs):
-        [transformer.fit(X=X, y=y, **kwargs) for transformer in self.transformers]
+    @data.package_dataset
+    def fit(self, dataset=None, X=None, y=None, **kwargs):
+        [transformer.fit(dataset, **kwargs) for transformer in self.transformers]
+        self.isFit = True
         return self
 
-    def transform(self, X=None, y=None, **kwargs):
-        if not self.information_available:
-            information = pd.concat([transformer.transform(X=X, y=y) for
-                                     transformer in self.transformer],
-                                    axis=1)
-            self.information = information
+    @data.package_dataset
+    def transform(self, dataset=None, X=None, y=None, **kwargs):
+        if self.fitOnly:
+            output = dataset
+        else:
+            if not self.information_available:
+                information = pd.concat([transformer.transform(X=dataset.designData,
+                                                               y=dataset.targetData) for
+                                         transformer in self.transformers],
+                                        axis=1)
+                self.information = information
 
-        return self.information
+            output = self.information
+
+        if not isinstance(output, data.Dataset) and isinstance(output, tuple) and len(output) <= 2:
+            output = data.Dataset(X=output[0], y=output[1] if len(output) > 1 else dataset.targetData,
+                                  **dataset.params)
+        else:
+            warn('unregisted data return, expecting downstream node contracts to be upheld by users')
+        return output
 
 
-class TransformationDAG(object):
-    def __init__(self, graph=None, attr='executor'):
-        self.graph = graph
-        self.attr = attr
+class ModelDAG(nx.DiGraph, Dobject):
+    @init_time
+    def __init__(self, executor='executor', selectType=KeySelector, *args, **kwargs):
+        super(Garden, self).__init__(*args, **kwargs)
+        self.executor = executor
+        self.selectType = selectType
+
+    def node_exec(self, node):
+        return self.nodes[node][self.executor]
+
+    def edge_exec(self, node_to, node_from):
+        return self.get_edge_data(node_to, node_from)[self.executor]
 
     def clean(self):
-        [self.graph.nodes[node][self.attr].reset() for node in self.graph]
+        [self.node_exec(node).reset() for node in self]
 
-    def flush(self, node, data):
-        self.clean_graph()
-        parents = tuple(self.graph.succesors(node))
-        if not parents:
-            information = self.graph.nodes[node][self.attr].transform(data)
-        elif all([self.graph.nodex[parent][self.attr].information_available for parent in parents]):
-            fields = [self.graph.nodes[parent][self.attr].information for parent in parents]
-            information = self.graph.nodes[node][self.attr].fit_transform(fields)
-        else:
-            information = self.graph.nodes[node][self.attr].fit_transform([self.flush(parent, data) for parent in parents])
+    @property
+    def terminal(self):
+        terminal = [node for node in self.nodes if self.out_degree(node) == 0]
+        terminal = terminal[0] if len(terminal) == 1 else terminal
+        return terminal
+
+    @fallback('terminal')
+    def transform(self, data, terminal=None):
+        head = terminal
+
+        parents = tuple(self.predecessors(head))
+
+        data = self.apply(parents[0], data, 'transform') if parents else data
+        transformed = self.node_exec(head).transform(data)
+        return transformed
+
+    @fallback('terminal')
+    def fit_transform(self, data, terminal=None):
+        head = terminal
+        parents = tuple(self.predecessors(head))
+        print len(parents)
+        if len(parents) > 1:
+            raise ValueError('Terminal transformation is not unified')
+
+        data = self.apply(parents[0], data, 'fit_transform') if parents else data
+        transformed = self.node_exec(head).fit_transform(data)
+        return transformed
+
+    @fallback('terminal')
+    def fit(self, data, terminal=None):
+        self.clean()
+        head = terminal
+
+        parents = tuple(self.predecessors(head))
+        data = [self.apply(parent, data, 'fit_transform') for parent in parents] if parents else [data]
+
+        # need for to execute edge selection here
+
+        # return subselected data here
+
+        self.node_exec(head).fit(self.node_exec(head).combine(data))
+        return self
+
+    def apply(self, node, data, method):
+        parents = tuple(self.predecessors(node))
+
+        if parents and all([self.node_exec(parent).information_available for parent in parents]):
+            output = [self.node_exec(parent).information for parent in parents]
+
+        elif parents:
+            output = [self.apply(parent,
+                                 access(self.edge_exec(parent, node), method)(data),
+                                 method
+                                 ) for
+                      parent in parents]
+
+        data = self.node_exec(node).combine(output)
+
+        information = access(self.node_exec(node), method=method, methodArgs=(data,))
 
         return information
 
+    def add_node_transformer(self, node):
+        self.add_node(node.name, **{self.executor: node})
 
+    @fallback('selectType')
+    def add_edge_selector(self, node_from, node_to, selectType=None, *args, **kwargs):
+        self.add_node_transformer(node_from) if not isinstance(node_from, str) else None
+        self.add_node_transformer(node_to) if not isinstance(node_to, str) else None
+
+        selector = selectType(*args, **kwargs)
+
+        self.add_edge(node_from.name, node_to.name, **{self.executor: selector})

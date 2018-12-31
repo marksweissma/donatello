@@ -1,6 +1,6 @@
-from warnings import warn
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
+from donatello.utils.decorators import coelesce
 
 
 class Dobject(object):
@@ -9,27 +9,75 @@ class Dobject(object):
     """
     __meta__ = ABCMeta
 
+    @coelesce(kargs={})
+    def _update_to(self, kargs, *names):
+        kargs.update({name: getattr(self, name) for name in names})
+        return kargs
+
     @property
     def name(self):
-        return self.__class__.__name__
+        name = getattr(self, '_name',  self.__class__.__name__)
+        return name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
-    def mlType(self):
+    def foldClay(self):
+        """
+        Define type of splitting
+
+            #. None -> KFold
+            #. stratify
+            #. group
+        """
+        return getattr(self, '_foldClay', None)
+
+    @foldClay.setter
+    def foldClay(self, value):
+        self._foldClay = value
+
+    @property
+    def scoreClay(self):
         """
         Define type of learning
-            #. regression
-            #. classificaiton
-            #. clustering
-       """
-        return self._mlType
 
-    @mlType.setter
-    def mlType(self, value):
-        self._mlType = value
+            #. None -> regression
+            #. classificaiton
+            #. anomaly
+       """
+        return getattr(self, '_scoreClay', None)
+
+    @scoreClay.setter
+    def scoreClay(self, value):
+        self._scoreClay = value
+
+    @property
+    def foldDispatch(self):
+        """
+        """
+        return getattr(self, '_foldDispatch', None)
+
+    @foldDispatch.setter
+    def foldDispatch(self, value):
+        self._foldDispatch = value
+
+    @property
+    def scoreDispatch(self):
+        """
+        """
+        return getattr(self, '_scoreDispatch', None)
+
+    @scoreDispatch.setter
+    def scoreDispatch(self, value):
+        self._scoreDispatch = value
 
     def __repr__(self):
-        time = getattr(self, '_initTime', '[no_init_time]')
-        return '{name} created at {time}'.format(name=self.name, time=time)
+        name = self.name
+        time = getattr(self, '_initTime', '[no init time]')
+        rep = "_".join([name, time])
+        return rep
 
 
 class PandasAttrs(Dobject):
@@ -76,41 +124,6 @@ class PandasAttrs(Dobject):
         return self.features
 
 
-class PandasWrapper(PandasAttrs):
-    """
-    Object for class factory to bind pandas and scikit-learn
-    """
-    @property
-    def fields(self):
-        """
-        Incoming column names
-        """
-        return self.transformerWrapped.fields
-
-    @fields.setter
-    def fields(self, value):
-        self.transformerWrapped.fields = value
-
-    @property
-    def features(self):
-        """
-        Outgoing column names
-        """
-        return self.transformerWrapped.features
-
-    @features.setter
-    def features(self, value):
-        self.transformerWrapped.features = value
-
-    @property
-    def transformedDtypes(self):
-        return self.transformerWrapped.dtypes
-
-    @transformedDtypes.setter
-    def transformedDtypes(self, value):
-        self.transformerWrapped.transformedDtypes = value
-
-
 class BaseTransformer(BaseEstimator, TransformerMixin):
     """
     Base scikit-learn style transformer
@@ -119,19 +132,21 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X=None, y=None, **kwargs):
-        return X
+        return X, y
 
     @property
     def name(self):
         """
         Name of object, defaults to class name + model name
         """
-        name = "_".join([self.__class__.__name__,
-                         self.model.__class__.__name__])
-        return name
+        _name = self.__class__.__name__
+        name = [_name, self.model.__class__.__name__] if hasattr(self, 'model') else [_name]
+        time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
+        return "_".join(name + [time])
 
     def __repr__(self):
+        time = getattr(self, '_initTime', '[no init time]')
         rep = ['{model} created at {time}'.format(model=self.name,
-                                                  time=self._initTime),
+                                                  time=time),
                super(BaseTransformer, self).__repr__()]
         return "\n --- \n **sklearn repr** \n --- \n".join(rep)

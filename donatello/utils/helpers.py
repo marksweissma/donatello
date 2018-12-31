@@ -1,3 +1,4 @@
+import inspect
 import pandas as pd
 
 
@@ -5,7 +6,8 @@ def now_string(strFormat="%Y_%m_%d_%H_%M"):
     """
     Pandas formatted string from time
 
-    :param str strFormat: format for time
+    Args:
+        strFormat (str): format for time
     """
     return pd.datetime.now().strftime(strFormat)
 
@@ -28,10 +30,11 @@ def has_nested_attribute(obj, attrPath, separator='_'):
     """
     Check whether nested attribute exists via string name
 
-    :param object obj: Object to traverse.
-    :param str attrPath: Path to attribute location split by separator,\
+    Args:
+        obj (object): Object to traverse.
+        attrPath (str): Path to attribute location split by separator,\
             use empty string "" to return obj
-    :param str separator: separator for nesting levels in string representation
+        separator (str): separator for nesting levels in string representation
     """
     if hasattr(obj, attrPath):
         return True
@@ -58,10 +61,11 @@ def get_nested_attribute(obj, attrPath, separator='_'):
     """
     Get nested attribute via string name. passing empty string returns obj
 
-    :param object obj: Object to traverse.
-    :param str attrPath: Path to attribute location split by separator,\
+    Args:
+        obj (object): Object to traverse.
+        attrPath (str): Path to attribute location split by separator,\
             use empty string "" to return obj
-    :param str separator: separator for nesting levels in string representation
+        separator (str): separator for nesting levels in string representation
     """
     if attrPath and not has_nested_attribute(obj, attrPath, separator):
         raise AttributeError('{obj} does not have {attrPath}'.format(
@@ -111,32 +115,64 @@ def access(obj=None, attrPath=None,
     """
     Access information from nested object
 
-    :param object obj: object to access from
-    :param list attrPath: sequence of traversal
-    :param str method: (optional) method to call at end of path
-    :param tuple methodArgs: positional args for method
-    :param tuple methodKwargs: keyword args for method
-    :param str cb: (optional) cb to call at end of path
-    :param tuple cbArgs: positional args for cb
-    :param tuple cbKwargs: keyword args for cb
-    :param tuple slicers: object types to use ``__getitem__`` slice rather than getattr
-    :param obj default: option to return default (if not rasiing errors)
-    :param str errors: option to raise errors ('raise') or ignore ('ignore')
+    Args:
+        obj (object): object to access from
+        attrPath (list): sequence of traversal
+        method (str): (optional) method to call at end of path
+        methodArgs (tuple): positional args for method
+        methodKwargs (tuple): keyword args for method
+        cb (str): (optional) cb to call at end of path
+        cbArgs (tuple): positional args for cb
+        cbKwargs (tuple): keyword args for cb
+        slicers (tuple): object types to use ``__getitem__`` slice rather than getattr
+        default (obj): option to return default (if not rasiing errors)
+        errors (str): option to raise errors ('raise') or ignore ('ignore')
 
-    :return: value of given prescription
+    Returns:
+        obj: value of given prescription
     """
 
     if not attrPath or not attrPath[0]:
-        obj = obj if not method else getattr(obj, method)(*methodArgs, **methodKwargs)
-        value = obj if not cb else cb(obj, *cbArgs, **cbKwargs)
+        obj = obj if not method else getattr(obj, method)(*nvl(methodArgs, ()), **nvl(methodKwargs, {}))
+        value = obj if not cb else cb(obj, *nvl(cbArgs, ()), **nvl(cbKwargs, {}))
 
     else:
-        head, tail = attrPath[0], attrPath[1:]
+        head, attrPath = attrPath[0], attrPath[1:]
         obj = get(obj, head, slicers, errors, default)
 
-        value = access(obj, attrPath=tail,
+        value = access(obj, attrPath=attrPath,
                        method=method, methodArgs=methodArgs, methodKwargs=methodKwargs,
                        cb=cb, cbArgs=cbArgs, cbKwargs=cbKwargs,
                        slicers=slicers, errors=errors, default=default)
 
     return value
+
+
+def find_value(func, args, kwargs, accessKey):
+    """
+    Find a value from a function signature
+    """
+    spec = inspect.getargspec(func)
+    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
+
+    index = _args.index(accessKey)
+    offset = len(_args) - len(nvl(spec.defaults, []))
+    default = spec.defaults[index - offset] if index >= offset else None
+    value = kwargs.get(accessKey, default) if index >= len(args) else args[index]
+    return value
+
+
+def replace_value(func, args, kwargs, accessKey, accessValue):
+    """
+    Replace a value from a function signature
+    """
+    spec = inspect.getargspec(func)
+    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
+    index = _args.index(accessKey)
+    if index >= len(args):
+        kwargs[accessKey] = accessValue
+    else:
+        args = list(args)
+        args[index] = accessValue
+        args = tuple(args)
+    return args, kwargs

@@ -5,13 +5,9 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import roc_auc_score, average_precision_score
-from sklearn.model_selection import GroupKFold
 
-from donatello.components.manager import DM
-from donatello.components.estimator import Estimator
-from donatello.utils.transformers import Selector
-from donatello.utils.helpers import reformat_aggs
-from donatello.components.scorer import Scorer
+from donatello.components.sculpture import Sculpture
+from donatello.components.metrics import Metric, FeatureWeights, ThresholdRates
 
 
 def _load_sklearn_bc_dataset(group=True):
@@ -21,62 +17,45 @@ def _load_sklearn_bc_dataset(group=True):
                                ['is_malignant'])
                       )
     if group:
-        df['grouper'] = df.apply(lambda x: random.choice(range(10)), axis=1)
+        df['a_column'] = df.apply(lambda x: random.choice(range(10)), axis=1)
     return df
 
 
-def load_data_split(asDf, group):
-    data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier': _load_sklearn_bc_dataset, 'group': group}}}
-    split = {'target': 'is_malignant'}
+def load_data_fold(asDf, group):
+    data = {'raws': _load_sklearn_bc_dataset(group)} if asDf else {'queries': {None: {'querier':
+                                                                                      _load_sklearn_bc_dataset,
+                                                                                      'group': group}}}
+    data['target'] = 'is_malignant'
     if group:
-        typeDispatch = {'splitter': {'classification': GroupKFold}}
-        data.update({'typeDispatch': typeDispatch, 'groupKey': 'grouper',
-                     'splitDeclaration': {}
-                     })
+        data['foldClay'] = 'group'
+        data['dap'] = {'groups': {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}}
 
-        split.update({'mlType': 'group',
-            'runTimeAccess': {'groups': {'attrPath': ['grouper', 'values'], 'slicers': (pd.DataFrame, dict)}}
-                      })
+    return data
 
-    return data, split
 
 def load_metrics(metrics=None, featureName='coefficients'):
-    _metrics = {roc_auc_score: {},
-                average_precision_score: {},
-                'feature_weights': {'key': 'names',
-                                    'sort': featureName,
-                                    'callback': reformat_aggs,
-                                    'agg': 'describe',
-                                    'callbackKwargs': {'sortValues': 'mean',
-                                                       'indexName': 'features'
-                                                       }
-                                    },
-                'threshold_rates': {'key': 'thresholds',
-                                    'sort': 'thresholds',
-                                    }
-                }
 
-    _filter = Scorer()
-    metrics = {i: j for i, j in _metrics.items() if _filter.get_metric_name(i) in metrics} if metrics else _metrics
+    metrics = [Metric(roc_auc_score), Metric(average_precision_score),
+               FeatureWeights(sort=featureName), ThresholdRates()]
+
     return metrics
+
 
 def load_logit_declaration(group=True, asDf=False, metrics=None):
 
-    data, split = load_data_split(asDf, group)
+    data = load_data_fold(asDf, group)
 
-    estimator = Estimator(model=LogisticRegression(),
-                          transformer=Selector(['grouper'], reverse=True),
-                          paramGrid={'model__C': list(pd.np.logspace(-2, 0, 10))},
-                          gridKwargs={'scoring': 'f1', 'cv': 5},
-                          mlType='classification'
-                          )
+    estimator = {'model': LogisticRegression(),
+                 'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
+                 'gridKwargs': {'scoring': 'f1', 'cv': 5}
+                 }
 
     metrics = load_metrics(metrics)
     declaration = {'dataDeclaration': data,
-                   'splitterDeclaration': split,
-                   'estimator': estimator,
+                   'estimatorDeclaration': estimator,
                    'metrics': metrics,
-                   'mlType': 'classification',
+                   'scoreClay': 'classification',
+                   'foldClay': 'stratify',
                    'validation': True,
                    'holdOut': True
                    }
@@ -85,44 +64,41 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
 
 
 def load_random_forest_declaration(group=True, asDf=True, metrics=None):
-    data, split = load_data_split(asDf, group)
+    data, fold = load_data_fold(asDf, group)
 
-    estimator = Estimator(model=RandomForestClassifier(n_estimators=10),
-                          transformer=Selector(['grouper'], reverse=True),
-                          paramGrid={'model__max_depth': [3, 5, 7]},
-                          gridKwargs={'scoring': 'f1', 'cv': 5},
-                          mlType='classification'
-                          )
+    estimator = {'model': RandomForestClassifier(n_estimators=10),
+                 'paramGrid': {'model__max_depth': [3, 5, 7]},
+                 'gridKwargs': {'scoring': 'f1', 'cv': 5},
+                 'scoreClay': 'classification'
+                 }
 
     metrics = load_metrics(metrics, 'feature_importances')
 
     declaration = {'dataDeclaration': data,
-                   'splitterDeclaration': split,
-                   'estimator': estimator,
+                   'folderDeclaration': fold,
+                   'estimatorDeclaration': estimator,
                    'metrics': metrics,
-                   'mlType': 'classification',
+                   'foldClay': 'classification',
+                   'scoreClay': 'classification',
                    'validation': True,
-                   'holdOut': True
+                   'holdOut': False
                    }
 
     return declaration
 
 
 def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_score', 'average_percision_score', 'threshold_rates']):
-    data, split = load_data_split(asDf, group)
-
-    estimator = Estimator(model=IsolationForest(),
-                          typeDispatch={'classification': {'method': 'decision_function', 'score': 'score_all'}},
-                          gridKwargs={'scoring': 'f1', 'cv': 5},
-                          mlType='classification'
-                          )
+    data = load_data_fold(asDf, group)
 
     metrics = load_metrics(metrics)
+
+    estimator = {'model': IsolationForest(), 'scoreClay': 'anomaly'}
+
     declaration = {'dataDeclaration': data,
-                   'splitterDeclaration': split,
-                   'estimator': estimator,
+                   'estimatorDeclaration': estimator,
                    'metrics': metrics,
-                   'mlType': 'classification',
+                   'scoreClay': 'anomaly',
+                   'foldClay': 'classification',
                    'validation': True,
                    'holdOut': True
                    }
@@ -143,5 +119,5 @@ def load_dm(model='lr', group=True, asDf=False):
         declaration = load_logit_declaration
 
     declaration = declaration(group=group, asDf=asDf)
-    m = DM(**declaration)
+    m = Sculpture(**declaration)
     return m
