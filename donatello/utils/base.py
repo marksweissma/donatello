@@ -16,12 +16,7 @@ class Dobject(object):
 
     @property
     def name(self):
-        if hasattr(self, '_name'):
-            name =  self._name
-        else:
-            name = getattr(self, '_name',  self.__class__.__name__)
-            time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
-            name = "_".join([name, time])
+        name = getattr(self, '_name',  self.__class__.__name__)
         return name
 
     @name.setter
@@ -79,7 +74,10 @@ class Dobject(object):
         self._scoreDispatch = value
 
     def __repr__(self):
-        return '{name}'.format(name=self.name)
+        name = self.name
+        time = getattr(self, '_initTime', '[no init time]')
+        rep = "_".join([name, time])
+        return rep
 
 
 class PandasAttrs(Dobject):
