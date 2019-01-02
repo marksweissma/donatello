@@ -8,6 +8,8 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 
 from donatello.components.sculpture import Sculpture
 from donatello.components.metrics import Metric, FeatureWeights, ThresholdRates
+from donatello.components.data import Dataset
+from donatello.components.estimator import Estimator
 
 
 def _load_sklearn_bc_dataset(group=True):
@@ -47,15 +49,13 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
 
     estimator = {'model': LogisticRegression(),
                  'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
-                 'gridKwargs': {'scoring': 'f1', 'cv': 5}
+                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 5}
                  }
 
     metrics = load_metrics(metrics)
-    declaration = {'dataDeclaration': data,
-                   'estimatorDeclaration': estimator,
+    declaration = {'dataset': Dataset(**data),
+                   'estimator': Estimator(**estimator),
                    'metrics': metrics,
-                   'scoreClay': 'classification',
-                   'foldClay': 'stratify',
                    'validation': True,
                    'holdOut': True
                    }
@@ -94,11 +94,11 @@ def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_
 
     estimator = {'model': IsolationForest(), 'scoreClay': 'anomaly'}
 
-    declaration = {'dataDeclaration': data,
-                   'estimatorDeclaration': estimator,
+    declaration = {'data': Dataset(**data),
+                   'estimator': Estimator(**estimator),
                    'metrics': metrics,
                    'scoreClay': 'anomaly',
-                   'foldClay': 'classification',
+                   'foldClay': 'startify',
                    'validation': True,
                    'holdOut': True
                    }

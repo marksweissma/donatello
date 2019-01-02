@@ -1,11 +1,6 @@
 import re
 import pandas as pd
 
-
-def warn(arg):
-    print(arg)
-
-
 import inspect
 
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
@@ -217,6 +212,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def fit(self, dataset=None, X=None, y=None, **kwargs):
+        import ipdb; ipdb.set_trace()
         [transformer.fit(dataset, **kwargs) for transformer in self.transformers]
         self.isFit = True
         return self
@@ -239,14 +235,14 @@ class TransformNode(Dobject, BaseTransformer):
             output = data.Dataset(X=output[0], y=output[1] if len(output) > 1 else dataset.targetData,
                                   **dataset.params)
         else:
-            warn('unregisted data return, expecting downstream node contracts to be upheld by users')
+            print('unregisted data return, downstream nodes must be designed for it')
         return output
 
 
-class ModelDAG(nx.DiGraph, Dobject):
+class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
     @init_time
     def __init__(self, executor='executor', selectType=KeySelector, *args, **kwargs):
-        super(Garden, self).__init__(*args, **kwargs)
+        super(ModelDAG, self).__init__(*args, **kwargs)
         self.executor = executor
         self.selectType = selectType
 
@@ -265,41 +261,37 @@ class ModelDAG(nx.DiGraph, Dobject):
         terminal = terminal[0] if len(terminal) == 1 else terminal
         return terminal
 
-    @fallback('terminal')
-    def transform(self, data, terminal=None):
-        head = terminal
-
-        parents = tuple(self.predecessors(head))
-
+    @fallback(node='terminal')
+    def transform(self, data, node=None):
+        parents = tuple(self.predecessors(node))
         data = self.apply(parents[0], data, 'transform') if parents else data
-        transformed = self.node_exec(head).transform(data)
+        transformed = self.node_exec(node).transform(data)
         return transformed
 
-    @fallback('terminal')
-    def fit_transform(self, data, terminal=None):
-        head = terminal
-        parents = tuple(self.predecessors(head))
-        print len(parents)
-        if len(parents) > 1:
-            raise ValueError('Terminal transformation is not unified')
+    # @fallback(node='terminal')
+    # def fit_transform(self, data, node=None):
+        # parents = tuple(self.predecessors(node))
+        # print len(parents)
+        # if len(parents) > 1:
+            # raise ValueError('Terminal transformation is not unified')
 
-        data = self.apply(parents[0], data, 'fit_transform') if parents else data
-        transformed = self.node_exec(head).fit_transform(data)
-        return transformed
+        # data = self.apply(parents[0], data, 'fit_transform') if parents else data
+        # transformed = self.node_exec(node).fit_transform(data)
+        # return transformed
 
-    @fallback('terminal')
-    def fit(self, data, terminal=None):
+    @fallback(node='terminal')
+    def fit(self, data, node=None):
         self.clean()
-        head = terminal
+        parents = tuple(self.predecessors(node))
+        if parents:
+            upstreams = [self.apply(parent, data, 'fit_transform') for parent in parents]
+            output = [self.edge_exec(parent, node).fit_transform(upstream)
+                      for parent, upstream in zip(parents, upstreams)]
 
-        parents = tuple(self.predecessors(head))
-        data = [self.apply(parent, data, 'fit_transform') for parent in parents] if parents else [data]
+            data = self.node_exec(node).combine(output)
 
-        # need for to execute edge selection here
+        self.node_exec(node).fit(data)
 
-        # return subselected data here
-
-        self.node_exec(head).fit(self.node_exec(head).combine(data))
         return self
 
     def apply(self, node, data, method):
@@ -314,6 +306,8 @@ class ModelDAG(nx.DiGraph, Dobject):
                                  method
                                  ) for
                       parent in parents]
+        else:
+            output = [data]
 
         data = self.node_exec(node).combine(output)
 

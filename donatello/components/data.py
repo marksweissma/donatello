@@ -37,7 +37,7 @@ class Dataset(Dobject):
                  foldClay=None, foldType=Fold,
                  scoreClay=None,
                  target=None, primaryKey=None,
-                 dap=None
+                 dap=None, force=False
                  ):
 
         self.copyRaws = copyRaws
@@ -126,9 +126,9 @@ class Dataset(Dobject):
     def targetData(self, value):
         self._targetData = value
 
-    @fallback('querier')
+    @fallback('queries', 'querier', 'force')
     @fit_fold
-    def execute_queries(self, queries=None, querier=None):
+    def execute_queries(self, queries=None, querier=None, force=False):
         """
         Execute data extraction via cascading querying dependencies
         Attaches return to :py:attr:`Data.raws`, which can be
@@ -198,8 +198,7 @@ def _pull(wrapped, instance, args, kwargs):
             dataset = Dataset(X=X, y=y, **instance.dataset.get_params())
 
         elif X is not None:
-            scoreClay = getattr(instance, '_scoreClay', None)
-            dataset = Dataset(X=X, y=y, scoreClay=scoreClay)
+            dataset = Dataset(X=X, y=y, **dataset.param)
 
     if not dataset.hasData and dataset.queries is not None:
         dataset.execute_queries(dataset.queries)

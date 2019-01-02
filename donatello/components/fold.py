@@ -128,6 +128,8 @@ class Fold(Dobject):
             _designTrain[key], _designTest[key] = self._split(data, _trainMask, testMask)
             return _designTrain[key], _designTest[key]
 
+        self.fit(dataset) if not hasattr(self, 'ids') else None
+
         for train, test in self.ids:
             over = self.dap['groups']['attrPath'][0] if 'groups' in self.dap else 'index'
             trainMask, testMask = self._build_masks(df, over, target, train=train, test=test)

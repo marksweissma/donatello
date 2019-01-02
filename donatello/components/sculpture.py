@@ -6,9 +6,8 @@ from sklearn import clone
 from sklearn.base import BaseEstimator
 from sklearn.utils import Bunch
 
-from donatello.components.data import Dataset, package_dataset, subset_dataset
-from donatello.components.estimator import Estimator
-from donatello.components.scorer import ScorerSupervised
+from donatello.components.data import package_dataset, subset_dataset
+from donatello.components.scorer import Scorer
 from donatello.components.disk import Local
 
 from donatello.utils.helpers import now_string
@@ -37,25 +36,20 @@ class Sculpture(Dobject, BaseEstimator):
     """
 
     def __init__(self,
-                 dataDeclaration=None,
-                 estimatorDeclaration=None,
-                 scorerDeclaration=None,
-                 validation=True, holdOut=False, entire=False, metrics=None,
-                 scoreClay=None, foldClay=None,
-                 scoreType=ScorerSupervised,
-                 hook=Local(), storeReferences=True,
-                 writeAttrs=('', 'estimator'), timeFormat="%Y_%m_%d_%H_%M"):
+                 dataset=None,
+                 estimator=None,
+                 validation=True, holdOut=False, entire=False,
+                 scorer=Scorer(), hook=Local(), metrics=None,
+                 storeReferences=True, writeAttrs=('', 'estimator'),
+                 timeFormat="%Y_%m_%d_%H_%M"):
 
         self._initTime = now_string(timeFormat)
 
-        self.datasetDeclaration = dataDeclaration
-        self.estimatorDeclaration = estimatorDeclaration
-        self.scorerDeclaration = scorerDeclaration
+        self.dataset = dataset
+        self.estimator = estimator
 
-        self.scoreClay = scoreClay
-        self.scoreType = scoreType
-
-        self.foldClay = foldClay
+        self.scorer = scorer
+        self.hook = hook
 
         self.metrics = metrics
 
@@ -64,19 +58,12 @@ class Sculpture(Dobject, BaseEstimator):
         self.holdOut = holdOut
         self.entire = entire
 
-        self.dataset = dataDeclaration
-        self.dataParams = self.dataset.params
-
-        self.estimator = estimatorDeclaration
-        self.scorer = scorerDeclaration
-        self.hook = hook
-
         # Other
         self.writeAttrs = writeAttrs
         self.storeReferences = storeReferences
         self._references = {}
         self.scores = Bunch()
-        self.declaration = self.get_params(deep=False)
+        self._declaration = self.get_params(deep=False)
 
     @property
     def declaration(self):
@@ -84,47 +71,6 @@ class Sculpture(Dobject, BaseEstimator):
         Dictionary of kwargs given during instantiation
         """
         return {i: clone(j) for i, j in self._declaration.items()}
-
-    @declaration.setter
-    def declaration(self, value):
-        self._declaration = value
-
-    # components
-    @property
-    def dataset(self):
-        """
-        Dataset object attached to manager
-        """
-        return self._dataset
-
-    @dataset.setter
-    def dataset(self, kwargs):
-        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
-        self._dataset = Dataset(**kwargs)
-
-    @property
-    def estimator(self):
-        """
-        Dataset object attached to manager
-        """
-        return self._estimator
-
-    @estimator.setter
-    def estimator(self, kwargs):
-        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
-        self._estimator = Estimator(**kwargs)
-
-    @property
-    def scorer(self):
-        """
-        Scorer object attached to manager
-        """
-        return self._scorer
-
-    @scorer.setter
-    def scorer(self, kwargs):
-        kwargs = self._update_to(kwargs,  'foldClay', 'scoreClay')
-        self._scorer = self.scoreType(**kwargs)
 
     @subset_dataset('train')
     def build_cross_validation(self, dataset, **fitParams):
