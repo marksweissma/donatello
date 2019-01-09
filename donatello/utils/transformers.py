@@ -2,6 +2,7 @@ import re
 import pandas as pd
 
 import inspect
+from wrapt import decorator
 
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
@@ -25,48 +26,38 @@ def _base_methods():
 base_methods = _base_methods()
 
 
-def extract_fields(func):
-    def wrapped(self, *args, **kwargs):
-        X = find_value(func, args, kwargs, accessKey='X')
-        self.fields = nvl(*[access(X, [attr], errors='ignore') for attr in ['columns', 'keys']])
-        self.fieldDtypes = access(X, ['dtypes'], method='to_dict', errors='ignore')
+@decorator
+def extract_fields(wrapped, instance, args, kwargs):
+    print('fields')
+    result = wrapped(*args, **kwargs)
+    dataset = find_value(wrapped, args, kwargs, 'dataset')
 
-        self.features = None
-        result = func(self, *args, **kwargs)
-        self.isFit = True
-        return result
-    return wrapped
+    instance.fields = nvl(*[access(dataset, ['designData', attr], errors='ignore', slicers=())
+                            for attr in ['columns', 'keys']])
+    instance.fieldDtypes = access(dataset, ['designData', 'dtypes'],
+                                  method='to_dict', errors='ignore', slicers=())
+
+    instance.features = None
+    instance.isFit = True
+    return result
 
 
-def enforce_features(func):
-    def wrapped(self, *args, **kwargs):
-        result = func(self, *args, **kwargs)
+@decorator
+def extract_features(wrapped, instance, args, kwargs):
+    print('features')
+    result = wrapped(*args, **kwargs)
 
-        postFit = not self.features
-        if postFit:
-            features = result.columns.tolist() if hasattr(result, 'columns')\
-                    else list(self.get_feature_names()) if hasattr(self, 'get_feature_names')\
-                    else self.fields
-            self.features = features
+    postFit = not instance.features
+    if postFit:
+        df = result.designData
+        features = df.columns.tolist() if hasattr(df, 'columns')\
+                    else list(df.get_feature_names()) if hasattr(instance, 'get_feature_names')\
+                    else instance.fields
+        instance.features = features
+        instance.featureDtypes = access(result, ['designData', 'dtypes'], method='to_dict',
+                                        slicers=(), errors='ignore')
 
-        if not isinstance(result, (pd.DataFrame, pd.Series)):
-            try:
-                index = kwargs.get('index', kwargs.get('X').index)
-            except:
-                try:
-                    index = args[0].index
-                except:
-                    self.fields = args[1].index
-
-            result = pd.DataFrame(result, columns=self.features, index=index)
-
-        if postFit:
-            self.featureDtypes = result.dtypes.to_dict()
-        else:
-            result = result.reindex(columns=self.features)
-
-        return result
-    return wrapped
+    return result
 
 
 class PandasMixin(TransformerMixin, PandasAttrs):
@@ -74,23 +65,27 @@ class PandasMixin(TransformerMixin, PandasAttrs):
     Scikit-learn transformer with pandas bindings
     to enforce fields and features
     """
+    @data.package_dataset
     @extract_fields
     def fit(self, *args, **kwargs):
         return super(PandasMixin, self).fit(*args, **kwargs)
 
-    @enforce_features
+    @data.enforce_dataset
+    @extract_features
     def transform(self, *args, **kwargs):
         return super(PandasMixin, self).transform(*args, **kwargs)
 
 
 class PandasTransformer(BaseTransformer):
+    @data.package_dataset
     @extract_fields
-    def fit(self, *args, **kwargs):
-        return super(PandasTransformer, self).fit(*args, **kwargs)
+    def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
+        return self
 
-    @enforce_features
-    def transform(self, *args, **kwargs):
-        return super(PandasTransformer, self).transform(*args, **kwargs)
+    @extract_features
+    @data.enforce_dataset
+    def transform(self, X=None, dataset=None, *args, **kwargs):
+        return dataset
 
 
 class OneHotEncoder(PandasMixin, OneHotEncoder):
@@ -133,25 +128,26 @@ class KeySelector(PandasTransformer):
         inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
         return inclusions
 
-    def fit(self, X=None, y=None, **fitParams):
-        super(KeySelector, self).fit(X=X, y=y, **fitParams)
+    @data.package_dataset
+    def fit(self, dataset=None, **fitParams):
+        super(KeySelector, self).fit(dataset, **fitParams)
 
         if self.selectMethod:
-            inclusions = getattr(self, self.selectMethod)(X, self.selectValue)
+            inclusions = getattr(self, self.selectMethod)(dataset.designData, self.selectValue)
         else:
             inclusions = self.selectValue
 
         if self.reverse:
             exclusions = set(inclusions)
-            inclusions = [i for i in X if i not in exclusions]
+            inclusions = [i for i in dataset.designData if i not in exclusions]
 
         self.inclusions = inclusions
 
         return self
 
-    def transform(self, X=None, y=None):
-        X = X.reindex(columns=self.inclusions)
-        return super(KeySelector, self).transform(X=X, y=y)
+    def transform(self, dataset):
+        dataset.designData = dataset.designData.reindex(columns=self.inclusions)
+        return super(KeySelector, self).transform(dataset)
 
 
 class AccessTransformer(PandasTransformer):
@@ -212,8 +208,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def fit(self, dataset=None, X=None, y=None, **kwargs):
-        import ipdb; ipdb.set_trace()
-        [transformer.fit(dataset, **kwargs) for transformer in self.transformers]
+        [transformer.fit(X=dataset.designData, y=dataset.targetData, **kwargs) for transformer in self.transformers]
         self.isFit = True
         return self
 
@@ -267,17 +262,6 @@ class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
         data = self.apply(parents[0], data, 'transform') if parents else data
         transformed = self.node_exec(node).transform(data)
         return transformed
-
-    # @fallback(node='terminal')
-    # def fit_transform(self, data, node=None):
-        # parents = tuple(self.predecessors(node))
-        # print len(parents)
-        # if len(parents) > 1:
-            # raise ValueError('Terminal transformation is not unified')
-
-        # data = self.apply(parents[0], data, 'fit_transform') if parents else data
-        # transformed = self.node_exec(node).fit_transform(data)
-        # return transformed
 
     @fallback(node='terminal')
     def fit(self, data, node=None):

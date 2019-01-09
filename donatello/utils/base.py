@@ -132,7 +132,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X=None, y=None, **kwargs):
-        return X, y
+         output = (X, y) if y is not None else X
+         return output
 
     @property
     def name(self):
