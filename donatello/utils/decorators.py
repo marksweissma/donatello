@@ -103,6 +103,4 @@ def to_kwargs(wrapped, instance, args, kwargs):
     offset = int(bool(instance))
     update = {argSpec: arg for argSpec, arg in zip(spec.args[offset:], args)}
     kwargs.update(update)
-    print kwargs.keys()
-    print len(args)
     return wrapped(**kwargs)

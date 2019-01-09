@@ -32,8 +32,8 @@ def extract_fields(wrapped, instance, args, kwargs):
     result = wrapped(*args, **kwargs)
     dataset = find_value(wrapped, args, kwargs, 'dataset')
 
-    instance.fields = nvl(*[access(dataset, ['designData', attr], errors='ignore', slicers=())
-                            for attr in ['columns', 'keys']])
+    instance.fields = list(nvl(*[access(dataset, ['designData', attr], errors='ignore', slicers=())
+                            for attr in ['columns', 'keys']]))
     instance.fieldDtypes = access(dataset, ['designData', 'dtypes'],
                                   method='to_dict', errors='ignore', slicers=())
 
@@ -82,10 +82,14 @@ class PandasTransformer(BaseTransformer):
     def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
         return self
 
-    @extract_features
     @data.enforce_dataset
+    @extract_features
     def transform(self, X=None, dataset=None, *args, **kwargs):
         return dataset
+
+    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, dataset=dataset, *args, **kwargs)
 
 
 class OneHotEncoder(PandasMixin, OneHotEncoder):
