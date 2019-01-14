@@ -92,7 +92,8 @@ class Estimator(Dobject, BaseTransformer):
     # Move to dispatch
     @pandas_series
     def score(self, X, name=''):
-        scores = getattr(self, self.scorer)(X)
+        scorer = self.scorer if callable(self.scorer) else getattr(self, self.scorer)
+        scores = scorer(X)
         return scores
 
     def no_op(self, X):
@@ -112,9 +113,6 @@ class Estimator(Dobject, BaseTransformer):
         Scoring function
         """
         return -1 * self.predict_method(X=X)
-
-    def score_udf(self, X):
-        return self.udf(self.predict_method(X=X))
 
     def __getattr__(self, name):
         return getattr(self.model, name)

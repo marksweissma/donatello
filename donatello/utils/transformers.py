@@ -28,7 +28,6 @@ base_methods = _base_methods()
 
 @decorator
 def extract_fields(wrapped, instance, args, kwargs):
-    print('fields')
     result = wrapped(*args, **kwargs)
     dataset = find_value(wrapped, args, kwargs, 'dataset')
 
@@ -44,7 +43,6 @@ def extract_fields(wrapped, instance, args, kwargs):
 
 @decorator
 def extract_features(wrapped, instance, args, kwargs):
-    print('features')
     result = wrapped(*args, **kwargs)
 
     postFit = not instance.features
@@ -104,23 +102,32 @@ class StandardScaler(PandasMixin, StandardScaler):
     pass
 
 
-class KeySelector(PandasTransformer):
+class TargetConductor(BaseTransformer):
+    def __init__(self, passTarget):
+        self.passTarget = passTarget
+
+    @data.enforce_dataset
+    def transform(self, dataset=None, **kwargs):
+        return dataset.targetData if self.passTarget else None
+
+
+class DesignConductor(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
     Args:
         selectValue (obj): values used for selection
         selectMethod (str): type of selection
-            #. None / '' -> direct key /value look up (i.e. column names to\
-                    slice with)
-            # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes`\
-                    to select by data type.
+
+            #. None / '' -> direct key /value look up (i.e. column names to slice with)
+            # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.
+
         reverse (bool): option to select all except those fields isolated\
             by selectValue and selectMethod
     """
     def __init__(self, selectValue=(), selectMethod=None, reverse=False):
-        self.selectMethod = selectMethod
         self.selectValue = selectValue
+        self.selectMethod = selectMethod
         self.reverse = reverse
 
     def data_type(self, X, inclusionExclusionKwargs):
@@ -134,7 +141,7 @@ class KeySelector(PandasTransformer):
 
     @data.package_dataset
     def fit(self, dataset=None, **fitParams):
-        super(KeySelector, self).fit(dataset, **fitParams)
+        super(DesignConductor, self).fit(dataset, **fitParams)
 
         if self.selectMethod:
             inclusions = getattr(self, self.selectMethod)(dataset.designData, self.selectValue)
@@ -149,20 +156,54 @@ class KeySelector(PandasTransformer):
 
         return self
 
-    def transform(self, dataset):
+    @data.enforce_dataset
+    def transform(self, dataset=None, **kwargs):
         dataset.designData = dataset.designData.reindex(columns=self.inclusions)
-        return super(KeySelector, self).transform(dataset)
+        return super(DesignConductor, self).transform(dataset)
 
 
-class AccessTransformer(PandasTransformer):
+class DatasetConductor(BaseTransformer):
+    def __init__(self,
+                 selectValue=(), selectMethod=None, reverse=False,
+                 passTarget=False):
+        self.selectValue = selectValue
+        self.selectMethod = selectMethod
+        self.reverse = reverse
+        self.passTarget = passTarget
+
+        self.designer = DesignConductor(selectValue, selectMethod, reverse)
+        self.targeter = TargetConductor(passTarget)
+
+    def fit_design(self, *args, **kwargs):
+        pass
+
+    def transform_design(self, *args, **kwargs):
+        pass
+
+    @data.package_dataset
+    def fit(self, dataset=None, **fitParams):
+        self.fit_design(dataset, **fitParams)
+
+    @data.enforce_dataset
+    def transform(self, dataset=None, **fitParams):
+        design = self.designer.transform(dataset)
+        target = self.targeter.tranform(dataset)
+        output = (design, target) if target is not None else design
+        return output
+
+
+class AccessTransformer(BaseTransformer):
     """
     """
     def __init__(self, dap):
         self.dap = dap
 
-    def transform(self, X=None, y=None):
-        X = access(X, **self.dap)
-        return super(AccessTransformer, self).transform(X=X, y=y)
+    @data.package_dataset
+    @data.enforce_dataset
+    @extract_features
+    def transform(self, dataset=None, X=None, y=None):
+        dataset.designData = access(dataset.designData, **self.dap)
+        return super(AccessTransformer, self).transform(X=dataset.designData, y=y)
 
 
 def concat(datasets, params=None):
@@ -189,11 +230,11 @@ def concat(datasets, params=None):
 
 
 class TransformNode(Dobject, BaseTransformer):
-    def __init__(self, name='transformer', transformers=None, aggregator=None,
+    def __init__(self, name='transformer', transformer=None, aggregator=None,
                  combine=concat, fitOnly=False):
 
         self.name = name
-        self.transformers = transformers if isinstance(transformers, list) else list(transformers)
+        self.transformer = transformer
         self.aggregator = aggregator
         self.fitOnly = fitOnly
         self.combine = combine
@@ -208,11 +249,11 @@ class TransformNode(Dobject, BaseTransformer):
     def reset(self):
         self.information = None
         self.isFit = False
-        self.transformers = [clone(transformer) for transformer in self.transformers]
+        self.transformer = clone(self.transformer)
 
     @data.package_dataset
     def fit(self, dataset=None, X=None, y=None, **kwargs):
-        [transformer.fit(X=dataset.designData, y=dataset.targetData, **kwargs) for transformer in self.transformers]
+        self.transformer.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
         self.isFit = True
         return self
 
@@ -222,28 +263,19 @@ class TransformNode(Dobject, BaseTransformer):
             output = dataset
         else:
             if not self.information_available:
-                information = pd.concat([transformer.transform(X=dataset.designData,
-                                                               y=dataset.targetData) for
-                                         transformer in self.transformers],
-                                        axis=1)
+                information = self.transformer.transform(X=dataset.designData, y=dataset.targetData)
                 self.information = information
 
             output = self.information
-
-        if not isinstance(output, data.Dataset) and isinstance(output, tuple) and len(output) <= 2:
-            output = data.Dataset(X=output[0], y=output[1] if len(output) > 1 else dataset.targetData,
-                                  **dataset.params)
-        else:
-            print('unregisted data return, downstream nodes must be designed for it')
         return output
 
 
 class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
     @init_time
-    def __init__(self, executor='executor', selectType=KeySelector, *args, **kwargs):
+    def __init__(self, executor='executor', conductionType=DatasetConductor, *args, **kwargs):
         super(ModelDAG, self).__init__(*args, **kwargs)
         self.executor = executor
-        self.selectType = selectType
+        self.conductionType = conductionType
 
     def node_exec(self, node):
         return self.nodes[node][self.executor]
@@ -306,11 +338,13 @@ class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
     def add_node_transformer(self, node):
         self.add_node(node.name, **{self.executor: node})
 
-    @fallback('selectType')
-    def add_edge_selector(self, node_from, node_to, selectType=None, *args, **kwargs):
+    @fallback('conductionType')
+    def add_edge_selector(self, node_from, node_to, conductionType=None, *args, **kwargs):
         self.add_node_transformer(node_from) if not isinstance(node_from, str) else None
         self.add_node_transformer(node_to) if not isinstance(node_to, str) else None
 
-        selector = selectType(*args, **kwargs)
+        conductor = conductionType(*args, **kwargs)
+        node_from = node_from.name if not isinstance(node_from, str) else node_from
+        node_to = node_to.name if not isinstance(node_to, str) else node_to
 
-        self.add_edge(node_from.name, node_to.name, **{self.executor: selector})
+        self.add_edge(node_from, node_to, **{self.executor: conductor})
