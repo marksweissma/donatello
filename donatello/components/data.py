@@ -37,7 +37,7 @@ class Dataset(Dobject):
                  foldClay=None, foldType=Fold,
                  scoreClay=None,
                  target=None, primaryKey=None,
-                 dap=None
+                 dap=None, force=False
                  ):
 
         self.copyRaws = copyRaws
@@ -50,6 +50,7 @@ class Dataset(Dobject):
         self.target = target
         self.primaryKey = primaryKey
         self.dap = dap
+        self.force = force
 
         self.fold = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
 
@@ -126,9 +127,9 @@ class Dataset(Dobject):
     def targetData(self, value):
         self._targetData = value
 
-    @fallback('querier')
+    @fallback('queries', 'querier', 'force')
     @fit_fold
-    def execute_queries(self, queries=None, querier=None):
+    def execute_queries(self, queries=None, querier=None, force=False):
         """
         Execute data extraction via cascading querying dependencies
         Attaches return to :py:attr:`Data.raws`, which can be
@@ -177,6 +178,9 @@ class Dataset(Dobject):
         results = self._take(train, test)
         return results
 
+    def with_params(self, X=None, y=None):
+        return type(self)(X=X, y=y, **self.params)
+
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
             yield xTrain, xTest, yTrain, yTest
@@ -185,12 +189,12 @@ class Dataset(Dobject):
 
 # not a decorator, function for helping data decorators
 @to_kwargs
-def _pull(wrapped, instance, args, kwargs):
-    dataset = kwargs.pop('dataset', None)
+def _pull(wrapped, instance, _args, _kwargs):
+    dataset = _kwargs.pop('dataset', None)
 
     if not dataset:
-        X = kwargs.pop('X', None)
-        y = kwargs.pop('y', None)
+        X = _kwargs.pop('X', None)
+        y = _kwargs.pop('y', None)
 
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
@@ -198,15 +202,15 @@ def _pull(wrapped, instance, args, kwargs):
             dataset = Dataset(X=X, y=y, **instance.dataset.get_params())
 
         elif X is not None:
-            scoreClay = getattr(instance, '_scoreClay', None)
-            dataset = Dataset(X=X, y=y, scoreClay=scoreClay)
+            param = dataset.param if dataset else {}
+            dataset = Dataset(X=X, y=y, **param)
 
     if not dataset.hasData and dataset.queries is not None:
         dataset.execute_queries(dataset.queries)
         dataset.fold.fit(dataset)
 
-    kwargs.update({'dataset': dataset})
-    return kwargs
+    _kwargs.update({'dataset': dataset})
+    return _kwargs
 
 
 @decorator
@@ -214,6 +218,7 @@ def package_dataset(wrapped, instance, args, kwargs):
     """
     From arguments - package X (and y if supervised) in Data object via type
     """
+    print('package')
     kwargs = _pull(wrapped, instance, args, kwargs)
     result = wrapped(**kwargs)
     return result
@@ -221,13 +226,23 @@ def package_dataset(wrapped, instance, args, kwargs):
 
 @decorator
 def enforce_dataset(wrapped, instance, args, kwargs):
+    print('enforce')
     kwargs = _pull(wrapped, instance, args, kwargs)
     dataset = kwargs['dataset']
     result = wrapped(**kwargs)
 
-    if not isinstance(result, Dataset) and isinstance(result, tuple) and len(result) <= 2:
-        result = Dataset(X=result[0], y=result[1] if len(result) > 1 else dataset.targetData,
-                         **dataset.params)
+    if isinstance(result, pd.np.ndarray):
+        features = result.columns.tolist() if hasattr(result, 'columns')\
+                else list(instance.get_feature_names()) if hasattr(instance, 'get_feature_names')\
+                else instance.fields
+        result = pd.DataFrame(result, columns=features, index=dataset.designData.index)
+
+    if not isinstance(result, Dataset):
+        if isinstance(result, tuple) and len(result) <= 2:
+            result = Dataset(X=result[0], y=result[1] if len(result) > 1 else dataset.targetData,
+                             **dataset.params)
+        elif isinstance(result, (pd.Series, pd.DataFrame, pd.Panel)):
+            result = Dataset(X=result, **dataset.params)
     return result
 
 

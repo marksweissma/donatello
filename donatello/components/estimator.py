@@ -22,13 +22,9 @@ class Estimator(Dobject, BaseTransformer):
 
     def __init__(self,
                  model=None,
-                 foldClay=None,
-                 scoreClay=None,
-                 foldDispatch=None,
-                 scoreDispatch={'regression': {'method': 'predict', 'score': 'score_all'},
-                                'classification': {'method': 'predict_proba', 'score': 'score_first'},
-                                'anomaly': {'method': 'decision_function', 'score': 'score_invert'}
-                                },
+                 method='predict',
+                 scorer='no_op',
+                 column=None,
                  paramGrid={},
                  gridKwargs={},
                  timeFormat="%Y_%m_%d_%H_%M"
@@ -37,31 +33,15 @@ class Estimator(Dobject, BaseTransformer):
         self._initTime = now_string(timeFormat)
 
         self.model = model
-        self.foldClay = foldClay
-        self.scoreClay = scoreClay
-        self.foldDispatch = foldDispatch
-        self.scoreDispatch = scoreDispatch
+        self.method = method
+        self.scorer = scorer
+        self.column = column
 
         self.paramGrid = paramGrid
         self.gridKwargs = gridKwargs
         self.timeFormat = timeFormat
 
         self.declaration = self.get_params()
-
-    @property
-    def declaration(self):
-        """
-        Dictionary of kwargs given during instantiation
-        """
-        return self._declaration.copy()
-
-    @declaration.setter
-    def declaration(self, value):
-        self._declaration = value
-
-    @property
-    def method(self):
-        return self.scoreDispatch[self.scoreClay]['method']
 
     @property
     def predict_method(self):
@@ -112,20 +92,21 @@ class Estimator(Dobject, BaseTransformer):
     # Move to dispatch
     @pandas_series
     def score(self, X, name=''):
-        scores = getattr(self, self.scoreDispatch[self.scoreClay]['score'])(X)
+        score = self.scorer if callable(self.scorer) else getattr(self, self.scorer)
+        scores = score(X)
         return scores
 
-    def score_all(self, X):
+    def no_op(self, X):
         """
         Scoring function
         """
         return self.predict_method(X=X)
 
-    def score_first(self, X):
+    def score_column(self, X):
         """
         Scoring function
         """
-        return self.predict_method(X=X)[:, 1]
+        return self.predict_method(X=X)[:, self.column]
 
     def score_invert(self, X):
         """

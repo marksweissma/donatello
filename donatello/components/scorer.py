@@ -21,34 +21,12 @@ class Scorer(Dobject):
     """
     @init_time
     def __init__(self,
-                 foldClay=None,
-                 scoreClay=None,
-                 method=None,
+                 method='score',
                  gridSearchFlag=True
                  ):
 
-        # Preserve Args
-        self.foldClay = foldClay
-        self.scoreClay = scoreClay
-        self.gridSearchFlag = gridSearchFlag
         self.method = method
-
-
-# Coelesce
-class ScorerSupervised(Scorer):
-    """
-    Base class for evaluating estimators and datasets
-
-    Args:
-        predict (str)_method: method to call from estimator for predicting
-        **kwargs: kwargs for Scorer
-    """
-    def __init__(self,
-                 method='score',
-                 **kwargs
-                 ):
-
-        super(ScorerSupervised, self).__init__(method=method, **kwargs)
+        self.gridSearchFlag = gridSearchFlag
 
     def _score(self, estimator, designTest, targetTest):
         yhat = getattr(estimator, self.method)(designTest)

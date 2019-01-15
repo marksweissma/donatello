@@ -65,17 +65,23 @@ def coelesce(**defaults):
     return _wrapper
 
 
-def fallback(*defaults):
+def fallback(*defaults, **replacements):
     """
     Keyword arguments of attribute to fallback to of object
     """
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):
         spec = inspect.getargspec(wrapped)
+        n = len(spec.args) - 1
         for default in defaults:
             index = spec.args.index(default)
-            if index > len(args):
-                kwargs[default] = kwargs.get(default, getattr(instance, default, None))
+            if index > len(args) and default not in kwargs:
+                kwargs[default] = getattr(instance, default, spec.defaults[n - index])
+
+        for key, replacement in replacements.items():
+            index = spec.args.index(key)
+            if index > len(args) and key not in kwargs:
+                kwargs[key] = getattr(instance, replacement, spec.defaults[n - index])
 
         result = wrapped(*args, **kwargs)
         return result
@@ -85,9 +91,9 @@ def fallback(*defaults):
 # fix this, should check - default - execute
 @decorator
 def name(wrapped, instance, args, kwargs):
+        result = wrapped(*args, **kwargs)
         _name = getattr(instance, '_name', instance.__class__.__name__)
         instance._name = _name
-        result = wrapped(*args, **kwargs)
         return result
 
 

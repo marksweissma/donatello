@@ -89,7 +89,7 @@ def reformat_aggs(d, idx=0, sortValues=None, indexName=None, filterNulls=.95):
 
 
 def has(obj, attr, slicers):
-    condition = attr in obj if isinstance(obj, slicers) else hasattr(obj, attr)
+    condition = attr in obj if (slicers and isinstance(obj, slicers)) else hasattr(obj, attr)
     return condition
 
 
@@ -155,10 +155,13 @@ def find_value(func, args, kwargs, accessKey):
     spec = inspect.getargspec(func)
     _args = spec.args[1:] if inspect.ismethod(func) else spec.args
 
-    index = _args.index(accessKey)
-    offset = len(_args) - len(nvl(spec.defaults, []))
-    default = spec.defaults[index - offset] if index >= offset else None
-    value = kwargs.get(accessKey, default) if index >= len(args) else args[index]
+    try:
+        index = _args.index(accessKey)
+        offset = len(_args) - len(nvl(spec.defaults, []))
+        default = spec.defaults[index - offset] if index >= offset else None
+        value = kwargs.get(accessKey, default) if index >= len(args) else args[index]
+    except ValueError:
+        value = kwargs.get(accessKey, None)
     return value
 
 
