@@ -98,7 +98,7 @@ def load_isolation_forest_declaration(group=True, asDf=False, metrics=['roc_auc_
                    'estimator': Estimator(**estimator),
                    'metrics': metrics,
                    'scoreClay': 'anomaly',
-                   'foldClay': 'startify',
+                   'foldClay': 'stratify',
                    'validation': True,
                    'holdOut': True
                    }
