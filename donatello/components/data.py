@@ -178,6 +178,9 @@ class Dataset(Dobject):
         results = self._take(train, test)
         return results
 
+    def with_params(self, X=None, y=None):
+        return type(self)(X=X, y=y, **self.params)
+
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
             yield xTrain, xTest, yTrain, yTest

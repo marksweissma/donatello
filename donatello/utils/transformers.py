@@ -1,29 +1,18 @@
 import re
 import pandas as pd
+import networkx as nx
 
-import inspect
 from wrapt import decorator
 
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
 from sklearn import clone
 
-import networkx as nx
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
 from donatello.utils.decorators import init_time, fallback
 from donatello.utils.helpers import access, nvl, find_value
 from donatello.components import data
-
-
-def _base_methods():
-    methods = set([])
-    for _type in [BaseTransformer]:
-        methods = methods.union(set([i[0] for i in inspect.getmembers(_type)]))
-    return methods
-
-
-base_methods = _base_methods()
 
 
 @decorator
@@ -90,18 +79,6 @@ class PandasTransformer(BaseTransformer):
         return self.transform(X=X, dataset=dataset, *args, **kwargs)
 
 
-class OneHotEncoder(PandasMixin, OneHotEncoder):
-    pass
-
-
-class Imputer(PandasMixin, Imputer):
-    pass
-
-
-class StandardScaler(PandasMixin, StandardScaler):
-    pass
-
-
 class TargetConductor(BaseTransformer):
     def __init__(self, passTarget):
         self.passTarget = passTarget
@@ -131,9 +108,8 @@ class DesignConductor(PandasTransformer):
         self.reverse = reverse
 
     def data_type(self, X, inclusionExclusionKwargs):
-        inclusions = X.select_dtypes(**inclusionExclusionKwargs
-                                     ).columns.tolist()
-        return inclusions
+        X = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
+        return X
 
     def regex(self, X, patterns):
         inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
@@ -141,7 +117,6 @@ class DesignConductor(PandasTransformer):
 
     @data.package_dataset
     def fit(self, dataset=None, **fitParams):
-        super(DesignConductor, self).fit(dataset, **fitParams)
 
         if self.selectMethod:
             inclusions = getattr(self, self.selectMethod)(dataset.designData, self.selectValue)
@@ -162,7 +137,7 @@ class DesignConductor(PandasTransformer):
         return super(DesignConductor, self).transform(dataset)
 
 
-class DatasetConductor(BaseTransformer):
+class DatasetConductor(PandasTransformer):
     def __init__(self,
                  selectValue=(), selectMethod=None, reverse=False,
                  passTarget=False):
@@ -171,25 +146,44 @@ class DatasetConductor(BaseTransformer):
         self.reverse = reverse
         self.passTarget = passTarget
 
-        self.designer = DesignConductor(selectValue, selectMethod, reverse)
-        self.targeter = TargetConductor(passTarget)
+    def data_type(self, X, inclusionExclusionKwargs):
+        X = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
+        return X
 
-    def fit_design(self, *args, **kwargs):
-        pass
+    def regex(self, X, patterns):
+        inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
+        return inclusions
 
-    def transform_design(self, *args, **kwargs):
-        pass
+    def fit_design(self, dataset, **fitParams):
+        if self.selectMethod:
+            inclusions = getattr(self, self.selectMethod)(dataset.designData, self.selectValue)
+        else:
+            inclusions = self.selectValue
 
-    @data.package_dataset
+        if self.reverse:
+            exclusions = set(inclusions)
+            inclusions = [i for i in dataset.designData if i not in exclusions]
+
+        self.inclusions = inclusions
+
+    def transform_target(self, dataset):
+        return dataset.targetData if self.passTarget else None
+
+    def transform_design(self, dataset):
+        design = dataset.designData.reindex(columns=self.inclusions)
+        return design
+
+    @extract_fields
     def fit(self, dataset=None, **fitParams):
         self.fit_design(dataset, **fitParams)
+        return self
 
-    @data.enforce_dataset
+    @extract_features
     def transform(self, dataset=None, **fitParams):
-        design = self.designer.transform(dataset)
-        target = self.targeter.tranform(dataset)
-        output = (design, target) if target is not None else design
-        return output
+        design = self.transform_design(dataset)
+        target = self.transform_target(dataset)
+        dataset = dataset.with_params(X=design, y=target)
+        return dataset
 
 
 class AccessTransformer(BaseTransformer):
@@ -222,7 +216,7 @@ def concat(datasets, params=None):
 
         X = pd.concat(Xs, axis=1) if Xs else None
         y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1)
-        params = params if params is not None else datasets[0].params
+        params = nvl(params, datasets[0].params)
         dataset = data.Dataset(X=X, y=y, **params)
     else:
         dataset = None
@@ -270,7 +264,7 @@ class TransformNode(Dobject, BaseTransformer):
         return output
 
 
-class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
+class ModelDAG(nx.DiGraph, Dobject):
     @init_time
     def __init__(self, executor='executor', conductionType=DatasetConductor, *args, **kwargs):
         super(ModelDAG, self).__init__(*args, **kwargs)
@@ -295,6 +289,7 @@ class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
     @fallback(node='terminal')
     def transform(self, data, node=None):
         parents = tuple(self.predecessors(node))
+        # iterate through nodes => terminal_list to list
         data = self.apply(parents[0], data, 'transform') if parents else data
         transformed = self.node_exec(node).transform(data)
         return transformed
@@ -302,6 +297,7 @@ class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
     @fallback(node='terminal')
     def fit(self, data, node=None):
         self.clean()
+        # iterate through nodes => terminal_list to list
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, data, 'fit_transform') for parent in parents]
@@ -348,3 +344,15 @@ class ModelDAG(nx.DiGraph, Dobject, TransformerMixin):
         node_to = node_to.name if not isinstance(node_to, str) else node_to
 
         self.add_edge(node_from, node_to, **{self.executor: conductor})
+
+
+class OneHotEncoder(PandasMixin, OneHotEncoder):
+    pass
+
+
+class Imputer(PandasMixin, Imputer):
+    pass
+
+
+class StandardScaler(PandasMixin, StandardScaler):
+    pass
