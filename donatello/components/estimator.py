@@ -4,17 +4,21 @@ from donatello.utils.base import Dobject, BaseTransformer
 from donatello.utils.decorators import pandas_series, fallback
 from donatello.utils.helpers import now_string
 
+def score_column(obj, column=1):
+    def _scorer(obj
+
+    return self.predict_method(X=X)[:, self.column]
+
+scorer = 
 
 class Estimator(Dobject, BaseTransformer):
     """
-    Donatello's Base Estimation object. Leverages a transformer to prepare and transform
-    design and an ML model to fit and predict. Supports options for grid searching for
-    hyperparameter optimization
+    Donatello's estimation objec to suppoert model training and prediction
 
     Args:
-        transformer (donatello.utils.base.BaseTransformer): object implementing fit, transform, fit_transform
         model (sklearn.base.BaseEstimator): ML model implementing fit, predict[a-z]*
         method (str): string name of prediction method
+        scorer (func | str): callable or string name of method for scoring
         paramGrid (dict): specificiont of  HPs to grid search
         gridKwargs (dict): options for grid search
         timeFormat (str): option to specify timestamp format
@@ -24,7 +28,6 @@ class Estimator(Dobject, BaseTransformer):
                  model=None,
                  method='predict',
                  scorer='no_op',
-                 column=None,
                  paramGrid={},
                  gridKwargs={},
                  timeFormat="%Y_%m_%d_%H_%M"

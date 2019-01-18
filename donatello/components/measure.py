@@ -10,7 +10,7 @@ from donatello.utils.base import Dobject
 from donatello.components.data import package_dataset
 
 
-class Scorer(Dobject):
+class Measure(Dobject):
     """
     Object for scoring model performance
 
@@ -34,8 +34,8 @@ class Scorer(Dobject):
         return scored
 
     def _evaluate(self, estimator, scored, metrics, X):
-        scores = {metric.name: metric(estimator, scored.truth, scored.predicted, X) for metric in metrics}
-        return scores
+        measurements = {metric.name: metric(estimator, scored.truth, scored.predicted, X) for metric in metrics}
+        return measurements
 
     def score_evaluate(self, estimator=None, X=None, y=None, metrics=None):
         """
@@ -48,16 +48,16 @@ class Scorer(Dobject):
             metrics (dict): metrics to evaluate
 
         Returns:
-            tuple(pandas.Series, metric evaluations): scored, scores
+            tuple(pandas.Series, metric evaluations): scored, measurements
         """
         scored = self._score(estimator, X, y)
-        scores = self._evaluate(estimator, scored, metrics)
-        return scored, scores
+        measurements = self._evaluate(estimator, scored, metrics)
+        return scored, measurements
 
     @package_dataset
     def fit_score_folds(self, estimator=None, dataset=None, X=None, y=None, **kwargs):
         """
-        Cross validating scorer, clones and fits estimator on each fold of X|y
+        Cross validating measure, clones and fits estimator on each fold of X|y
 
         Args:
             estimator (BaseEstimator): Fit estimator to evaluate
@@ -67,7 +67,7 @@ class Scorer(Dobject):
             metrics (dict): metrics to evaluate
 
         Returns:
-            tuple(pandas.Series, metric evaluations): scored, scores
+            tuple(pandas.Series, metric evaluations): scored, measurements
         """
         scored = pd.DataFrame()
         estimators = {}
@@ -84,7 +84,7 @@ class Scorer(Dobject):
 
     def evaluate_scored_folds(self, estimators=None, metrics=None, scored=None, X=None, **kwargs):
         """
-        Calculate metrics from cross val scores
+        Calculate metrics from cross val measurements
         """
 
         def append_in_place(store, name, df2):
@@ -112,13 +112,13 @@ class Scorer(Dobject):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
-        scores = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
+        measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
                                                                 .groupby(metric.key)\
                                                                 .agg(metric.agg),
                                                                 metric.sort))
                   for metric in metrics}
 
-        return scores
+        return measurements
 
     @package_dataset
     def buildCV(self, estimator=None, metrics=None, dataset=None, X=None, y=None):
@@ -126,8 +126,8 @@ class Scorer(Dobject):
         Build cross validated scoring report
         """
         estimators, scored = self.fit_score_folds(estimator=estimator, dataset=dataset)
-        scores = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=dataset.designData, metrics=metrics)
-        return {'estimators': estimators, 'scored': scored, 'scores': scores}
+        measurements = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=dataset.designData, metrics=metrics)
+        return {'estimators': estimators, 'scored': scored, 'measurements': measurements}
 
     def build_holdout(self, estimator=None, metrics=None, X=None, y=None):
         """
@@ -136,5 +136,5 @@ class Scorer(Dobject):
         scored = self._score(estimator, X, y)
         scored['fold'] = 0
         estimators = {0: estimator}
-        scores = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
-        return {'estimators': estimators, 'scored': scored, 'scores': scores}
+        measurements = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
+        return {'estimators': estimators, 'scored': scored, 'measurements': measurements}
