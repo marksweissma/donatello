@@ -11,6 +11,5 @@ Donatello is comprised of `components` supported by a set of `utilities`. Compon
   2. The `Estimator` objects encapsulate the transformation process for the expected requirements to serve and the fitting/predicting/scoring of ML algorithims. 
   3. The `Scorer` objects are responsbile for evaluating models on an unseen data, via cross validaiton and hold out
   4. The `Data` objects are responsible for storing and managing data
-  5. The `Hook` objects are repsonsible for pulling in data and writing out models and relevant components
 
 Questions, comments, feature requests please reach out!

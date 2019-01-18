@@ -6,8 +6,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-from donatello.components.sculpture import Sculpture
-from donatello.components.metrics import Metric, FeatureWeights, ThresholdRates
+from donatello.components.core import Sculpture
+from donatello.components.metric import Metric, FeatureWeights, ThresholdRates
 from donatello.components.data import Dataset
 from donatello.components.estimator import Estimator
 

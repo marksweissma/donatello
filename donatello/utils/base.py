@@ -1,6 +1,7 @@
 from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
 from donatello.utils.decorators import coelesce
+from donatello.utils.helpers import nvl
 
 
 class Dobject(object):
@@ -21,7 +22,7 @@ class Dobject(object):
 
     @name.setter
     def name(self, value):
-        self._name = value
+        self._name = nvl(value,  self.__class__.__name__)
 
     @property
     def foldClay(self):
@@ -132,8 +133,8 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X=None, y=None, **kwargs):
-         output = (X, y) if y is not None else X
-         return output
+        output = (X, y) if y is not None else X
+        return output
 
     @property
     def name(self):
@@ -151,3 +152,16 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
                                                   time=time),
                super(BaseTransformer, self).__repr__()]
         return "\n --- \n **sklearn repr** \n --- \n".join(rep)
+
+
+class BaseDatasetTransformer(BaseTransformer):
+    """
+    Base scikit-learn style transformer
+    """
+    def fit(self, dataset=None, X=None, y=None, **kwargs):
+        return self
+
+    def transform(self, dataset=None, X=None, y=None, **kwargs):
+        return dataset
+
+    def fit_transform(self, dataset=None, X=None, y=None, **kwargs):

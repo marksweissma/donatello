@@ -1,5 +1,8 @@
+import os
 import inspect
 import pandas as pd
+
+from sklearn.externals import joblib
 
 
 def now_string(strFormat="%Y_%m_%d_%H_%M"):
@@ -179,3 +182,26 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
         args[index] = accessValue
         args = tuple(args)
     return args, kwargs
+
+
+class Local(object):
+    """
+    Object to provide disk interface
+
+    Args:
+        reader (func): default function to read files
+        writer (func): default function to write files
+    """
+    def __init__(self, reader=joblib.load, writer=joblib.dump):
+        self.reader = reader
+        self.writer = writer
+
+    def write(self, obj=None, attr="", root='.', extension='pkl', *writeArgs, **writeKwargs):
+        obj = access(obj, [attr])
+        name = ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
+        localPath = os.path.join(root, name)
+        self.writer(obj, localPath, *writeArgs, **writeKwargs)
+
+    def read(self, localPath, *args, **kwargs):
+        obj = self.reader(localPath, *args, **kwargs)
+        return obj

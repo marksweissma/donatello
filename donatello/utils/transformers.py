@@ -137,7 +137,7 @@ class DesignConductor(PandasTransformer):
         return super(DesignConductor, self).transform(dataset)
 
 
-class DatasetConductor(PandasTransformer):
+class DatasetConductor(BaseTransformer):
     def __init__(self,
                  selectValue=(), selectMethod=None, reverse=False,
                  passTarget=False):
@@ -224,8 +224,8 @@ def concat(datasets, params=None):
 
 
 class TransformNode(Dobject, BaseTransformer):
-    def __init__(self, name='transformer', transformer=None, aggregator=None,
-                 combine=concat, fitOnly=False):
+    def __init__(self, transformer=None, aggregator=None,
+                 combine=concat, fitOnly=False, name=None):
 
         self.name = name
         self.transformer = transformer
@@ -253,14 +253,17 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def transform(self, dataset=None, X=None, y=None, **kwargs):
+        if not self.information_available:
+            self.information = self._transform(dataset=None, X=None, y=None, **kwargs)
+        return self.information
+
+    @data.enforce_dataset
+    def _transform(self, dataset=None, X=None, y=None, **kwargs):
         if self.fitOnly:
             output = dataset
         else:
-            if not self.information_available:
-                information = self.transformer.transform(X=dataset.designData, y=dataset.targetData)
-                self.information = information
+            output = self.transformer.transform(X=dataset.designData, y=dataset.targetData)
 
-            output = self.information
         return output
 
 

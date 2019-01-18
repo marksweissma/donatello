@@ -7,10 +7,9 @@ from sklearn.base import BaseEstimator
 from sklearn.utils import Bunch
 
 from donatello.components.data import package_dataset, subset_dataset
-from donatello.components.scorer import Scorer
-from donatello.components.disk import Local
+from donatello.components.measure import Measure
 
-from donatello.utils.helpers import now_string
+from donatello.utils.helpers import now_string, Local
 from donatello.utils.decorators import fallback
 from donatello.utils.base import Dobject
 
@@ -26,10 +25,10 @@ class Sculpture(Dobject, BaseEstimator):
     Args:
         dataDeclaration (dict): :py:class:`donatello.components.data.Dataset`
         estimatorDeclaration (dict): arguments for :py:class:`donatello.components.estimator.Estimator`
-        scorerDeclaration (dict): arguments for :py:class:`donatello.components.scorer.Scorer`
+        measureDeclaration (dict): arguments for :py:class:`donatello.components.measure.Measure`
         validation (bool): flag for calculating scoring metrics from nested cross val of training + validation sets
         holdOut (bool): flag for fitting estimator on single training set and scoring on test set
-        metrics (iterable): list or dict of metrics for scorer
+        metrics (iterable): list or dict of metrics for measure
         hookDeclaration (dict): arguments for :py:class:`donatello.Local`
         writeAttrs (tuple): attributes to write out to disk
         timeFormat (str): format for creation time string
@@ -39,7 +38,7 @@ class Sculpture(Dobject, BaseEstimator):
                  dataset=None,
                  estimator=None,
                  validation=True, holdOut=False, entire=False,
-                 scorer=Scorer(), hook=Local(), metrics=None,
+                 measure=Measure(), hook=Local(), metrics=None,
                  storeReferences=True, writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
 
@@ -48,7 +47,7 @@ class Sculpture(Dobject, BaseEstimator):
         self.dataset = dataset
         self.estimator = estimator
 
-        self.scorer = scorer
+        self.measure = measure
         self.hook = hook
 
         self.metrics = metrics
@@ -62,7 +61,7 @@ class Sculpture(Dobject, BaseEstimator):
         self.writeAttrs = writeAttrs
         self.storeReferences = storeReferences
         self._references = {}
-        self.scores = Bunch()
+        self.measurements = Bunch()
         self._declaration = self.get_params(deep=False)
 
     @property
@@ -75,12 +74,12 @@ class Sculpture(Dobject, BaseEstimator):
     @subset_dataset('train')
     def build_cross_validation(self, dataset, **fitParams):
         """
-        Build cross validated scores over training data of models
+        Build cross validated measurements over training data of models
         """
         print('Building Over Cross Validation')
         payload = {'estimator': self.estimator, 'metrics': self.metrics, 'dataset': dataset}
-        self.scorerCrossValidation = self.scorer.buildCV(**payload)
-        self.scores.crossValidation = Bunch(**self.scorerCrossValidation['scores'])
+        self.measureCrossValidation = self.measure.buildCV(**payload)
+        self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
         self._references['cross_validation'] = deepcopy(self.estimator) if self.storeReferences else None
 
     def build_holdout(self, dataset, **fitParams):
@@ -92,8 +91,8 @@ class Sculpture(Dobject, BaseEstimator):
 
         payload = {'estimator': self.estimator, 'metrics': self.metrics,
                    'X': dataset.designTest, 'y': dataset.targetTest}
-        self.scorerHoldout = self.scorer.build_holdout(**payload)
-        self.scores.holdout = Bunch(**self.scorerHoldout['scores'])
+        self.measureHoldout = self.measure.build_holdout(**payload)
+        self.measurements.holdout = Bunch(**self.measureHoldout['measurements'])
         self._references['holdout'] = deepcopy(self.estimator) if self.storeReferences else None
 
     def build_entire(self, dataset, **fitParams):
