@@ -21,7 +21,7 @@ def extract_fields(wrapped, instance, args, kwargs):
     dataset = find_value(wrapped, args, kwargs, 'dataset')
 
     instance.fields = list(nvl(*[access(dataset, ['designData', attr], errors='ignore', slicers=())
-                            for attr in ['columns', 'keys']]))
+                                 for attr in ['columns', 'keys']]))
     instance.fieldDtypes = access(dataset, ['designData', 'dtypes'],
                                   method='to_dict', errors='ignore', slicers=())
 
