@@ -3,7 +3,7 @@ import pandas as pd
 from donatello.utils.base import Dobject
 from donatello.components.fold import Fold
 from donatello.utils.decorators import decorator, init_time, fallback, to_kwargs
-from donatello.utils.helpers import find_value, replace_value
+from donatello.utils.helpers import find_value, replace_value, nvl, access
 
 
 @decorator
@@ -154,14 +154,9 @@ class Dataset(Dobject):
                     self.raws[name] = querier(**payload)
 
     def subset(self, subset='train'):
-        if isinstance(subset, str) and subset:
-            subset = subset.capitalize()
-            attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
-            X, y = tuple(getattr(self,  attr) for attr in attrs)
-        elif subset > 1:
-            pass
-        elif subset <= 1:
-            pass
+        subset = subset.capitalize()
+        attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
+        X, y = tuple(getattr(self,  attr) for attr in attrs)
         return type(self)(X=X, y=y, **self.params)
 
     def _take(self, train, test):
@@ -188,13 +183,12 @@ class Dataset(Dobject):
 
 
 # not a decorator, function for helping data decorators
-@to_kwargs
-def _pull(wrapped, instance, _args, _kwargs):
-    dataset = _kwargs.pop('dataset', None)
+def pull(wrapped, instance, args, kwargs):
+    dataset = find_value(wrapped, args, kwargs, 'dataset')
 
     if not dataset:
-        X = _kwargs.pop('X', None)
-        y = _kwargs.pop('y', None)
+        X = kwargs.pop('X')
+        y = kwargs.pop('y')
 
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
@@ -209,8 +203,8 @@ def _pull(wrapped, instance, _args, _kwargs):
         dataset.execute_queries(dataset.queries)
         dataset.fold.fit(dataset)
 
-    _kwargs.update({'dataset': dataset})
-    return _kwargs
+    args, kwargs = replace_value(wrapped, args, kwargs, 'dataset', dataset)
+    return args, kwargs
 
 
 @decorator
@@ -219,17 +213,17 @@ def package_dataset(wrapped, instance, args, kwargs):
     From arguments - package X (and y if supervised) in Data object via type
     """
     print('package')
-    kwargs = _pull(wrapped, instance, args, kwargs)
-    result = wrapped(**kwargs)
+    args, kwargs = pull(wrapped, instance, args, kwargs)
+    result = wrapped(*args, **kwargs)
     return result
 
 
 @decorator
 def enforce_dataset(wrapped, instance, args, kwargs):
     print('enforce')
-    kwargs = _pull(wrapped, instance, args, kwargs)
+    args, kwargs = pull(wrapped, instance, args, kwargs)
     dataset = kwargs['dataset']
-    result = wrapped(**kwargs)
+    result = wrapped(*args, **kwargs)
 
     if isinstance(result, pd.np.ndarray):
         features = result.columns.tolist() if hasattr(result, 'columns')\
@@ -254,3 +248,37 @@ def subset_dataset(subset):
         result = wrapped(*args, **kwargs)
         return result
     return wrapper
+
+
+@decorator
+def extract_fields(wrapped, instance, args, kwargs):
+    result = wrapped(*args, **kwargs)
+    instance.features = None
+    instance.isFit = True
+
+    dataset = find_value(wrapped, args, kwargs, 'dataset')
+    X = find_value(wrapped, args, kwargs, 'X')
+    df = dataset.designData if (dataset is not None) else X if (X is not None) else None
+
+    if df is not None:
+        instance.fields = list(nvl(*[access(df, [attr], errors='ignore', slicers=()) for attr in ['columns', 'keys']]))
+        instance.fieldDtypes = access(df, ['dtypes'], method='to_dict', errors='ignore', slicers=())
+
+    return result
+
+
+@decorator
+def extract_features(wrapped, instance, args, kwargs):
+    result = wrapped(*args, **kwargs)
+
+    postFit = not instance.features
+    if postFit:
+        df = result.designData if isinstance(result, Dataset) else result
+        features = df.columns.tolist() if hasattr(df, 'columns')\
+            else list(df.get_feature_names()) if hasattr(instance, 'get_feature_names')\
+            else instance.fields
+
+        instance.features = features
+        instance.featureDtypes = access(df, ['dtypes'], method='to_dict',
+                                        slicers=(), errors='ignore')
+    return result

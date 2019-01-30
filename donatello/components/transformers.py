@@ -2,8 +2,6 @@ import re
 import pandas as pd
 import networkx as nx
 
-from wrapt import decorator
-
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
 from sklearn import clone
@@ -11,40 +9,8 @@ from sklearn import clone
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
 from donatello.utils.decorators import init_time, fallback
-from donatello.utils.helpers import access, nvl, find_value
+from donatello.utils.helpers import access, nvl
 from donatello.components import data
-
-
-@decorator
-def extract_fields(wrapped, instance, args, kwargs):
-    result = wrapped(*args, **kwargs)
-    dataset = find_value(wrapped, args, kwargs, 'dataset')
-
-    instance.fields = list(nvl(*[access(dataset, ['designData', attr], errors='ignore', slicers=())
-                                 for attr in ['columns', 'keys']]))
-    instance.fieldDtypes = access(dataset, ['designData', 'dtypes'],
-                                  method='to_dict', errors='ignore', slicers=())
-
-    instance.features = None
-    instance.isFit = True
-    return result
-
-
-@decorator
-def extract_features(wrapped, instance, args, kwargs):
-    result = wrapped(*args, **kwargs)
-
-    postFit = not instance.features
-    if postFit:
-        df = result.designData
-        features = df.columns.tolist() if hasattr(df, 'columns')\
-                    else list(df.get_feature_names()) if hasattr(instance, 'get_feature_names')\
-                    else instance.fields
-        instance.features = features
-        instance.featureDtypes = access(result, ['designData', 'dtypes'], method='to_dict',
-                                        slicers=(), errors='ignore')
-
-    return result
 
 
 class PandasMixin(TransformerMixin, PandasAttrs):
@@ -53,30 +19,46 @@ class PandasMixin(TransformerMixin, PandasAttrs):
     to enforce fields and features
     """
     @data.package_dataset
-    @extract_fields
+    @data.extract_fields
     def fit(self, *args, **kwargs):
         return super(PandasMixin, self).fit(*args, **kwargs)
 
     @data.enforce_dataset
-    @extract_features
+    @data.extract_features
     def transform(self, *args, **kwargs):
         return super(PandasMixin, self).transform(*args, **kwargs)
 
 
 class PandasTransformer(BaseTransformer):
     @data.package_dataset
-    @extract_fields
+    @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
         return self
 
     @data.enforce_dataset
-    @extract_features
+    @data.extract_features
     def transform(self, X=None, dataset=None, *args, **kwargs):
         return dataset
 
     def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
         self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
         return self.transform(X=X, dataset=dataset, *args, **kwargs)
+
+
+class DatasetTransformer(BaseTransformer):
+    @data.package_dataset
+    @data.extract_fields
+    def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
+        return self
+
+    @data.enforce_dataset
+    @data.extract_features
+    def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        return dataset
+
+    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, y=y, dataset=dataset, *args, **kwargs)
 
 
 class TargetConductor(BaseTransformer):
@@ -173,12 +155,12 @@ class DatasetConductor(BaseTransformer):
         design = dataset.designData.reindex(columns=self.inclusions)
         return design
 
-    @extract_fields
+    @data.extract_fields
     def fit(self, dataset=None, **fitParams):
         self.fit_design(dataset, **fitParams)
         return self
 
-    @extract_features
+    @data.extract_features
     def transform(self, dataset=None, **fitParams):
         design = self.transform_design(dataset)
         target = self.transform_target(dataset)
@@ -194,7 +176,7 @@ class AccessTransformer(BaseTransformer):
 
     @data.package_dataset
     @data.enforce_dataset
-    @extract_features
+    @data.extract_features
     def transform(self, dataset=None, X=None, y=None):
         dataset.designData = access(dataset.designData, **self.dap)
         return super(AccessTransformer, self).transform(X=dataset.designData, y=y)
@@ -224,14 +206,18 @@ def concat(datasets, params=None):
 
 
 class TransformNode(Dobject, BaseTransformer):
-    def __init__(self, transformer=None, aggregator=None,
-                 combine=concat, fitOnly=False, name=None):
+    """
+    Node in model execution grap
+    """
+    def __init__(self, name=None, transformer=None, aggregator=None,
+                 combine=concat, fitOnly=False, store=True):
 
         self.name = name
         self.transformer = transformer
         self.aggregator = aggregator
         self.fitOnly = fitOnly
         self.combine = combine
+        self.store = store
 
         self.information = None
         self.isFit = False
@@ -247,22 +233,26 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def fit(self, dataset=None, X=None, y=None, **kwargs):
-        self.transformer.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
+        self.transformer.fit(dataset=dataset, **kwargs)
         self.isFit = True
         return self
 
     @data.package_dataset
     def transform(self, dataset=None, X=None, y=None, **kwargs):
         if not self.information_available:
-            self.information = self._transform(dataset=None, X=None, y=None, **kwargs)
-        return self.information
+            information = self._transform(dataset=dataset, **kwargs)
+            self.information = information if self.store else None
+        else:
+            information = self.information
+
+        return information
 
     @data.enforce_dataset
     def _transform(self, dataset=None, X=None, y=None, **kwargs):
         if self.fitOnly:
             output = dataset
         else:
-            output = self.transformer.transform(X=dataset.designData, y=dataset.targetData)
+            output = self.transformer.transform(dataset=dataset)
 
         return output
 
