@@ -189,8 +189,6 @@ class FeatureWeights(Metric):
         super(FeatureWeights, self).__init__(name=name, key=key,
             callback=callback, agg=agg, sort=sort)
 
-        self.attr = attr
-
     def evaluate(self, estimator, truth, predicted, X):
         """
         Args:
@@ -205,9 +203,6 @@ class FeatureWeights(Metric):
         model = estimator.model
         columnNames = ['names']
         values = []
-        if hasattr(model, self.attr):
-            columnNames.append(self.attr)
-            values.append(getattr(model, self.attr))
         if hasattr(model, 'coef_'):
             columnNames.append('coefficients')
             if hasattr(model, 'intercept_'):
