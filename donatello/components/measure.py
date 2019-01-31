@@ -235,8 +235,7 @@ class ThresholdRates(Metric):
     def evaluate(self, estimator, truth, predicted, X):
         """
         """
-        data = [confusion_matrix(truth.values, (predicted > i).values).reshape(4,)
-                for i in self.thresholds]
+        data = [confusion_matrix(truth, predicted > i).reshape(4,) for i in self.thresholds]
 
         df = pd.DataFrame(data=data,
                           columns=['true_negative', 'false_positive',
