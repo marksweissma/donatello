@@ -102,5 +102,6 @@ def to_kwargs(wrapped, instance, args, kwargs):
     spec = inspect.getargspec(wrapped)
     offset = int(bool(instance))
     update = {argSpec: arg for argSpec, arg in zip(spec.args[offset:], args)}
+    import ipdb; ipdb.set_trace()
     kwargs.update(update)
     return wrapped(**kwargs)

@@ -165,3 +165,4 @@ class BaseDatasetTransformer(BaseTransformer):
         return dataset
 
     def fit_transform(self, dataset=None, X=None, y=None, **kwargs):
+        return dataset

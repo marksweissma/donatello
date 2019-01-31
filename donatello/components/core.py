@@ -128,6 +128,9 @@ class Sculpture(Dobject, BaseEstimator):
         """
         [self.hook.write(obj=self, attr=attr) for attr in writeAttrs]
 
+    def __getattr__(self, attr):
+        return getattr(self.model, attr)
+
 
 class Garden(Dobject):
     """
