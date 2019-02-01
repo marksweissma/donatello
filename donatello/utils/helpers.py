@@ -1,9 +1,8 @@
 import os
 import inspect
-import pandas as pd
-
 import dill
-# from sklearn.externals import joblib
+
+import pandas as pd
 
 
 def now_string(strFormat="%Y_%m_%d_%H_%M"):
@@ -193,7 +192,6 @@ class Local(object):
         reader (func): default function to read files
         writer (func): default function to write files
     """
-    # def __init__(self, reader=joblib.load, writer=joblib.dump):
     def __init__(self, reader=dill.load, writer=dill.dump):
         self.reader = reader
         self.writer = writer
