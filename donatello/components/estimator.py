@@ -4,12 +4,12 @@ from donatello.utils.base import Dobject, BaseTransformer
 from donatello.utils.decorators import pandas_series, fallback
 from donatello.utils.helpers import now_string
 
-def score_column(obj, column=1):
-    def _scorer(obj
 
-    return self.predict_method(X=X)[:, self.column]
+def score_column(column=1):
+    def _scorer(obj, X):
+        return obj.predict_method(X=X)[:, column]
+    return _scorer
 
-scorer = 
 
 class Estimator(Dobject, BaseTransformer):
     """
@@ -38,7 +38,6 @@ class Estimator(Dobject, BaseTransformer):
         self.model = model
         self.method = method
         self.scorer = scorer
-        self.column = column
 
         self.paramGrid = paramGrid
         self.gridKwargs = gridKwargs
@@ -95,8 +94,10 @@ class Estimator(Dobject, BaseTransformer):
     # Move to dispatch
     @pandas_series
     def score(self, X, name=''):
-        score = self.scorer if callable(self.scorer) else getattr(self, self.scorer)
-        scores = score(X)
+        if callable(self.scorer):
+            scores = self.scorer(self, X)
+        else:
+            scores = getattr(self, self.scorer)(X)
         return scores
 
     def no_op(self, X):
