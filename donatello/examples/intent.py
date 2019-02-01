@@ -7,9 +7,9 @@ from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 from donatello.components.core import Sculpture
-from donatello.components.metric import Metric, FeatureWeights, ThresholdRates
+from donatello.components.measure import Metric, FeatureWeights, ThresholdRates
 from donatello.components.data import Dataset
-from donatello.components.estimator import Estimator
+from donatello.components.estimator import Estimator, score_column
 
 
 def _load_sklearn_bc_dataset(group=True):
@@ -49,7 +49,10 @@ def load_logit_declaration(group=True, asDf=False, metrics=None):
 
     estimator = {'model': LogisticRegression(),
                  'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
-                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 5}
+                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 5},
+                 'method': 'predict_proba',
+                 'scorer': score_column()
+
                  }
 
     metrics = load_metrics(metrics)
