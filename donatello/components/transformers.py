@@ -1,4 +1,5 @@
 import re
+import inspect
 import pandas as pd
 import networkx as nx
 
@@ -43,22 +44,6 @@ class PandasTransformer(BaseTransformer):
     def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
         self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
         return self.transform(X=X, dataset=dataset, *args, **kwargs)
-
-
-class DatasetTransformer(BaseTransformer):
-    @data.package_dataset
-    @data.extract_fields
-    def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
-        return self
-
-    @data.enforce_dataset
-    @data.extract_features
-    def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
-        return dataset
-
-    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
-        self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
-        return self.transform(X=X, y=y, dataset=dataset, *args, **kwargs)
 
 
 class TargetConductor(BaseTransformer):
@@ -167,6 +152,10 @@ class DatasetConductor(BaseTransformer):
         dataset = dataset.with_params(X=design, y=target)
         return dataset
 
+    def fit_transform(self, dataset=None, *args, **kwargs):
+        self.fit(dataset=dataset, *args, **kwargs)
+        return self.transform(dataset=dataset, *args, **kwargs)
+
 
 class AccessTransformer(BaseTransformer):
     """
@@ -233,7 +222,15 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def fit(self, dataset=None, X=None, y=None, **kwargs):
-        self.transformer.fit(dataset=dataset, **kwargs)
+        spec = inspect.getargspec(self.transformer.fit)
+        if 'dataset' in spec.args:
+            payload = {'dataset': dataset}
+        else:
+            payload = {'X': dataset.designData}
+            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+        payload.update(kwargs)
+        self.transformer.fit(**payload)
+
         self.isFit = True
         return self
 
@@ -256,8 +253,15 @@ class TransformNode(Dobject, BaseTransformer):
 
         return output
 
+    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, dataset=dataset, *args, **kwargs)
 
-class ModelDAG(nx.DiGraph, Dobject):
+    def __getattr__(self, attr):
+        return getattr(self.transformer, attr)
+
+
+class ModelDAG(Dobject, nx.DiGraph):
     @init_time
     def __init__(self, executor='executor', conductionType=DatasetConductor, *args, **kwargs):
         super(ModelDAG, self).__init__(*args, **kwargs)
@@ -318,9 +322,15 @@ class ModelDAG(nx.DiGraph, Dobject):
         else:
             output = [data]
 
-        data = self.node_exec(node).combine(output)
+        dataset = self.node_exec(node).combine(output)
 
-        information = access(self.node_exec(node), method=method, methodArgs=(data,))
+        spec = inspect.getargspec(getattr(self.node_exec(node), method))
+        if 'dataset' in spec.args:
+            payload = {'dataset': dataset}
+        else:
+            payload = {'X': dataset.designData}
+            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+        information = access(self.node_exec(node), method=method, methodKwargs=payload)
 
         return information
 

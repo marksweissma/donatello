@@ -71,8 +71,9 @@ class Fold(Dobject):
         df = dataset.data if not primaryKey else dataset.data[primaryKey]
 
         groups = access(df, **dap['groups']) if 'groups' in self.dap else None
-        self.indices = list(self.split(df.drop(target, axis=1) if target else df,
-                                       df[target] if target else None,
+        condition = target and (target in df)
+        self.indices = list(self.split(df.drop(target, axis=1) if condition else df,
+                                       df[target] if condition else None,
                                        groups=groups, **kwargs)
                             )
 
@@ -147,7 +148,7 @@ class Fold(Dobject):
             designTrain = _designTrain if None not in _designTrain else _designTrain[None]
             designTest = _designTest if None not in _designTest else _designTest[None]
 
-            if target:
+            if target and target in df:
                 targetTrain, targetTest = self._split(df[target], trainMask, testMask)
             else:
                 targetTrain, targetTest = None, None
