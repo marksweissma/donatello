@@ -236,11 +236,13 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def transform(self, dataset=None, X=None, y=None, **kwargs):
-        if not self.information_available:
+        if not self.information_available and not self.isFit:
             information = self._transform(dataset=dataset, **kwargs)
             self.information = information if self.store else None
-        else:
+        elif not self.isFit:
             information = self.information
+        else:
+            information = self._transform(dataset=dataset, **kwargs)
 
         return information
 
@@ -284,6 +286,31 @@ class ModelDAG(Dobject, nx.DiGraph):
         return terminal
 
     @fallback(node='terminal')
+    def fit(self, data, node=None):
+        self.clean()
+        # iterate through nodes => terminal_list to list
+        parents = tuple(self.predecessors(node))
+        if parents:
+            upstreams = [self.apply(parent, data, 'fit_transform') for parent in parents]
+            datas = [self.edge_exec(parent, node).fit_transform(upstream)
+                     for parent, upstream in zip(parents, upstreams)]
+
+            data = self.node_exec(node).combine(datas)
+
+        self.node_exec(node).fit(data)
+
+        self.isFit = True
+        return self
+
+    @fallback(node='terminal')
+    def predict_proba(self, data, node=None):
+        parents = tuple(self.predecessors(node))
+        # iterate through nodes => terminal_list to list
+        data = self.apply(parents[0], data, 'transform') if parents else data
+        probas = self.node_exec(node).predict_proba(data.designData)
+        return probas
+
+    @fallback(node='terminal')
     def transform(self, data, node=None):
         parents = tuple(self.predecessors(node))
         # iterate through nodes => terminal_list to list
@@ -292,20 +319,9 @@ class ModelDAG(Dobject, nx.DiGraph):
         return transformed
 
     @fallback(node='terminal')
-    def fit(self, data, node=None):
-        self.clean()
-        # iterate through nodes => terminal_list to list
-        parents = tuple(self.predecessors(node))
-        if parents:
-            upstreams = [self.apply(parent, data, 'fit_transform') for parent in parents]
-            output = [self.edge_exec(parent, node).fit_transform(upstream)
-                      for parent, upstream in zip(parents, upstreams)]
-
-            data = self.node_exec(node).combine(output)
-
-        self.node_exec(node).fit(data)
-
-        return self
+    def fit_transform(self, data, node=None):
+        self.fit(data=data, node=node)
+        return self.transform(data=data, node=node)
 
     def apply(self, node, data, method):
         parents = tuple(self.predecessors(node))
@@ -315,7 +331,7 @@ class ModelDAG(Dobject, nx.DiGraph):
 
         elif parents:
             output = [self.apply(parent,
-                                 access(self.edge_exec(parent, node), method)(data),
+                                 access(self.edge_exec(parent, node), [method])(data),
                                  method
                                  ) for
                       parent in parents]
@@ -338,7 +354,7 @@ class ModelDAG(Dobject, nx.DiGraph):
         self.add_node(node.name, **{self.executor: node})
 
     @fallback('conductionType')
-    def add_edge_selector(self, node_from, node_to, conductionType=None, *args, **kwargs):
+    def add_edge_conductor(self, node_from, node_to, conductionType=None, *args, **kwargs):
         self.add_node_transformer(node_from) if not isinstance(node_from, str) else None
         self.add_node_transformer(node_to) if not isinstance(node_to, str) else None
 
