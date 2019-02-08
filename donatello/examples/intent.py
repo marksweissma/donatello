@@ -10,7 +10,18 @@ from donatello.components.core import Sculpture
 from donatello.components.measure import Metric, FeatureWeights, ThresholdRates
 from donatello.components.data import Dataset
 from donatello.components.estimator import Estimator, score_column
+from donatello.components import transformers
 
+
+def _load_model():
+    t = transformers.DatasetConductor(reverse=True, passTarget=True)
+    n1 = transformers.TransformNode('n1', transformer=t)
+    n2 = transformers.TransformNode('n2', transformer=t)
+    n3 = transformers.TransformNode('n3', transformer=LogisticRegression())
+    g = transformers.ModelDAG(name='sklearn_breast_cancer')
+    g.add_edge_conductor(n1, n2, reverse=True, passTarget=True)
+    g.add_edge_conductor(n2, n3, reverse=True, passTarget=True)
+    return g
 
 def _load_sklearn_bc_dataset(group=True):
     dataset = load_breast_cancer()

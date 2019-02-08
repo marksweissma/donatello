@@ -1,5 +1,7 @@
 from sklearn.model_selection import GridSearchCV
 
+from donatello.components import data
+
 from donatello.utils.base import Dobject, BaseTransformer
 from donatello.utils.decorators import pandas_series, fallback
 from donatello.utils.helpers import now_string
@@ -81,14 +83,15 @@ class Estimator(Dobject, BaseTransformer):
             self.gridSearch.fit(X=X, y=y, gridSearch=False)
             self.set_params(**self.gridSearch.best_params_)
 
-    def fit(self, X=None, y=None, gridSearch=True,
+    @data.package_dataset
+    def fit(self, dataset=None, X=None, y=None, gridSearch=True,
             paramGrid=None, gridKwargs=None, **kwargs):
         """
         Fit method with options for grid searching hyperparameters
         """
-        self.grid_search(X=X, y=y, gridSearch=gridSearch,
+        self.grid_search(X=dataset.designData, y=dataset.targetData, gridSearch=gridSearch,
                          paramGrid=paramGrid, gridKwargs=gridKwargs)
-        self.model.fit(X=X, y=y, **kwargs)
+        self.model.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
         return self
 
     # Move to dispatch

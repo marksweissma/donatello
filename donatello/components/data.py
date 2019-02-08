@@ -188,7 +188,7 @@ def pull(wrapped, instance, args, kwargs):
 
     if not dataset:
         X = kwargs.pop('X')
-        y = kwargs.pop('y')
+        y = kwargs.pop('y', None)
 
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset

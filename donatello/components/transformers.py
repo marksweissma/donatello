@@ -285,13 +285,14 @@ class ModelDAG(Dobject, nx.DiGraph):
         terminal = terminal[0] if len(terminal) == 1 else terminal
         return terminal
 
+    @data.package_dataset
     @fallback(node='terminal')
-    def fit(self, data, node=None):
+    def fit(self, dataset=None, X=None, y=None, node=None):
         self.clean()
         # iterate through nodes => terminal_list to list
         parents = tuple(self.predecessors(node))
         if parents:
-            upstreams = [self.apply(parent, data, 'fit_transform') for parent in parents]
+            upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
             datas = [self.edge_exec(parent, node).fit_transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
@@ -302,12 +303,13 @@ class ModelDAG(Dobject, nx.DiGraph):
         self.isFit = True
         return self
 
+    @data.package_dataset
     @fallback(node='terminal')
-    def predict_proba(self, data, node=None):
+    def predict_proba(self, dataset=None, X=None, y=None, node=None):
         parents = tuple(self.predecessors(node))
         # iterate through nodes => terminal_list to list
-        data = self.apply(parents[0], data, 'transform') if parents else data
-        probas = self.node_exec(node).predict_proba(data.designData)
+        dataset = self.apply(parents[0], dataset, 'transform') if parents else dataset
+        probas = self.node_exec(node).predict_proba(dataset.designData)
         return probas
 
     @fallback(node='terminal')
@@ -363,6 +365,10 @@ class ModelDAG(Dobject, nx.DiGraph):
         node_to = node_to.name if not isinstance(node_to, str) else node_to
 
         self.add_edge(node_from, node_to, **{self.executor: conductor})
+
+    # fix this
+    def __getattr__(self, attr):
+        return getattr(self.node_exec(self.terminal[0]), attr, None)
 
 
 class OneHotEncoder(PandasMixin, OneHotEncoder):
