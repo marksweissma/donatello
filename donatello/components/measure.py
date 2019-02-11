@@ -203,16 +203,21 @@ class FeatureWeights(Metric):
         model = estimator.model
         columnNames = ['names']
         values = []
-        if hasattr(model, 'coef_'):
+        coef_ = getattr(model, 'coef_', None)
+        intercept_ = getattr(model, 'intercept_', None)
+        feature_importances_ = getattr(model, 'feature_importances_ ', None)
+
+        if coef_ is not None:
             columnNames.append('coefficients')
-            if hasattr(model, 'intercept_'):
+            if intercept_ is not None:
                 names.append('intercept_')
-                values.append(np.hstack((model.coef_[0], model.intercept_)))
+                values.append(np.hstack((coef_[0], intercept_)))
             else:
                 values.append(model.coef_[0])
-        if hasattr(model, 'feature_importances_'):
+        if feature_importances_ is not None:
             columnNames.append('feature_importances')
-            values.append(model.feature_importances_)
+            values.append(feature_importances_)
+
         if values:
             names = pd.Series(np.asarray(names), name=columnNames[0])
             vectors = pd.DataFrame(np.asarray(values).T, columns=columnNames[1:])

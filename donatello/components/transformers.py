@@ -3,14 +3,16 @@ import inspect
 import pandas as pd
 import networkx as nx
 
+from copy import deepcopy
+
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
-from sklearn import clone
+from sklearn import clone as sk_clone
 
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
-from donatello.utils.decorators import init_time, fallback
-from donatello.utils.helpers import access, nvl
+from donatello.utils.decorators import fallback
+from donatello.utils.helpers import access, nvl, now_string
 from donatello.components import data
 
 
@@ -218,7 +220,7 @@ class TransformNode(Dobject, BaseTransformer):
     def reset(self):
         self.information = None
         self.isFit = False
-        self.transformer = clone(self.transformer)
+        self.transformer = sk_clone(self.transformer)
 
     @data.package_dataset
     def fit(self, dataset=None, X=None, y=None, **kwargs):
@@ -264,11 +266,19 @@ class TransformNode(Dobject, BaseTransformer):
 
 
 class ModelDAG(Dobject, nx.DiGraph):
-    @init_time
-    def __init__(self, executor='executor', conductionType=DatasetConductor, *args, **kwargs):
-        super(ModelDAG, self).__init__(*args, **kwargs)
+    def __init__(self, executor='executor', conductionType=DatasetConductor,
+                 timeFormat="%Y_%m_%d_%H_%M",
+                 nodes=tuple(), edges=tuple(),
+                 graphArgs=tuple(), graphKwargs={}):
+        super(ModelDAG, self).__init__(*graphArgs, **graphKwargs)
+
+        self._initTime = now_string(timeFormat)
+        self.graphArgs = graphArgs
+        self.graphKwargs = graphKwargs
         self.executor = executor
         self.conductionType = conductionType
+        [self.add_node_transformer(i) for i in nodes]
+        [self.add_edge_conductor(i, j) for i, j in nodes]
 
     def node_exec(self, node):
         return self.nodes[node][self.executor]
@@ -366,9 +376,22 @@ class ModelDAG(Dobject, nx.DiGraph):
 
         self.add_edge(node_from, node_to, **{self.executor: conductor})
 
-    # fix this
-    def __getattr__(self, attr):
-        return getattr(self.node_exec(self.terminal[0]), attr, None)
+    @property
+    def coef_(self):
+        return self.node_exec(self.terminal).coef_
+
+    @property
+    def feature_importances_(self):
+        return self.node_exec(self.terminal).feature_importances_
+
+    @property
+    def intercept_(self):
+        return self.node_exec(self.terminal).intercept_
+
+    # def clone(self):
+        # nodes = deepcopy(self.nodes)
+        # for node in nodes:
+            # node.transformer = sk_clone(node.transformer)
 
 
 class OneHotEncoder(PandasMixin, OneHotEncoder):

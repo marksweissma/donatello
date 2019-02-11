@@ -187,13 +187,14 @@ def pull(wrapped, instance, args, kwargs):
     dataset = find_value(wrapped, args, kwargs, 'dataset')
 
     if not dataset:
-        X = kwargs.pop('X')
+        X = kwargs.pop('X', None)
         y = kwargs.pop('y', None)
 
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
-        elif X is not None and hasattr(instance, 'data'):
-            dataset = Dataset(X=X, y=y, **instance.dataset.get_params())
+        elif X is not None and hasattr(instance, 'dataset')\
+            and instance.dataset is not None:
+            dataset = Dataset(X=X, y=y, **instance.dataset.param)
 
         elif X is not None:
             param = dataset.param if dataset else {}

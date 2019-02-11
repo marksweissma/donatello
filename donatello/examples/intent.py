@@ -18,10 +18,11 @@ def _load_model():
     n1 = transformers.TransformNode('n1', transformer=t)
     n2 = transformers.TransformNode('n2', transformer=t)
     n3 = transformers.TransformNode('n3', transformer=LogisticRegression())
-    g = transformers.ModelDAG(name='sklearn_breast_cancer')
+    g = transformers.ModelDAG(graphKwargs={'name': 'sklearn_breast_cancer'})
     g.add_edge_conductor(n1, n2, reverse=True, passTarget=True)
     g.add_edge_conductor(n2, n3, reverse=True, passTarget=True)
     return g
+
 
 def _load_sklearn_bc_dataset(group=True):
     dataset = load_breast_cancer()
