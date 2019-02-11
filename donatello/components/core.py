@@ -77,6 +77,7 @@ class Sculpture(Dobject, BaseEstimator):
         Build cross validated measurements over training data of models
         """
         print('Building Over Cross Validation')
+        self.estimator = clone(self.estimator)
         payload = {'estimator': self.estimator, 'metrics': self.metrics, 'dataset': dataset}
         self.measureCrossValidation = self.measure.buildCV(**payload)
         self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
@@ -87,6 +88,7 @@ class Sculpture(Dobject, BaseEstimator):
         Build model over training data and score
         """
         print('Building Over Holdout')
+        self.estimator = clone(self.estimator)
         self.estimator.fit(X=dataset.designTrain, y=dataset.targetTrain, gridSearch=True, **fitParams)
 
         payload = {'estimator': self.estimator, 'metrics': self.metrics,

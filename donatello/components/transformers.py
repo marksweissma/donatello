@@ -280,6 +280,11 @@ class ModelDAG(Dobject, nx.DiGraph):
         [self.add_node_transformer(i) for i in nodes]
         [self.add_edge_conductor(i, j) for i, j in nodes]
 
+    def clone(self, deep=True):
+        estimator = deepcopy(self)
+        estimator.clean()
+        return estimator
+
     def node_exec(self, node):
         return self.nodes[node][self.executor]
 
