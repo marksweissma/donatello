@@ -265,25 +265,25 @@ class TransformNode(Dobject, BaseTransformer):
         return getattr(self.transformer, attr)
 
 
-class ModelDAG(Dobject, nx.DiGraph):
-    def __init__(self, executor='executor', conductionType=DatasetConductor,
+class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
+    def __init__(self, executor='executor',
+                 conductor=DatasetConductor(reverse=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
-                 nodes=tuple(), edges=tuple(),
+                 _nodes=set([]), _edges=set([]),
                  graphArgs=tuple(), graphKwargs={}):
         super(ModelDAG, self).__init__(*graphArgs, **graphKwargs)
 
+        self.timeFormat = timeFormat
         self._initTime = now_string(timeFormat)
         self.graphArgs = graphArgs
         self.graphKwargs = graphKwargs
         self.executor = executor
-        self.conductionType = conductionType
-        [self.add_node_transformer(i) for i in nodes]
-        [self.add_edge_conductor(i, j) for i, j in nodes]
-
-    def clone(self, deep=True):
-        estimator = deepcopy(self)
-        estimator.clean()
-        return estimator
+        self.conductor = conductor
+        self._nodes = _nodes
+        self._edges = _edges
+        [self.add_node_transformer(i) for i in _nodes]
+        # need to access edge conductor objects directly, do explicit
+        [self.add_edge_conductor(i, j) for i, j in _edges]
 
     def node_exec(self, node):
         return self.nodes[node][self.executor]
@@ -368,18 +368,19 @@ class ModelDAG(Dobject, nx.DiGraph):
         return information
 
     def add_node_transformer(self, node):
+        self._nodes.add(node)
         self.add_node(node.name, **{self.executor: node})
 
-    @fallback('conductionType')
-    def add_edge_conductor(self, node_from, node_to, conductionType=None, *args, **kwargs):
+    @fallback('conductor')
+    def add_edge_conductor(self, node_from, node_to, conductor=None):
         self.add_node_transformer(node_from) if not isinstance(node_from, str) else None
         self.add_node_transformer(node_to) if not isinstance(node_to, str) else None
 
-        conductor = conductionType(*args, **kwargs)
         node_from = node_from.name if not isinstance(node_from, str) else node_from
         node_to = node_to.name if not isinstance(node_to, str) else node_to
 
         self.add_edge(node_from, node_to, **{self.executor: conductor})
+        self._edges.add((node_from, node_to))
 
     @property
     def coef_(self):
