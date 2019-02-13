@@ -2,7 +2,7 @@ import inspect
 import pandas as pd
 from donatello.utils.base import Dobject
 from donatello.components.fold import Fold
-from donatello.utils.decorators import decorator, init_time, fallback, to_kwargs
+from donatello.utils.decorators import decorator, init_time, fallback
 from donatello.utils.helpers import find_value, replace_value, nvl, access
 
 
@@ -271,15 +271,18 @@ def extract_fields(wrapped, instance, args, kwargs):
 @decorator
 def extract_features(wrapped, instance, args, kwargs):
     result = wrapped(*args, **kwargs)
+    df = result.designData if isinstance(result, Dataset) else result
 
     postFit = not instance.features
     if postFit:
-        df = result.designData if isinstance(result, Dataset) else result
         features = df.columns.tolist() if hasattr(df, 'columns')\
-            else list(df.get_feature_names()) if hasattr(instance, 'get_feature_names')\
-            else instance.fields
+            else list(instance.get_feature_names()) if (hasattr(instance, 'get_feature_names')
+                    and instance.get_feature_names()) else instance.fields
 
         instance.features = features
+    df = df if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features)
+
+    if postFit:
         instance.featureDtypes = access(df, ['dtypes'], method='to_dict',
                                         slicers=(), errors='ignore')
     return result

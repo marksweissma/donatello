@@ -13,14 +13,17 @@ from donatello.components.estimator import Estimator, score_column
 from donatello.components import transformers
 
 
-def _load_model():
+def load_model(model=LogisticRegression()):
     t = transformers.DatasetConductor(reverse=True, passTarget=True)
+    s = transformers.StandardScaler()
     n1 = transformers.TransformNode('n1', transformer=t)
-    n2 = transformers.TransformNode('n2', transformer=t)
-    n3 = transformers.TransformNode('n3', transformer=LogisticRegression())
+    n2 = transformers.TransformNode('n2', transformer=s)
+    n3 = transformers.TransformNode('n3', transformer=model)
     g = transformers.ModelDAG(graphKwargs={'name': 'sklearn_breast_cancer'})
     g.add_edge_conductor(n1, n2)
+    g.add_edge_conductor(n1, n3, conductor=transformers.DatasetConductor(passDesign=False))
     g.add_edge_conductor(n2, n3)
+
     return g
 
 

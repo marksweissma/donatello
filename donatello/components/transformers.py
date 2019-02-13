@@ -3,8 +3,6 @@ import inspect
 import pandas as pd
 import networkx as nx
 
-from copy import deepcopy
-
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
 from sklearn import clone as sk_clone
@@ -23,13 +21,13 @@ class PandasMixin(TransformerMixin, PandasAttrs):
     """
     @data.package_dataset
     @data.extract_fields
-    def fit(self, *args, **kwargs):
-        return super(PandasMixin, self).fit(*args, **kwargs)
+    def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
+        return super(PandasMixin, self).fit(X=dataset.designData, y=dataset.targetData, *args, **kwargs)
 
     @data.enforce_dataset
     @data.extract_features
-    def transform(self, *args, **kwargs):
-        return super(PandasMixin, self).transform(*args, **kwargs)
+    def transform(self, X=None, dataset=None, *args, **kwargs):
+        return super(PandasMixin, self).transform(X=dataset.designData, *args, **kwargs)
 
 
 class PandasTransformer(BaseTransformer):
@@ -109,11 +107,12 @@ class DesignConductor(PandasTransformer):
 class DatasetConductor(BaseTransformer):
     def __init__(self,
                  selectValue=(), selectMethod=None, reverse=False,
-                 passTarget=False):
+                 passTarget=True, passDesign=True):
         self.selectValue = selectValue
         self.selectMethod = selectMethod
         self.reverse = reverse
         self.passTarget = passTarget
+        self.passDesign = passDesign
 
     def data_type(self, X, inclusionExclusionKwargs):
         X = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
@@ -139,7 +138,7 @@ class DatasetConductor(BaseTransformer):
         return dataset.targetData if self.passTarget else None
 
     def transform_design(self, dataset):
-        design = dataset.designData.reindex(columns=self.inclusions)
+        design = dataset.designData.reindex(columns=self.inclusions) if self.passDesign else None
         return design
 
     @data.extract_fields
@@ -275,14 +274,17 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
         self.timeFormat = timeFormat
         self._initTime = now_string(timeFormat)
+
         self.graphArgs = graphArgs
         self.graphKwargs = graphKwargs
         self.executor = executor
+
         self.conductor = conductor
+
         self._nodes = _nodes
         self._edges = _edges
+
         [self.add_node_transformer(i) for i in _nodes]
-        # need to access edge conductor objects directly, do explicit
         [self.add_edge_conductor(i, j) for i, j in _edges]
 
     def node_exec(self, node):
@@ -393,11 +395,6 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @property
     def intercept_(self):
         return self.node_exec(self.terminal).intercept_
-
-    # def clone(self):
-        # nodes = deepcopy(self.nodes)
-        # for node in nodes:
-            # node.transformer = sk_clone(node.transformer)
 
 
 class OneHotEncoder(PandasMixin, OneHotEncoder):
