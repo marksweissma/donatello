@@ -26,6 +26,14 @@ def load_model(model=LogisticRegression()):
 
     return g
 
+def load_m1(model=LogisticRegression()):
+    s = transformers.StandardScaler()
+    n2 = transformers.TransformNode('n2', transformer=s)
+    n3 = transformers.TransformNode('n3', transformer=model)
+    g = transformers.ModelDAG(graphKwargs={'name': 'sklearn_breast_cancer'})
+    g.add_edge_conductor(n2, n3)
+
+    return g
 
 def _load_sklearn_bc_dataset(group=True):
     dataset = load_breast_cancer()

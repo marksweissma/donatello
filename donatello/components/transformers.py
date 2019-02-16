@@ -5,7 +5,7 @@ import networkx as nx
 
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
-from sklearn import clone as sk_clone
+from sklearn import clone
 
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
@@ -219,7 +219,7 @@ class TransformNode(Dobject, BaseTransformer):
     def reset(self):
         self.information = None
         self.isFit = False
-        self.transformer = sk_clone(self.transformer)
+        self.transformer = clone(self.transformer)
 
     @data.package_dataset
     def fit(self, dataset=None, X=None, y=None, **kwargs):
@@ -268,7 +268,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     def __init__(self, executor='executor',
                  conductor=DatasetConductor(reverse=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
-                 _nodes=set([]), _edges=set([]),
+                 _nodes=set([]), _edges={},
                  graphArgs=tuple(), graphKwargs={}):
         super(ModelDAG, self).__init__(*graphArgs, **graphKwargs)
 
@@ -285,7 +285,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         self._edges = _edges
 
         [self.add_node_transformer(i) for i in _nodes]
-        [self.add_edge_conductor(i, j) for i, j in _edges]
+        [self.add_edge_conductor(i, j, k) for (i, j), k in _edges.items()]
 
     def node_exec(self, node):
         return self.nodes[node][self.executor]
@@ -323,24 +323,35 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @data.package_dataset
     @fallback(node='terminal')
     def predict_proba(self, dataset=None, X=None, y=None, node=None):
+
         parents = tuple(self.predecessors(node))
-        # iterate through nodes => terminal_list to list
-        dataset = self.apply(parents[0], dataset, 'transform') if parents else dataset
+        if parents:
+            upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
+            datas = [self.edge_exec(parent, node).fit_transform(upstream)
+                     for parent, upstream in zip(parents, upstreams)]
+
+            dataset = self.node_exec(node).combine(datas)
+
         probas = self.node_exec(node).predict_proba(dataset.designData)
         return probas
 
     @fallback(node='terminal')
-    def transform(self, data, node=None):
+    def transform(self, dataset, node=None):
         parents = tuple(self.predecessors(node))
-        # iterate through nodes => terminal_list to list
-        data = self.apply(parents[0], data, 'transform') if parents else data
-        transformed = self.node_exec(node).transform(data)
+        if parents:
+            upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
+            datas = [self.edge_exec(parent, node).fit_transform(upstream)
+                     for parent, upstream in zip(parents, upstreams)]
+
+            dataset = self.node_exec(node).combine(datas)
+
+        transformed = self.node_exec(node).transform(dataset.designData)
         return transformed
 
     @fallback(node='terminal')
-    def fit_transform(self, data, node=None):
-        self.fit(data=data, node=node)
-        return self.transform(data=data, node=node)
+    def fit_transform(self, dataset, node=None):
+        self.fit(data=dataset, node=node)
+        return self.transform(dataset=dataset, node=node)
 
     def apply(self, node, data, method):
         parents = tuple(self.predecessors(node))
@@ -374,7 +385,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         self.add_node(node.name, **{self.executor: node})
 
     @fallback('conductor')
-    def add_edge_conductor(self, node_from, node_to, conductor=None):
+    def add_edge_conductor(self, node_from, node_to, conductor=None, **kwargs):
+        conductor = clone(conductor)
+        conductor.set_params(**kwargs)
         self.add_node_transformer(node_from) if not isinstance(node_from, str) else None
         self.add_node_transformer(node_to) if not isinstance(node_to, str) else None
 
@@ -382,7 +395,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         node_to = node_to.name if not isinstance(node_to, str) else node_to
 
         self.add_edge(node_from, node_to, **{self.executor: conductor})
-        self._edges.add((node_from, node_to))
+
+        self._edges.update({(node_from, node_to): conductor})
 
     @property
     def coef_(self):

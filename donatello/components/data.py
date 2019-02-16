@@ -9,11 +9,14 @@ from donatello.utils.helpers import find_value, replace_value, nvl, access
 @decorator
 def fit_fold(wrapped, instance, args, kwargs):
     result = wrapped(*args, **kwargs)
-    instance.fold.fit(instance)
-    attrs = ('designTrain', 'designTest',
-             'targetTrain', 'targetTest')
-    folded = next(instance.fold.fold(instance))
-    [setattr(instance, attr, value) for attr, value in zip(attrs, folded)]
+    try:
+        instance.fold.fit(instance)
+        attrs = ('designTrain', 'designTest',
+                 'targetTrain', 'targetTest')
+        folded = next(instance.fold.fold(instance))
+        [setattr(instance, attr, value) for attr, value in zip(attrs, folded)]
+    except:
+        pass
     return result
 
 
@@ -86,10 +89,10 @@ class Dataset(Dobject):
             state = self.data is not None
         return state
 
-    @fit_fold
     def link(self, raws=None, X=None, y=None):
-        if raws is None and X is not None:
-            raws = [X, y] if y is not None else [X]
+        if raws is None:
+            raws = [X] if X is not None else []
+            raws.append(y) if y is not None else None
             self.raws = pd.concat(raws, axis=1)
             self.designData = X
             self.targetData = y
@@ -97,6 +100,16 @@ class Dataset(Dobject):
             self.target = name
         else:
             self.raws = raws
+
+        if raws or X:
+            self._fit_fold()
+
+    def _fit_fold(self):
+        self.fold.fit(self)
+        attrs = ('designTrain', 'designTest',
+                 'targetTrain', 'targetTest')
+        folded = next(self.fold.fold(self))
+        [setattr(self, attr, value) for attr, value in zip(attrs, folded)]
 
     def _split(self):
         return next(self.fold.fold(self))  # :(
@@ -106,8 +119,11 @@ class Dataset(Dobject):
         if hasattr(self, '_designData'):
             output = self._designData
         else:
-            train, test, _, __ = self._split()
-            output = pd.concat([train, test])
+            try:
+                train, test, _, __ = self._split()
+                output = pd.concat([train, test])
+            except TypeError:
+                output = None
         return output
 
     @designData.setter
@@ -119,8 +135,11 @@ class Dataset(Dobject):
         if hasattr(self, '_targetData'):
             output = self._targetData
         else:
-            _, __, train, test = self._split()
-            output = pd.concat([train, test])
+            try:
+                _, __, train, test = self._split()
+                output = pd.concat([train, test])
+            except TypeError:
+                output = None
         return output
 
     @targetData.setter
@@ -173,8 +192,9 @@ class Dataset(Dobject):
         results = self._take(train, test)
         return results
 
-    def with_params(self, X=None, y=None):
-        return type(self)(X=X, y=y, **self.params)
+    def with_params(self, X=None, y=None, **kwargs):
+        kwargs.update({i: j for i, j in self.params.items() if i not in kwargs})
+        return type(self)(X=X, y=y, **kwargs)
 
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
