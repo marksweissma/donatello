@@ -398,17 +398,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
         self._edges.update({(node_from, node_to): conductor})
 
-    @property
-    def coef_(self):
-        return self.node_exec(self.terminal).coef_
-
-    @property
-    def feature_importances_(self):
-        return self.node_exec(self.terminal).feature_importances_
-
-    @property
-    def intercept_(self):
-        return self.node_exec(self.terminal).intercept_
+    def __getattr__(self, attr):
+        return getattr(self.node_exec(self.terminal), attr)
 
 
 class OneHotEncoder(PandasMixin, OneHotEncoder):

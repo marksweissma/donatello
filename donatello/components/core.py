@@ -128,7 +128,9 @@ class Sculpture(Dobject, BaseEstimator):
         """
         Write objects
         """
-        [self.hook.write(obj=self, attr=attr) for attr in writeAttrs]
+        for attr in writeAttrs:
+            payload = attr if isinstance(attr, dict) else {'attr': attr}
+            self.hook.write(obj=self, **payload)
 
     def __getattr__(self, attr):
         return getattr(self.estimator, attr)

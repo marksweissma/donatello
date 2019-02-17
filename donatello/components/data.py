@@ -1,5 +1,8 @@
 import inspect
 import pandas as pd
+
+from warnings import warn
+
 from donatello.utils.base import Dobject
 from donatello.components.fold import Fold
 from donatello.utils.decorators import decorator, init_time, fallback
@@ -123,6 +126,7 @@ class Dataset(Dobject):
                 train, test, _, __ = self._split()
                 output = pd.concat([train, test])
             except TypeError:
+                warn('Catching type error, returning design as None')
                 output = None
         return output
 
@@ -139,6 +143,7 @@ class Dataset(Dobject):
                 _, __, train, test = self._split()
                 output = pd.concat([train, test])
             except TypeError:
+                warn('Catching type error, returning target as None')
                 output = None
         return output
 
@@ -233,7 +238,6 @@ def package_dataset(wrapped, instance, args, kwargs):
     """
     From arguments - package X (and y if supervised) in Data object via type
     """
-    print('package')
     args, kwargs = pull(wrapped, instance, args, kwargs)
     result = wrapped(*args, **kwargs)
     return result
@@ -241,7 +245,6 @@ def package_dataset(wrapped, instance, args, kwargs):
 
 @decorator
 def enforce_dataset(wrapped, instance, args, kwargs):
-    print('enforce')
     args, kwargs = pull(wrapped, instance, args, kwargs)
     dataset = kwargs['dataset']
     result = wrapped(*args, **kwargs)

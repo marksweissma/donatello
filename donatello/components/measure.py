@@ -93,7 +93,10 @@ class Measure(Dobject):
             store[name] = store[name].append(df2)
 
         def _option_sort(df, sort):
-            df = df.sort_values(sort) if sort else df
+            try:
+                df = df.sort_values(sort) if sort else df
+            except:
+                import ipdb; ipdb.set_trace()
             return df
 
         def _unwrap_multiple(df, definitionSort):
@@ -114,11 +117,14 @@ class Measure(Dobject):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
-        measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
-                                                                .groupby(metric.key)\
-                                                                .agg(metric.agg),
-                                                                metric.sort))
-                  for metric in metrics}
+        try:
+            measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
+                                                                    .groupby(metric.key)\
+                                                                    .agg(metric.agg),
+                                                                    metric.sort))
+                      for metric in metrics}
+        except:
+            import ipdb; ipdb.set_trace()
 
         return measurements
 
