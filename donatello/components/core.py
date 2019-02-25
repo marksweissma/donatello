@@ -109,7 +109,7 @@ class Sculpture(Dobject, BaseEstimator):
 
     @fallback('dataset', 'writeAttrs', 'validation', 'holdOut', 'entire')
     @package_dataset
-    def fit(self, dataset=None, X=None, y=None, writeAttrs=None,
+    def fit(self, X=None, y=None, dataset=None, writeAttrs=None,
             validation=None, holdOut=None, entire=None, **fitParams):
         """
         Build models, tune hyperparameters, and evaluate

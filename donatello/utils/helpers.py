@@ -151,7 +151,7 @@ def access(obj=None, attrPath=None,
     return value
 
 
-def find_value(func, args, kwargs, accessKey):
+def find_value(func, args, kwargs, accessKey, how='name'):
     """
     Find a value from a function signature
     """
@@ -159,7 +159,7 @@ def find_value(func, args, kwargs, accessKey):
     _args = spec.args[1:] if inspect.ismethod(func) else spec.args
 
     try:
-        index = _args.index(accessKey)
+        index = _args.index(accessKey) if how =='name' else accesKey
         offset = len(_args) - len(nvl(spec.defaults, []))
         default = spec.defaults[index - offset] if index >= offset else None
         value = kwargs.get(accessKey, default) if index >= len(args) else args[index]

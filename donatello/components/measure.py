@@ -57,7 +57,7 @@ class Measure(Dobject):
         return scored, measurements
 
     @package_dataset
-    def fit_score_folds(self, estimator=None, dataset=None, X=None, y=None, **kwargs):
+    def fit_score_folds(self, estimator=None, X=None, y=None, dataset=None, **kwargs):
         """
         Cross validating measure, clones and fits estimator on each fold of X|y
 
@@ -93,10 +93,7 @@ class Measure(Dobject):
             store[name] = store[name].append(df2)
 
         def _option_sort(df, sort):
-            try:
-                df = df.sort_values(sort) if sort else df
-            except:
-                import ipdb; ipdb.set_trace()
+            df = df.sort_values(sort) if sort else df
             return df
 
         def _unwrap_multiple(df, definitionSort):
@@ -117,19 +114,16 @@ class Measure(Dobject):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
             [append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
-        try:
-            measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
-                                                                    .groupby(metric.key)\
-                                                                    .agg(metric.agg),
-                                                                    metric.sort))
-                      for metric in metrics}
-        except:
-            import ipdb; ipdb.set_trace()
+        measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
+                                                                .groupby(metric.key)\
+                                                                .agg(metric.agg),
+                                                                metric.sort))
+                  for metric in metrics}
 
         return measurements
 
     @package_dataset
-    def buildCV(self, estimator=None, metrics=None, dataset=None, X=None, y=None):
+    def buildCV(self, estimator=None, metrics=None, X=None, y=None, dataset=None):
         """
         Build cross validated scoring report
         """

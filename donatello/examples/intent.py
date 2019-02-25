@@ -68,7 +68,7 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
 
 def load_logit():
-    estimator = {'model': load_model(),
+    estimator = {'model': LogisticRegression(),# load_model(),
                  'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
                  'gridKwargs': {'scoring': 'roc_auc', 'cv': 5},
                  'method': 'predict_proba',

@@ -167,7 +167,7 @@ class AccessTransformer(BaseTransformer):
     @data.package_dataset
     @data.enforce_dataset
     @data.extract_features
-    def transform(self, dataset=None, X=None, y=None):
+    def transform(self, X=None, y=None, dataset=None):
         dataset.designData = access(dataset.designData, **self.dap)
         return super(AccessTransformer, self).transform(X=dataset.designData, y=y)
 
@@ -222,7 +222,7 @@ class TransformNode(Dobject, BaseTransformer):
         self.transformer = clone(self.transformer)
 
     @data.package_dataset
-    def fit(self, dataset=None, X=None, y=None, **kwargs):
+    def fit(self, X=None, y=None, dataset=None, **kwargs):
         spec = inspect.getargspec(self.transformer.fit)
         if 'dataset' in spec.args:
             payload = {'dataset': dataset}
@@ -236,7 +236,7 @@ class TransformNode(Dobject, BaseTransformer):
         return self
 
     @data.package_dataset
-    def transform(self, dataset=None, X=None, y=None, **kwargs):
+    def transform(self, X=None, y=None, dataset=None, **kwargs):
         if not self.information_available and not self.isFit:
             information = self._transform(dataset=dataset, **kwargs)
             self.information = information if self.store else None
@@ -248,7 +248,7 @@ class TransformNode(Dobject, BaseTransformer):
         return information
 
     @data.enforce_dataset
-    def _transform(self, dataset=None, X=None, y=None, **kwargs):
+    def _transform(self, X=None, y=None, dataset=None, **kwargs):
         if self.fitOnly:
             output = dataset
         else:
@@ -304,7 +304,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
-    def fit(self, dataset=None, X=None, y=None, node=None):
+    def fit(self, X=None, y=None, dataset=None, node=None):
         self.clean()
         # iterate through nodes => terminal_list to list
         parents = tuple(self.predecessors(node))
@@ -322,7 +322,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
-    def predict_proba(self, dataset=None, X=None, y=None, node=None):
+    def predict_proba(self, X=None, y=None, node=None, dataset=None):
 
         parents = tuple(self.predecessors(node))
         if parents:

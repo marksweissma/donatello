@@ -158,11 +158,11 @@ class BaseDatasetTransformer(BaseTransformer):
     """
     Base scikit-learn style transformer
     """
-    def fit(self, dataset=None, X=None, y=None, **kwargs):
+    def fit(self, X=None, y=None, dataset=None, **kwargs):
         return self
 
-    def transform(self, dataset=None, X=None, y=None, **kwargs):
+    def transform(self, X=None, y=None, dataset=None, **kwargs):
         return dataset
 
-    def fit_transform(self, dataset=None, X=None, y=None, **kwargs):
+    def fit_transform(self, X=None, y=None, dataset=None, **kwargs):
         return dataset

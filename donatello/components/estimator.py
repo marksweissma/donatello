@@ -70,13 +70,13 @@ class Estimator(Dobject, BaseTransformer):
         return getattr(self.model, '_features', [])
 
 # Fitting
-    @fallback('paramGrid', 'gridKwargs')
     def grid_search(self, X=None, y=None, gridSearch=True,
                     paramGrid=None, gridKwargs=None):
         """
         Grid search over hyperparameter space
         """
         if paramGrid and gridSearch:
+            print('grid searching')
             self.gridSearch = GridSearchCV(estimator=self,
                                            param_grid=paramGrid,
                                            **gridKwargs)
@@ -84,13 +84,14 @@ class Estimator(Dobject, BaseTransformer):
             self.set_params(**self.gridSearch.best_params_)
 
     @data.package_dataset
-    def fit(self, dataset=None, X=None, y=None, gridSearch=True,
+    @fallback('paramGrid', 'gridKwargs')
+    def fit(self, X=None, y=None, dataset=None, gridSearch=True,
             paramGrid=None, gridKwargs=None, **kwargs):
         """
         Fit method with options for grid searching hyperparameters
         """
         self.grid_search(X=dataset.designData, y=dataset.targetData, gridSearch=gridSearch,
-                         paramGrid=paramGrid, gridKwargs=gridKwargs)
+                         paramGrid=paramGrid, gridKwargs=gridKwargs, **kwargs)
         self.model.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
         return self
 
