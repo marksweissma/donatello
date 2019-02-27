@@ -223,6 +223,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def fit(self, X=None, y=None, dataset=None, **kwargs):
+        print('fitting {}'.format(self.name))
         spec = inspect.getargspec(self.transformer.fit)
         if 'dataset' in spec.args:
             payload = {'dataset': dataset}
@@ -237,6 +238,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def transform(self, X=None, y=None, dataset=None, **kwargs):
+        print('transforming {}'.format(self.name))
         if not self.information_available and not self.isFit:
             information = self._transform(dataset=dataset, **kwargs)
             self.information = information if self.store else None
@@ -249,6 +251,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.enforce_dataset
     def _transform(self, X=None, y=None, dataset=None, **kwargs):
+        print('_transforming {}'.format(self.name))
         if self.fitOnly:
             output = dataset
         else:
@@ -313,9 +316,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             datas = [self.edge_exec(parent, node).fit_transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
-            data = self.node_exec(node).combine(datas)
+            dataset = self.node_exec(node).combine(datas)
 
-        self.node_exec(node).fit(data)
+        self.node_exec(node).fit(dataset=dataset)
 
         self.isFit = True
         return self
@@ -335,8 +338,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         probas = self.node_exec(node).predict_proba(dataset.designData)
         return probas
 
+    @data.package_dataset
     @fallback(node='terminal')
-    def transform(self, dataset, node=None):
+    def transform(self, X=None, y=None, dataset=None, node=None):
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
@@ -348,8 +352,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         transformed = self.node_exec(node).transform(dataset.designData)
         return transformed
 
+    @data.package_dataset
     @fallback(node='terminal')
-    def fit_transform(self, dataset, node=None):
+    def fit_transform(self, X=None, y=None, dataset=None, node=None):
         self.fit(data=dataset, node=node)
         return self.transform(dataset=dataset, node=node)
 

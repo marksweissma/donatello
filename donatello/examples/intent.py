@@ -25,9 +25,10 @@ def load_model(model=LogisticRegression()):
 
     g = transformers.ModelDAG(graphKwargs={'name': 'sklearn_breast_cancer'})
 
-    g.add_edge_conductor(n1, n2)
-    g.add_edge_conductor(n1, n3, passDesign=False)
-    g.add_edge_conductor(n2, n3)
+    # g.add_edge_conductor(n1, n2)
+    # g.add_edge_conductor(n1, n3, passDesign=False)
+    # g.add_edge_conductor(n2, n3)
+    g.add_edge_conductor(n1, n3, passTarget=True)
 
     return g
 
@@ -68,8 +69,8 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
 
 def load_logit():
-    estimator = {'model': LogisticRegression(),# load_model(),
-                 'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
+    estimator = {'model':  load_model(),# LogisticRegression(),# load_model(),
+                 # 'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
                  'gridKwargs': {'scoring': 'roc_auc', 'cv': 5},
                  'method': 'predict_proba',
                  'scorer': score_column()

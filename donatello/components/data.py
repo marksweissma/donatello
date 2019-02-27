@@ -227,12 +227,9 @@ def pull(wrapped, instance, args, kwargs):
             param = dataset.param if dataset else {}
             dataset = Dataset(X=X, y=y, **param)
 
-    try:
-        if not dataset.hasData and dataset.queries is not None:
-            dataset.execute_queries(dataset.queries)
-            dataset.fold.fit(dataset)
-    except:
-        import ipdb;ipdb.set_trace()
+    if not dataset.hasData and dataset.queries is not None:
+        dataset.execute_queries(dataset.queries)
+        dataset.fold.fit(dataset)
 
     args, kwargs = replace_value(wrapped, args, kwargs, 'dataset', dataset)
     return args, kwargs
