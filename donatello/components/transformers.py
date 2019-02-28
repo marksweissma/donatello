@@ -329,7 +329,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
         parents = tuple(self.predecessors(node))
         if parents:
-            upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
+            upstreams = [self.apply(parent, dataset, 'transform') for parent in parents]
             datas = [self.edge_exec(parent, node).fit_transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
@@ -343,7 +343,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     def transform(self, X=None, y=None, dataset=None, node=None):
         parents = tuple(self.predecessors(node))
         if parents:
-            upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
+            upstreams = [self.apply(parent, dataset, 'transform') for parent in parents]
             datas = [self.edge_exec(parent, node).fit_transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
@@ -361,14 +361,12 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     def apply(self, node, data, method):
         parents = tuple(self.predecessors(node))
 
-        if parents and all([self.node_exec(parent).information_available for parent in parents]):
-            output = [self.node_exec(parent).information for parent in parents]
-
-        elif parents:
-            output = [self.apply(parent,
+        if parents:
+            output = [(self.node_exec(parent).information if self.node_exec(parent).information_available else
+                      self.apply(parent,
                                  access(self.edge_exec(parent, node), [method])(data),
                                  method
-                                 ) for
+                                 )) for
                       parent in parents]
         else:
             output = [data]
