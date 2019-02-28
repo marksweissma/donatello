@@ -305,6 +305,9 @@ def extract_features(wrapped, instance, args, kwargs):
                     and instance.get_feature_names()) else instance.fields
 
         instance.features = features
+
+    else:
+        features = instance.features
     df = df if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features)
 
     if postFit:

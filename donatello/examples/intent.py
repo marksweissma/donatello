@@ -25,10 +25,9 @@ def load_model(model=LogisticRegression()):
 
     g = transformers.ModelDAG(graphKwargs={'name': 'sklearn_breast_cancer'})
 
-    # g.add_edge_conductor(n1, n2)
-    # g.add_edge_conductor(n1, n3, passDesign=False)
-    # g.add_edge_conductor(n2, n3)
-    g.add_edge_conductor(n1, n3, passTarget=True)
+    g.add_edge_conductor(n1, n2)
+    g.add_edge_conductor(n1, n3, passDesign=False)
+    g.add_edge_conductor(n2, n3)
 
     return g
 
