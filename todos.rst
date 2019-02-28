@@ -1,6 +1,7 @@
 sklearn parallelization
 
-debug node re-fitting
-    #. try depth searching to find terminal node and then flush
+get_params method for graph
+    #. support swapping nodes
+    #. support modifying node parameters)
 
 tests
