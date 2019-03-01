@@ -40,9 +40,10 @@ class Sculpture(Dobject, BaseEstimator):
                  validation=True, holdOut=False, entire=False,
                  measure=Measure(), hook=Local(), metrics=None,
                  storeReferences=True, writeAttrs=('', 'estimator'),
-                 timeFormat="%Y_%m_%d_%H_%M"):
+                 timeFormat="%Y_%m_%d_%H_%M", name=''):
 
         self._initTime = now_string(timeFormat)
+        self.name = name if name else self.__class__.__name__
 
         self.dataset = dataset
         self.estimator = estimator

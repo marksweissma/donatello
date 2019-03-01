@@ -4,7 +4,7 @@ import pandas as pd
 import networkx as nx
 
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, BaseEstimator
 from sklearn import clone
 
 

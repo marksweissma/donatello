@@ -32,10 +32,12 @@ class Estimator(Dobject, BaseTransformer):
                  scorer='no_op',
                  paramGrid={},
                  gridKwargs={},
-                 timeFormat="%Y_%m_%d_%H_%M"
+                 timeFormat="%Y_%m_%d_%H_%M",
+                 name=''
                  ):
 
         self._initTime = now_string(timeFormat)
+        self.name = name if name else self.__class__.__name__
 
         self.model = model
         self.method = method
