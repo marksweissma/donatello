@@ -1,8 +1,6 @@
 import inspect
 import pandas as pd
 
-from warnings import warn
-
 from donatello.utils.base import Dobject
 from donatello.components.fold import Fold
 from donatello.utils.decorators import decorator, init_time, fallback
@@ -126,7 +124,7 @@ class Dataset(Dobject):
                 train, test, _, __ = self._split()
                 output = pd.concat([train, test])
             except TypeError:
-                warn('Catching type error, returning design as None')
+                print('Catching type error, returning design as None')
                 output = None
         return output
 
@@ -143,7 +141,7 @@ class Dataset(Dobject):
                 _, __, train, test = self._split()
                 output = pd.concat([train, test])
             except TypeError:
-                warn('Catching type error, returning target as None')
+                print('Catching type error, returning target as None')
                 output = None
         return output
 
