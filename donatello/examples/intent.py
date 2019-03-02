@@ -13,7 +13,7 @@ from donatello.components.estimator import Estimator, score_column
 from donatello.components import transformers
 
 
-def load_model(model=LogisticRegression()):
+def load_model(model=LogisticRegression(C=5)):
 
     t = transformers.DatasetConductor(reverse=True, passTarget=True)
 
@@ -68,8 +68,8 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
 
 def load_logit():
-    estimator = {'model':  load_model(),# LogisticRegression(),# load_model(),
-                 # 'paramGrid': {'model__C': list(pd.np.logspace(-2, 0, 10))},
+    estimator = {'model':  load_model(),
+                 'paramGrid': {'model__n3__transformer__C': list(pd.np.logspace(-2, 1, 5))},
                  'gridKwargs': {'scoring': 'roc_auc', 'cv': 5},
                  'method': 'predict_proba',
                  'scorer': score_column()
@@ -108,7 +108,8 @@ def load_declaration(load_estimator, group=True, asDf=False, metrics=None, featu
                    'estimator': Estimator(**estimator),
                    'metrics': metrics,
                    'validation': True,
-                   'holdOut': True
+                   'holdOut': True,
+                   # 'entire': True
                    }
 
     return declaration
