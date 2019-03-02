@@ -3,10 +3,11 @@ import inspect
 import pandas as pd
 import networkx as nx
 
-from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
-from sklearn.base import TransformerMixin, BaseEstimator
-from sklearn import clone
+from collections import defaultdict
 
+from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
+from sklearn.base import TransformerMixin
+from sklearn import clone
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
 from donatello.utils.decorators import fallback
@@ -289,6 +290,80 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
         [self.add_node_transformer(i) for i in _nodes]
         [self.add_edge_conductor(i, j, k) for (i, j), k in _edges.items()]
+
+    def set_params(self, **params):
+        """Set the parameters of this estimator.
+
+        **Ripped from sklearn 0.20.02** adds node names and `_` separated edges as settable
+
+        The method works on simple estimators as well as on nested objects
+        (such as pipelines). The latter have parameters of the form
+        ``<component>__<parameter>`` so that it's possible to update each
+        component of a nested object.
+
+        Returns
+        -------
+        self
+        """
+        if not params:
+            # Simple optimization to gain speed (inspect is slow)
+            return self
+
+        valid_params = self.get_params(deep=True)
+        for name, node in self.nodes.items():
+            valid_params[name] = node
+            valid_params.update({name + '__' + k: val for k, val in
+                                 self.nodes[name][self.executor].get_params().items()})
+
+        for (n1, n2), edge in self.edges.items():
+            n1_n2 = "_".join([n1, n2])
+            valid_params[n1_n2] = edge
+            valid_params.update({n1_n2 + '__' + k: val for k, val in
+                                 self.edges[(n1, n2)][self.executor].get_params().items()})
+
+        nested_params = defaultdict(dict)  # grouped by prefix
+        node_params = defaultdict(dict)  # grouped by prefix
+        edge_params = defaultdict(dict)  # grouped by prefix
+        for key, value in params.items():
+            key, delim, sub_key = key.partition('__')
+            if key not in valid_params:
+                raise ValueError('Invalid parameter %s for estimator %s. '
+                                 'Check the list of available parameters '
+                                 'with `estimator.get_params().keys()`.' %
+                                 (key, self))
+            if delim:
+                if key in self.nodes:
+                    print('{} node'.format(key))
+                    node_params[key][sub_key] = value
+                elif key in set(["_".join([n1, n2]) for n1, n2 in self.edges]):
+                    print('{} edge'.format(key))
+                    edge_params[key][sub_key] = value
+                else:
+                    nested_params[key][sub_key] = value
+            else:
+                if key in self._nodes:
+                    self.add_node_transformer(value)
+                elif key in set(["_".join([n1, n2]) for n1, n2 in self.edges]):
+                    n1, n2 = key.split('_')
+                    self.add_edge_conductor(n1, n2, value)
+                else:
+                    setattr(self, key, value)
+                valid_params[key] = value
+
+        for key, sub_params in nested_params.items():
+            valid_params[key].set_params(**sub_params)
+
+        for key, sub_params in node_params.items():
+            # import ipdb; ipdb.set_trace()
+            self.node_exec(key).set_params(**sub_params)
+
+        for key, sub_params in edge_params.items():
+            self.edge_exec(*key.split('_')).set_params(**sub_params)
+
+        return self
+
+    def set_attr(self, key, value):
+        pass
 
     def node_exec(self, node):
         return self.nodes[node][self.executor]
