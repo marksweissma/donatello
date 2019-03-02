@@ -273,7 +273,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
                  conductor=DatasetConductor(reverse=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
                  _nodes=set([]), _edges={},
-                 graphArgs=tuple(), graphKwargs={}):
+                 graphArgs=tuple(), graphKwargs={}, name=''):
+        self.name = name if name else self.__class__.__name__
         super(ModelDAG, self).__init__(*graphArgs, **graphKwargs)
 
         self.timeFormat = timeFormat

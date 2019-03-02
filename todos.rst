@@ -4,6 +4,8 @@ fix dataset packaging for sculpture
 
 fix name
 
+nodes in graph constructor
+
 set / get_params method for graph
     #. support swapping nodes
     #. support modifying node parameters)
