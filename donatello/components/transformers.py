@@ -314,7 +314,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         for name, node in self.nodes.items():
             valid_params[name] = node
             valid_params.update({name + '__' + k: val for k, val in
-                                 self.nodes[name][self.executor].get_params().items()})
+                                 self.nodes[name][self.executor].transformer.get_params().items()})
 
         for (n1, n2), edge in self.edges.items():
             n1_n2 = "_".join([n1, n2])
@@ -355,8 +355,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             valid_params[key].set_params(**sub_params)
 
         for key, sub_params in node_params.items():
-            # import ipdb; ipdb.set_trace()
-            self.node_exec(key).set_params(**sub_params)
+            self.node_exec(key).transformer.set_params(**sub_params)
 
         for key, sub_params in edge_params.items():
             self.edge_exec(*key.split('_')).set_params(**sub_params)

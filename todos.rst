@@ -1,8 +1,13 @@
+refactor estimator to better support dataset
+
 sklearn parallelization
 
 fix dataset packaging for sculpture
 
 fix name
+
+
+collect parameter distributions from cross val
 
 nodes in graph constructor
 

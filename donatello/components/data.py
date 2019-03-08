@@ -91,7 +91,7 @@ class Dataset(Dobject):
         return state
 
     def link(self, raws=None, X=None, y=None):
-        if raws is None:
+        if raws is None and (X is not None or y is not None):
             raws = [X] if X is not None else []
             raws.append(y) if y is not None else None
             self.raws = pd.concat(raws, axis=1)
@@ -116,16 +116,47 @@ class Dataset(Dobject):
         return next(self.fold.fold(self))  # :(
 
     @property
+    def _has_design(self):
+        if self.data is None:
+            has = False
+        elif isinstance(self.data, pd.Series):
+            has = self.data.name != self.target
+        else:
+            try:
+                has = bool([i for i in self.data if i != self.target])
+            except TypeError:
+                has = False
+        return has
+
+    @property
+    def _has_target(self):
+        if self.data is None:
+            has = False
+        elif isinstance(self.data, pd.Series):
+            has = self.data.name == self.target
+        else:
+            try:
+                has = self.target in self.data
+            except TypeError:
+                has = False
+        return has
+
+    @property
     def designData(self):
         if hasattr(self, '_designData'):
             output = self._designData
+        elif self._has_design:
+            train, test, _, __ = self._split()
+            output = pd.concat([train, test])
         else:
-            try:
-                train, test, _, __ = self._split()
-                output = pd.concat([train, test])
-            except TypeError:
-                print('Catching type error, returning design as None')
-                output = None
+            output = None
+        # else:
+            # try:
+                # train, test, _, __ = self._split()
+                # output = pd.concat([train, test])
+            # except TypeError:
+                # print('Catching type error, returning design as None')
+                # output = None
         return output
 
     @designData.setter
@@ -136,13 +167,18 @@ class Dataset(Dobject):
     def targetData(self):
         if hasattr(self, '_targetData'):
             output = self._targetData
+        elif self._has_target:
+            train, test, _, __ = self._split()
+            output = pd.concat([train, test])
         else:
-            try:
-                _, __, train, test = self._split()
-                output = pd.concat([train, test])
-            except TypeError:
-                print('Catching type error, returning target as None')
-                output = None
+            output = None
+        # else:
+            # try:
+                # _, __, train, test = self._split()
+                # output = pd.concat([train, test])
+            # except TypeError:
+                # print('Catching type error, returning target as None')
+                # output = None
         return output
 
     @targetData.setter

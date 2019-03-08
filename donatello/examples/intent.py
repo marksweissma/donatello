@@ -69,7 +69,7 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
 def load_logit():
     estimator = {'model':  load_model(),
-                 'paramGrid': {'model__n3__transformer__C': list(pd.np.logspace(-2, 1, 5))},
+                 'paramGrid': {'model__n3__C': list(pd.np.logspace(-2, 0, 5))},
                  'gridKwargs': {'scoring': 'roc_auc', 'cv': 5},
                  'method': 'predict_proba',
                  'scorer': score_column()
@@ -80,8 +80,8 @@ def load_logit():
 
 def load_random_forest():
 
-    estimator = {'model': load_model(RandomForestClassifier(n_estimators=10)),
-                 'paramGrid': {'model__max_depth': [3, 5, 7]},
+    estimator = {'model': load_model(RandomForestClassifier(n_estimators=100)),
+                 'paramGrid': {'model__n3__max_depth': range(1, 4)},
                  'gridKwargs': {'scoring': 'f1', 'cv': 5},
                  'method': 'predict_proba',
                  'scorer': score_column()
@@ -104,6 +104,7 @@ def load_declaration(load_estimator, group=True, asDf=False, metrics=None, featu
     estimator = load_estimator()
 
     metrics = load_metrics(metrics, featureName)
+    # metrics = []
     declaration = {'dataset': Dataset(**data),
                    'estimator': Estimator(**estimator),
                    'metrics': metrics,
@@ -115,7 +116,7 @@ def load_declaration(load_estimator, group=True, asDf=False, metrics=None, featu
     return declaration
 
 
-def load_dm(model='lr', group=True, asDf=False):
+def load_dm(model='logit', group=True, asDf=False):
     """
     Helper function to load donatello manager for sklearn
     breast cancer data set to classify malignancy

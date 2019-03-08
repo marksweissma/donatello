@@ -205,7 +205,7 @@ class FeatureWeights(Metric):
         values = []
         coef_ = getattr(model, 'coef_', None)
         intercept_ = getattr(model, 'intercept_', None)
-        feature_importances_ = getattr(model, 'feature_importances_ ', None)
+        feature_importances_ = getattr(model, 'feature_importances_', None)
 
         if coef_ is not None:
             columnNames.append('coefficients')
