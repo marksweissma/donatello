@@ -252,7 +252,6 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.enforce_dataset
     def _transform(self, X=None, y=None, dataset=None, **kwargs):
-        print('_transforming {}'.format(self.name))
         if self.fitOnly:
             output = dataset
         else:
@@ -362,9 +361,6 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
         return self
 
-    def set_attr(self, key, value):
-        pass
-
     def node_exec(self, node):
         return self.nodes[node][self.executor]
 
@@ -384,7 +380,6 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @fallback(node='terminal')
     def fit(self, X=None, y=None, dataset=None, node=None):
         self.clean()
-        # iterate through nodes => terminal_list to list
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]

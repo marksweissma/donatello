@@ -6,6 +6,7 @@ fix dataset packaging for sculpture
 
 fix name
 
+look into passing target through pandas nodes
 
 collect parameter distributions from cross val
 
