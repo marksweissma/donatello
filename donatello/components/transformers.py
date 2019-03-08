@@ -224,7 +224,6 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def fit(self, X=None, y=None, dataset=None, **kwargs):
-        print('fitting {}'.format(self.name))
         spec = inspect.getargspec(self.transformer.fit)
         if 'dataset' in spec.args:
             payload = {'dataset': dataset}
@@ -239,7 +238,6 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.package_dataset
     def transform(self, X=None, y=None, dataset=None, **kwargs):
-        print('transforming {}'.format(self.name))
         if not self.information_available and not self.isFit:
             information = self._transform(dataset=dataset, **kwargs)
             self.information = information if self.store else None
@@ -333,10 +331,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
                                  (key, self))
             if delim:
                 if key in self.nodes:
-                    print('{} node'.format(key))
                     node_params[key][sub_key] = value
                 elif key in set(["_".join([n1, n2]) for n1, n2 in self.edges]):
-                    print('{} edge'.format(key))
                     edge_params[key][sub_key] = value
                 else:
                     nested_params[key][sub_key] = value
