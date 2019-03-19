@@ -1,0 +1,62 @@
+donatello.components package
+============================
+
+Submodules
+----------
+
+donatello.components.manager module
+-----------------------------------
+
+.. automodule:: donatello.components.manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+donatello.components.data module
+--------------------------------
+
+.. automodule:: donatello.components.data
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+donatello.components.splitter module
+------------------------------------
+
+.. automodule:: donatello.components.splitter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+donatello.components.estimator module
+-------------------------------------
+
+.. automodule:: donatello.components.estimator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+donatello.components.scorer module
+----------------------------------
+
+.. automodule:: donatello.components.scorer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+donatello.components.disk module
+--------------------------------
+
+.. automodule:: donatello.components.disk
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: donatello.components
+    :members:
+    :undoc-members:
+    :show-inheritance:
