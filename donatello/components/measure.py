@@ -12,6 +12,26 @@ from donatello.utils.base import Dobject
 from donatello.components.data import package_dataset
 
 
+def _append_in_place(store, name, df2):
+    store[name] = store[name].append(df2)
+
+
+def _option_sort(df, sort):
+    df = df.sort_values(sort) if sort else df
+    return df
+
+
+def _unwrap_multiple(df, definitionSort):
+    levels = df.columns.nlevels
+    current = levels - 1
+    if not current:
+        output = df
+    else:
+        output = Bunch(**{key: _option_sort(df.xs(key, level=current, axis=1).astype(float), definitionSort)
+                          for key in set(df.columns.get_level_values(current))})
+    return output
+
+
 class Measure(Dobject):
     """
     Object for scoring model performance
@@ -88,31 +108,13 @@ class Measure(Dobject):
         """
         Calculate metrics from cross val measurements
         """
-
-        def append_in_place(store, name, df2):
-            store[name] = store[name].append(df2)
-
-        def _option_sort(df, sort):
-            df = df.sort_values(sort) if sort else df
-            return df
-
-        def _unwrap_multiple(df, definitionSort):
-            levels = df.columns.nlevels
-            current = levels - 1
-            if not current:
-                output = df
-            else:
-                output = Bunch(**{key: _option_sort(df.xs(key, level=current, axis=1).astype(float), definitionSort)
-                                  for key in set(df.columns.get_level_values(current))})
-            return output
-
         [metric.fit(scored) for metric in metrics]
 
         # move to list of dict -> concat
         outputs = defaultdict(pd.DataFrame)
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
-            [append_in_place(outputs, name, df) for name, df in _outputs.items()]
+            [_append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
         measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
                                                                 .groupby(metric.key)\
@@ -140,6 +142,8 @@ class Measure(Dobject):
         estimators = {0: estimator}
         measurements = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'measurements': measurements}
+
+
 def pass_through(x):
     return x
 

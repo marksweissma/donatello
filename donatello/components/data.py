@@ -150,13 +150,6 @@ class Dataset(Dobject):
             output = pd.concat([train, test])
         else:
             output = None
-        # else:
-            # try:
-                # train, test, _, __ = self._split()
-                # output = pd.concat([train, test])
-            # except TypeError:
-                # print('Catching type error, returning design as None')
-                # output = None
         return output
 
     @designData.setter
@@ -172,13 +165,6 @@ class Dataset(Dobject):
             output = pd.concat([train, test])
         else:
             output = None
-        # else:
-            # try:
-                # _, __, train, test = self._split()
-                # output = pd.concat([train, test])
-            # except TypeError:
-                # print('Catching type error, returning target as None')
-                # output = None
         return output
 
     @targetData.setter
