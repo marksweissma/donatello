@@ -9,7 +9,7 @@ from sklearn.metrics import roc_auc_score, average_precision_score
 from donatello.components.core import Sculpture
 from donatello.components.measure import Metric, FeatureWeights, ThresholdRates
 from donatello.components.data import Dataset
-from donatello.components.estimator import Estimator, score_column
+from donatello.components.estimator import Estimator
 from donatello.components import transformers
 
 
@@ -70,9 +70,9 @@ def load_metrics(metrics=None, featureName='coefficients'):
 def load_logit():
     estimator = {'model':  load_model(),
                  'paramGrid': {'model__n3__C': list(pd.np.logspace(-2, 0, 5))},
-                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 5},
+                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 3},
                  'method': 'predict_proba',
-                 'scorer': score_column()
+                 'scorer': 'score_first'
 
                  }
     return estimator
@@ -80,11 +80,11 @@ def load_logit():
 
 def load_random_forest():
 
-    estimator = {'model': load_model(RandomForestClassifier(n_estimators=100)),
-                 'paramGrid': {'model__n3__max_depth': range(1, 4)},
-                 'gridKwargs': {'scoring': 'f1', 'cv': 5},
+    estimator = {'model': load_model(RandomForestClassifier(n_estimators=40)),
+                 'paramGrid': {'model__n3__max_depth': range(2, 5)},
+                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 3},
                  'method': 'predict_proba',
-                 'scorer': score_column()
+                 'scorer': 'score_first'
                  }
     return estimator
 
@@ -93,7 +93,7 @@ def load_isolation_forest(group=True, asDf=False):
 
     estimator = {'model': load_model(IsolationForest()),
                  'method': 'predict_proba',
-                 'scorer': score_column()
+                 'scorer': 'score_first'
                  }
 
     return estimator

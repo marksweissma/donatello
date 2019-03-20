@@ -133,7 +133,7 @@ class Sculpture(Dobject, BaseEstimator):
             self.hook.write(obj=self, **payload)
 
     def __getattr__(self, attr):
-        return getattr(self.estimator, attr) if attr != '_name' else None
+        return getattr(self.estimator, attr) if attr != '_name'  else self.__class__.__name__
 
 
 class Garden(Dobject):

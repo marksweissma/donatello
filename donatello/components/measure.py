@@ -12,6 +12,14 @@ from donatello.utils.base import Dobject
 from donatello.components.data import package_dataset
 
 
+def pass_through(x):
+    """
+    returns x
+    """
+    return x
+
+
+# FIX THIS
 def _append_in_place(store, name, df2):
     store[name] = store[name].append(df2)
 
@@ -142,10 +150,6 @@ class Measure(Dobject):
         estimators = {0: estimator}
         measurements = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'measurements': measurements}
-
-
-def pass_through(x):
-    return x
 
 
 class Metric(Dobject):

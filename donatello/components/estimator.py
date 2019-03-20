@@ -14,11 +14,11 @@ def no_op(obj, X):
     return obj.predict_method(X=X)
 
 
-def score_column(obj, X):
+def score_first(obj, X):
     """
     Scoring function
     """
-    return obj.predict_method(X=X)[:, obj.column]
+    return obj.predict_method(X=X)[:, 1]
 
 
 def score_invert(obj, X):
@@ -30,7 +30,7 @@ def score_invert(obj, X):
 
 SCORE_REGISTRY = {
         'no_op': no_op,
-        'score_column': score_column,
+        'score_first': score_first,
         'score_invert': score_invert
         }
 
@@ -127,4 +127,4 @@ class Estimator(Dobject, BaseTransformer):
         return getattr(self, 'features', [])
 
     def __getattr__(self, attr):
-        return getattr(self.model, attr) if attr != '_name' else None
+        return getattr(self.model, attr) if attr != '_name'  else self.__class__.__name__
