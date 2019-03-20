@@ -14,7 +14,7 @@ def no_op(obj, X):
     return obj.predict_method(X=X)
 
 
-def score_first(obj, X):
+def score_second(obj, X):
     """
     Scoring function
     """
@@ -30,7 +30,7 @@ def score_invert(obj, X):
 
 SCORE_REGISTRY = {
         'no_op': no_op,
-        'score_first': score_first,
+        'score_second': score_second,
         'score_invert': score_invert
         }
 

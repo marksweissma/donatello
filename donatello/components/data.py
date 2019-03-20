@@ -7,6 +7,15 @@ from donatello.utils.decorators import decorator, init_time, fallback
 from donatello.utils.helpers import find_value, replace_value, nvl, access
 
 
+def has_data(data):
+    if isinstance(data, dict):
+        state = data != {}
+    else:
+        state = data is not None
+
+    return state
+
+
 @decorator
 def fit_fold(wrapped, instance, args, kwargs):
     result = wrapped(*args, **kwargs)
@@ -84,11 +93,7 @@ class Dataset(Dobject):
 
     @property
     def hasData(self):
-        if isinstance(self.data, dict):
-            state = self.data != {}
-        else:
-            state = self.data is not None
-        return state
+        return has_data(self.data)
 
     def link(self, raws=None, X=None, y=None):
         if raws is None and (X is not None or y is not None):
@@ -102,7 +107,7 @@ class Dataset(Dobject):
         else:
             self.raws = raws
 
-        if raws or X:
+        if has_data(raws) or has_data(X):
             self._fit_fold()
 
     def _fit_fold(self):
