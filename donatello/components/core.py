@@ -9,7 +9,7 @@ from sklearn.utils import Bunch
 from donatello.components.data import package_dataset, subset_dataset
 from donatello.components.measure import Measure
 
-from donatello.utils.helpers import now_string, Local
+from donatello.utils.helpers import now_string, persist
 from donatello.utils.decorators import fallback
 from donatello.utils.base import Dobject
 
@@ -29,8 +29,8 @@ class Sculpture(Dobject, BaseEstimator):
         validation (bool): flag for calculating scoring metrics from nested cross val of training + validation sets
         holdOut (bool): flag for fitting estimator on single training set and scoring on test set
         metrics (iterable): list or dict of metrics for measure
-        hookDeclaration (dict): arguments for :py:class:`donatello.Local`
-        writeAttrs (tuple): attributes to write out to disk
+        persist (func): function to write with
+        persistAttrs (tuple): attributes to write out to disk
         timeFormat (str): format for creation time string
     """
 
@@ -38,7 +38,7 @@ class Sculpture(Dobject, BaseEstimator):
                  dataset=None,
                  estimator=None,
                  validation=True, holdOut=False, entire=False,
-                 measure=Measure(), hook=Local(), metrics=None,
+                 measure=Measure(), persist=persist, metrics=None,
                  storeReferences=True, writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
 
@@ -48,7 +48,7 @@ class Sculpture(Dobject, BaseEstimator):
         self.estimator = estimator
 
         self.measure = measure
-        self.hook = hook
+        self.persist = persist
 
         self.metrics = metrics
 
@@ -130,7 +130,7 @@ class Sculpture(Dobject, BaseEstimator):
         """
         for attr in writeAttrs:
             payload = attr if isinstance(attr, dict) else {'attr': attr}
-            self.hook.write(obj=self, **payload)
+            self.persist(obj=self, **payload)
 
     def __getattr__(self, attr):
         return getattr(self.estimator, attr) if attr != '_name'  else self.__class__.__name__

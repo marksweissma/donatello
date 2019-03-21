@@ -185,25 +185,8 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
     return args, kwargs
 
 
-class Local(object):
-    """
-    Object to provide disk interface
-
-    Args:
-        reader (func): default function to read files
-        writer (func): default function to write files
-    """
-    def __init__(self, reader=joblib.load, writer=joblib.dump):
-        self.reader = reader
-        self.writer = writer
-
-    def write(self, obj=None, attr="", root='.', extension='pkl', *writeArgs, **writeKwargs):
-        obj = access(obj, [attr])
-        name = ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
-        localPath = os.path.join(root, name)
-        with open(localPath, 'w') as f:
-            self.writer(obj, f, *writeArgs, **writeKwargs)
-
-    def read(self, localPath, *args, **kwargs):
-        obj = self.reader(localPath, *args, **kwargs)
-        return obj
+def persist(obj=None, attr="", root='.', extension='pkl', *writeArgs, **writeKwargs):
+    obj = access(obj, [attr])
+    name = ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
+    localPath = os.path.join(root, name)
+    joblib.dump(obj, localPath, *writeArgs, **writeKwargs)
