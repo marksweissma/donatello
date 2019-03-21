@@ -72,7 +72,7 @@ def load_logit():
                  'paramGrid': {'model__n3__C': list(pd.np.logspace(-2, 0, 5))},
                  'gridKwargs': {'scoring': 'roc_auc', 'cv': 3},
                  'method': 'predict_proba',
-                 'scorer': 'score_first'
+                 'scorer': 'score_second'
 
                  }
     return estimator
@@ -84,7 +84,7 @@ def load_random_forest():
                  'paramGrid': {'model__n3__max_depth': range(2, 5)},
                  'gridKwargs': {'scoring': 'roc_auc', 'cv': 3},
                  'method': 'predict_proba',
-                 'scorer': 'score_first'
+                 'scorer': 'score_second'
                  }
     return estimator
 
@@ -93,7 +93,7 @@ def load_isolation_forest(group=True, asDf=False):
 
     estimator = {'model': load_model(IsolationForest()),
                  'method': 'predict_proba',
-                 'scorer': 'score_first'
+                 'scorer': 'score_second'
                  }
 
     return estimator

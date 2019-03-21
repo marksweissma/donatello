@@ -56,6 +56,19 @@ class TargetConductor(BaseTransformer):
         return dataset.targetData if self.passTarget else None
 
 
+def select_data_type(X, inclusionExclusionKwargs):
+    X = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
+    return X
+
+
+def select_regex(self, X, patterns):
+    inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
+    return inclusions
+
+
+CONDUCTION_REGISTRY = {'data_type': select_data_type, 'regex': select_regex}
+
+
 class DesignConductor(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
@@ -75,19 +88,11 @@ class DesignConductor(PandasTransformer):
         self.selectMethod = selectMethod
         self.reverse = reverse
 
-    def data_type(self, X, inclusionExclusionKwargs):
-        X = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
-        return X
-
-    def regex(self, X, patterns):
-        inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
-        return inclusions
-
     @data.package_dataset
     def fit(self, dataset=None, **fitParams):
 
         if self.selectMethod:
-            inclusions = getattr(self, self.selectMethod)(dataset.designData, self.selectValue)
+            inclusions = CONDUCTION_REGISTRY[self.selectMethod](dataset.designData, self.selectValue)
         else:
             inclusions = self.selectValue
 
@@ -115,17 +120,9 @@ class DatasetConductor(BaseTransformer):
         self.passTarget = passTarget
         self.passDesign = passDesign
 
-    def data_type(self, X, inclusionExclusionKwargs):
-        X = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
-        return X
-
-    def regex(self, X, patterns):
-        inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
-        return inclusions
-
     def fit_design(self, dataset, **fitParams):
         if self.selectMethod:
-            inclusions = getattr(self, self.selectMethod)(dataset.designData, self.selectValue)
+            inclusions = CONDUCTION_REGISTRY[self.selectMethod](dataset.designData, self.selectValue)
         else:
             inclusions = self.selectValue
 
@@ -200,7 +197,7 @@ class TransformNode(Dobject, BaseTransformer):
     """
     Node in model execution grap
     """
-    def __init__(self, name=None, transformer=None, aggregator=None,
+    def __init__(self, name, transformer=None, aggregator=None,
                  combine=concat, fitOnly=False, store=True):
 
         self.name = name
