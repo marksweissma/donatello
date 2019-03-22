@@ -1,5 +1,6 @@
 import inspect
 import pandas as pd
+from uuid import uuid4
 from wrapt import decorator
 
 from donatello.utils.helpers import now_string, nvl, find_value, replace_value
@@ -95,6 +96,30 @@ def name(wrapped, instance, args, kwargs):
         _name = getattr(instance, '_name', instance.__class__.__name__)
         instance._name = _name
         return result
+
+
+def mem_cache(existing=None):
+    """
+    memoization cache
+
+    Args:
+        attr: tail of cache name attribute
+    """
+    existing = existing if existing is not None else {}
+    attr = '_'.join(['cache', str(uuid4())[:4]])
+
+    @decorator
+    def memoize(wrapped, instance, args, kwargs):
+        if not hasattr(wrapped, attr):
+            setattr(wrapped, attr, {})
+        cache = getattr(wrapped, attr)
+        spec = inspect.getargspec(wrapped)
+        key = '__'.join(['{}_{}'.format(i, find_value(wrapped, args, kwargs, i)) for i in spec.args])
+        if key not in cache:
+            cache[key] = wrapped(*args, **kwargs)
+        return cache[key]
+
+    return memoize
 
 
 @decorator

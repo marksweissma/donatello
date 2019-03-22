@@ -114,7 +114,7 @@ def get(obj, attr, slicers, errors, default):
 def access(obj=None, attrPath=None,
            method=None, methodArgs=None, methodKwargs=None,
            cb=None, cbArgs=None, cbKwargs=None,
-           slicers=(dict, list, tuple, pd.np.ndarray, pd.Series, pd.DataFrame),
+           slicers=(dict, list, tuple, pd.np.ndarray, pd.Series, pd.DataFrame, pd.Panel),
            default=None, errors='raise'):
     """
     Access information from nested object
@@ -160,7 +160,7 @@ def find_value(func, args, kwargs, accessKey, how='name'):
     _args = spec.args[1:] if inspect.ismethod(func) else spec.args
 
     try:
-        index = _args.index(accessKey) if how =='name' else accesKey
+        index = _args.index(accessKey) if how == 'name' else accessKey
         offset = len(_args) - len(nvl(spec.defaults, []))
         default = spec.defaults[index - offset] if index >= offset else None
         value = kwargs.get(accessKey, default) if index >= len(args) else args[index]
@@ -188,5 +188,5 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
 def persist(obj=None, attr="", root='.', extension='pkl', *writeArgs, **writeKwargs):
     obj = access(obj, [attr])
     name = ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
-    localPath = os.path.join(root, name)
-    joblib.dump(obj, localPath, *writeArgs, **writeKwargs)
+    local = os.path.join(root, name)
+    joblib.dump(obj, local, *writeArgs, **writeKwargs)
