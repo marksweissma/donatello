@@ -114,7 +114,7 @@ def mem_cache(existing=None):
             setattr(wrapped, attr, {})
         cache = getattr(wrapped, attr)
         spec = inspect.getargspec(wrapped)
-        key = '__'.join(['{}_{}'.format(i, find_value(wrapped, args, kwargs, i)) for i in spec.args])
+        key = tuple((i, find_value(wrapped, args, kwargs, i)) for i in spec.args)
         if key not in cache:
             cache[key] = wrapped(*args, **kwargs)
         return cache[key]
