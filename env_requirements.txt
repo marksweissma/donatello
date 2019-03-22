@@ -1,4 +1,4 @@
 -r package_requirements.txt
 ipython
-jupyter
 pytest
+ipdb
