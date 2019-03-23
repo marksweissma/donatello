@@ -98,6 +98,7 @@ def name(wrapped, instance, args, kwargs):
         return result
 
 
+@coelesce(existing={})
 def mem_cache(existing=None):
     """
     memoization cache
@@ -105,7 +106,6 @@ def mem_cache(existing=None):
     Args:
         existing: __getitem__ sliceable cache, defaults to :py:class:`dict`
     """
-    existing = existing if existing is not None else {}
     attr = '_'.join(['cache', str(uuid4())[:4]])
 
     @decorator
