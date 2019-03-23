@@ -268,10 +268,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
                  conductor=DatasetConductor(reverse=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
                  _nodes=set([]), _edges={},
-                 graphArgs=tuple(), graphKwargs={},
-                 name=''):
-
-        self.name = name if name else self.__class__.__name__
+                 graphArgs=tuple(), graphKwargs={}
+                 ):
 
         super(ModelDAG, self).__init__(*graphArgs, **graphKwargs)
 
@@ -293,7 +291,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     def set_params(self, **params):
         """Set the parameters of this estimator.
 
-        **Ripped from sklearn 0.20.02** adds node names and `_` separated edges as settable
+        **Ripped from sklearn 0.20.02** enables setting transformer attributers
+        accessed via node names and `_` separated edges
 
         The method works on simple estimators as well as on nested objects
         (such as pipelines). The latter have parameters of the form
