@@ -7,6 +7,7 @@ from collections import defaultdict
 
 from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
 from sklearn.base import TransformerMixin
+from sklearn.pipeline import Pipeline
 from sklearn import clone
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
@@ -481,3 +482,8 @@ class Imputer(PandasMixin, Imputer):
 
 class StandardScaler(PandasMixin, StandardScaler):
     pass
+
+
+class Pipeline(PandasMixin, Pipeline):
+    def __getattr__(self, attr):
+        return getattr(self.steps[-1][1], attr)
