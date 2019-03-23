@@ -23,6 +23,7 @@ def has_data(data):
 
     return state
 
+
 # !!!TODO
 # deprecate this abomination
 @decorator
@@ -33,7 +34,7 @@ def fit_fold(wrapped, instance, args, kwargs):
         attrs = ('designTrain', 'designTest',
                  'targetTrain', 'targetTest')
         folded = next(instance.fold.fold(instance))
-        [setattr(instance, attr, value) for attr, value in zip(attrs, folded)]
+        [setattr(instance, attr, value) for attr, value in zip(attrs, folded) if value is not None]
     except:
         pass
     return result
