@@ -3,14 +3,14 @@ from sklearn.model_selection import (KFold,
                                      GroupShuffleSplit,
                                      TimeSeriesSplit)
 
-from donatello.utils.base import Dobject
+from donatello.utils.base import Dobject, RANDOM_SEED
 from donatello.utils.helpers import access
 from donatello.utils.decorators import fallback, init_time, coelesce
 
 
 _base = {'n_splits': 5,
          'shuffle': True,
-         'random_state': 22}
+         'random_state': RANDOM_SEED}
 
 
 typeDispatch = {None: KFold,
@@ -22,7 +22,7 @@ typeDispatch = {None: KFold,
 
 kwargDispatch = {None: _base,
                  'stratify': _base,
-                 'group': {'n_splits': 5, 'random_state': 22},
+                 'group': {'n_splits': 5, 'random_state': RANDOM_SEED},
                  'time': {'n_splits': 5}
                  }
 
