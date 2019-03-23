@@ -27,21 +27,6 @@ def load_sklearn_bc_dataset():
     return df
 
 
-def load_data(asDf, group):
-    if asDf:
-        data = {'raws': load_sklearn_bc_dataset(group)}
-    else:
-        data = {'queries': {None: {'querier': load_sklearn_bc_dataset, 'group': group}}}
-
-    data['target'] = 'is_malignant'
-
-    if group:
-        data['foldClay'] = 'group'
-        data['dap'] = {'groups': {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}}
-
-    return data
-
-
 def load_scuplture():
     """
     Helper to load sculpture
@@ -61,12 +46,3 @@ def load_scuplture():
     scuplture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
 
     return scuplture
-
-
-def load_metrics(metrics=None, featureName='coefficients'):
-
-    if not metrics:
-        metrics = [Metric(roc_auc_score), Metric(average_precision_score),
-                   FeatureWeights(sort=featureName), ThresholdRates()]
-
-    return metrics
