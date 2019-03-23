@@ -4,7 +4,7 @@ from donatello.components import data
 
 from donatello.utils.base import Dobject, BaseTransformer
 from donatello.utils.decorators import pandas_series, fallback
-from donatello.utils.helpers import now_string
+from donatello.utils.helpers import now_string, access
 
 
 def no_op(obj, X):
@@ -92,7 +92,7 @@ class Estimator(Dobject, BaseTransformer):
         return getattr(self.model, '_features', [])
 
 # Fitting
-    def grid_search(self, X=None, y=None, gridSearch=True,
+    def grid_search(self, dataset=None, gridSearch=True,
                     paramGrid=None, gridKwargs=None):
         """
         Grid search over hyperparameter space
@@ -102,7 +102,10 @@ class Estimator(Dobject, BaseTransformer):
             self.gridSearch = GridSearchCV(estimator=self,
                                            param_grid=paramGrid,
                                            **gridKwargs)
-            self.gridSearch.fit(X=X, y=y, gridSearch=False)
+
+            groups = access(dataset.designData, **dataset.dap['groups']) if 'groups' in dataset.dap else None
+            self.gridSearch.fit(X=dataset.designData, y=dataset.targetData,
+                    groups=groups, gridSearch=False)
             self.set_params(**self.gridSearch.best_params_)
 
     @data.package_dataset
@@ -112,7 +115,7 @@ class Estimator(Dobject, BaseTransformer):
         """
         Fit method with options for grid searching hyperparameters
         """
-        self.grid_search(X=dataset.designData, y=dataset.targetData, gridSearch=gridSearch,
+        self.grid_search(dataset=dataset, gridSearch=gridSearch,
                          paramGrid=paramGrid, gridKwargs=gridKwargs, **kwargs)
         self.model.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
         return self
@@ -127,4 +130,4 @@ class Estimator(Dobject, BaseTransformer):
         return getattr(self, 'features', [])
 
     def __getattr__(self, attr):
-        return getattr(self.model, attr) if attr != '_name'  else self.__class__.__name__
+        return getattr(self.model, attr) if attr != '_name' else self.__class__.__name__

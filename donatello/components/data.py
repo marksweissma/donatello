@@ -8,6 +8,14 @@ from donatello.utils.helpers import find_value, replace_value, nvl, access
 
 
 def has_data(data):
+    """
+    check if data exists. compares dict to empty dict else to None
+
+    Args:
+        data (obj): dat ato validate
+    Returns:
+        bool: whether data is present
+    """
     if isinstance(data, dict):
         state = data != {}
     else:
@@ -16,6 +24,7 @@ def has_data(data):
     return state
 
 
+# deprecate this abomination
 @decorator
 def fit_fold(wrapped, instance, args, kwargs):
     result = wrapped(*args, **kwargs)
@@ -62,13 +71,16 @@ class Dataset(Dobject):
 
         self.target = target
         self.primaryKey = primaryKey
-        self.dap = dap
         self.force = force
 
         self.fold = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
 
         if any([i is not None for i in [raws, X, y]]):
             self.link(raws, X, y)
+
+    @property
+    def dap(self):
+        return self.fold.dap
 
     @property
     def params(self):
@@ -166,7 +178,7 @@ class Dataset(Dobject):
         if hasattr(self, '_targetData'):
             output = self._targetData
         elif self._has_target:
-            train, test, _, __ = self._split()
+            _, __, train, test = self._split()
             output = pd.concat([train, test])
         else:
             output = None

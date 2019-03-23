@@ -49,10 +49,10 @@ class Fold(Dobject):
 
         self.target = target
         self.primaryKey = primaryKey
-        self.dap = dap if dap else {}
         self.scoreClay = scoreClay
         self.foldClay = foldClay
         self.folder = typeDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
+        self.dap = dap
 
     @fallback('target', 'primaryKey', 'dap')
     def fit(self, dataset=None, target=None, primaryKey=None, dap=None, **kwargs):

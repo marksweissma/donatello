@@ -235,35 +235,35 @@ class FeatureWeights(Metric):
 
 
 class ThresholdRates(Metric):
-    def __init__(self, key='thresholds', sort='thresholds'):
+    def __init__(self, key='points', sort='points'):
         super(ThresholdRates, self).__init__(key=key, sort=sort)
 
-    def fit(self, scored, thresholds=None, spacing=101, **kwargs):
-        if thresholds is None:
+    def fit(self, scored, points=None, spacing=101, **kwargs):
+        if points is None:
             percentiles = np.linspace(0, 1, spacing)
-            self.thresholds = scored.predicted.quantile(percentiles)
+            self.points = scored.predicted.quantile(percentiles)
         else:
-            self.thresholds = thresholds
+            self.points = points
 
     def evaluate(self, estimator, truth, predicted, X):
         """
         """
-        data = [confusion_matrix(truth, predicted > i).reshape(4,) for i in self.thresholds]
+        data = [confusion_matrix(truth, predicted > i).reshape(4,) for i in self.points]
 
         df = pd.DataFrame(data=data,
                           columns=['true_negative', 'false_positive',
                                    'false_negative', 'true_positive'],
-                          index=pd.Series(self.thresholds, name='thresholds')
+                          index=pd.Series(self.points, name='points')
                           )
 
         df = df.apply(lambda x: x / np.sum(x), axis=1).reset_index()
 
-        df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
-        df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
+        df['precision'] = df.true_positive / (df.true_positive + df.false_positive)
         df['recall'] = df.true_positive / (df.true_positive + df.false_negative)
         df['specificity'] = df.true_negative / (df.true_negative + df.false_positive)
-        df['precision'] = df.true_positive / (df.true_positive + df.false_positive)
+        df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
         df['negative_predictive_value'] = df.true_negative / (df.true_negative + df.false_negative)
+        df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
 
         df['fall_out'] = 1 - df.specificity
         df['false_discovery_rate'] = 1 - df.precision

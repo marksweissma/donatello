@@ -1,5 +1,5 @@
 """
-Manager for orchestrating end to end ML
+Manager for model building and evaluating
 """
 from copy import deepcopy
 from sklearn import clone
@@ -10,7 +10,7 @@ from donatello.components.data import package_dataset, subset_dataset
 from donatello.components.measure import Measure
 
 from donatello.utils.helpers import now_string, persist
-from donatello.utils.decorators import fallback
+from donatello.utils.decorators import fallback, coelesce
 from donatello.utils.base import Dobject
 
 
@@ -89,7 +89,7 @@ class Sculpture(Dobject, BaseEstimator):
         """
         print('Building Over Holdout')
         self.estimator = clone(self.estimator)
-        self.estimator.fit(X=dataset.designTrain, y=dataset.targetTrain, gridSearch=True, **fitParams)
+        self.estimator.fit(dataset=dataset, gridSearch=True, **fitParams)
 
         payload = {'estimator': self.estimator, 'metrics': self.metrics,
                    'X': dataset.designTest, 'y': dataset.targetTest}
@@ -103,8 +103,7 @@ class Sculpture(Dobject, BaseEstimator):
         """
         print('Building Over Entire Dataset')
         self.estimator = clone(self.estimator)
-        self.estimator.fit(X=dataset.designData, y=dataset.targetData,
-                           gridSearch=True, **fitParams)
+        self.estimator.fit(dataset=dataset, gridSearch=True, **fitParams)
         self._references['entire'] = deepcopy(self.estimator) if self.storeReferences else None
 
     @fallback('dataset', 'writeAttrs', 'validation', 'holdOut', 'entire')
@@ -124,6 +123,7 @@ class Sculpture(Dobject, BaseEstimator):
         return self
 
     @fallback('writeAttrs')
+    @coelesce(writeAttrs=[])
     def write(self, writeAttrs=None):
         """
         Write objects
@@ -133,11 +133,11 @@ class Sculpture(Dobject, BaseEstimator):
             self.persist(obj=self, **payload)
 
     def __getattr__(self, attr):
-        return getattr(self.estimator, attr) if attr != '_name'  else self.__class__.__name__
+        return getattr(self.estimator, attr) if attr != '_name' else self.__class__.__name__
 
 
 class Garden(Dobject):
     """
-    Collection of Sculpture with support for comparisons
+    Front end enabler for visualization and comparison
     """
     pass
