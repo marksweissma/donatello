@@ -111,7 +111,7 @@ def mem_cache(existing=None):
     @decorator
     def memoize(wrapped, instance, args, kwargs):
         if not hasattr(wrapped, attr):
-            setattr(wrapped, attr, {})
+            setattr(wrapped, attr, existing)
         cache = getattr(wrapped, attr)
         spec = inspect.getargspec(wrapped)
         key = tuple((str(i), str(find_value(wrapped, args, kwargs, i))) for i in spec.args)
