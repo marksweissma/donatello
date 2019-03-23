@@ -23,7 +23,7 @@ def has_data(data):
 
     return state
 
-
+# !!!TODO
 # deprecate this abomination
 @decorator
 def fit_fold(wrapped, instance, args, kwargs):
@@ -218,7 +218,7 @@ class Dataset(Dobject):
         subset = subset.capitalize()
         attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
         X, y = tuple(getattr(self,  attr) for attr in attrs)
-        return type(self)(X=X, y=y, **self.params)
+        return self.with_params(X=X, y=y)
 
     def _take(self, train, test):
         results = [self.designData.iloc[train], self.designData.iloc[test]]
@@ -234,9 +234,9 @@ class Dataset(Dobject):
         results = self._take(train, test)
         return results
 
-    def with_params(self, X=None, y=None, **kwargs):
+    def with_params(self, raws=None, X=None, y=None, **kwargs):
         kwargs.update({i: j for i, j in self.params.items() if i not in kwargs})
-        return type(self)(X=X, y=y, **kwargs)
+        return type(self)(raws=raws, X=X, y=y, **kwargs)
 
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
