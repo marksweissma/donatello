@@ -126,6 +126,10 @@ class Estimator(Dobject, BaseTransformer):
         scores = self.scorer(self, X)
         return scores
 
+    @data.package_dataset
+    def transform(self, X=None, y=None, dataset=None):
+        return self.score(dataset.designData)
+
     def get_feature_names(self):
         return getattr(self, 'features', [])
 
