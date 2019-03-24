@@ -7,25 +7,25 @@ from donatello.utils.decorators import pandas_series, fallback
 from donatello.utils.helpers import now_string, access
 
 
-def no_op(obj, X):
+def no_op(model, X):
     """
     Scoring function
     """
-    return obj.predict_method(X=X)
+    return model.predict_method(X=X)
 
 
-def score_second(obj, X):
+def score_second(model, X):
     """
     Scoring function
     """
-    return obj.predict_method(X=X)[:, 1]
+    return model.predict_method(X=X)[:, 1]
 
 
-def score_invert(obj, X):
+def score_invert(model, X):
     """
     Scoring function
     """
-    return -1 * obj.predict_method(X=X)
+    return -1 * model.predict_method(X=X)
 
 
 SCORE_REGISTRY = {
