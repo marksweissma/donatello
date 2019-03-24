@@ -2,7 +2,6 @@
 Quickstart introduction
 """
 import pandas as pd
-import random
 
 from sklearn.datasets import load_breast_cancer
 from sklearn.linear_model import LogisticRegression
@@ -12,9 +11,10 @@ from donatello.components.data import Dataset
 from donatello.components.estimator import Estimator
 from donatello.components.measure import Metric, FeatureWeights, ThresholdRates
 from donatello.components.core import Sculpture
+from donatello.components import transformers
 
 
-def load_sklearn_bc_dataset(group=False):
+def load_sklearn_bc_dataset():
     """
     Helper to load sklearn dataset into a pandas dataframe
 
@@ -25,37 +25,40 @@ def load_sklearn_bc_dataset(group=False):
     df = pd.DataFrame(data=pd.np.c_[dataset['data'], dataset['target']],
                       columns=(dataset['feature_names'].tolist() + ['is_malignant'])
                       )
-    if group:
-        df['groups_column'] = df.apply(lambda x: random.choice(['a', 'b', 'c', 'd']), axis=1)
     return df
 
 
-def load_data(asDf, group):
-    # loading dataframe directly vs specifying queries
-    if asDf:
-        data = {'raw': load_sklearn_bc_dataset(group)}
-    else:
-        data = {'queries': {None: {'querier': load_sklearn_bc_dataset, 'group': group}}}
+def load_model(model=LogisticRegression(C=5)):
+    """
+    Helper to construct model execution graph
 
-    data['target'] = 'is_malignant'
+    Args:
+        model (sklearn.base.BaseEstimator): ml prediction object
 
-    # Declare intent for partitioning data over groups (rather than all rows being independent)
-    if group:
-        data['foldClay'] = 'group'
-        data['dap'] = {'groups': {'attrPath': ['groups_column'], 'slicers': (pd.DataFrame, dict)}}
+    Returns:
+        donatello.components.transformer.ModelDAG: execution graph
+    """
 
-    dataset = Dataset(**data)
-    return dataset
+    graph = transformers.ModelDAG(graphKwargs={'name': 'model_sklearn_breast_cancer'})
+
+    n1 = transformers.TransformNode('scale', transformer=transformers.StandardScaler(), enforceTarget=True)
+    n2 = transformers.TransformNode('ml', transformer=model)
+
+    graph.add_edge_conductor(n1, n2)  # defaults to passing desing AND target
+
+    return graph
 
 
-def load_scuplture(asDf, group):
+def load_scuplture():
     """
     Helper to load sculpture
     """
     dataset = Dataset(raw=load_sklearn_bc_dataset(), target='is_malignant')
 
-    estimator = Estimator(model=LogisticRegression(),
-                          paramGrid={'model__C': list(pd.np.logspace(-2, 0, 5))},
+    model = load_model()
+
+    estimator = Estimator(model=model,
+                          paramGrid={'model__ml__C': list(pd.np.logspace(-2, 0, 5))},
                           gridKwargs={'scoring': 'roc_auc', 'cv': 3},
                           method='predict_proba',
                           scorer='score_second'
@@ -67,12 +70,3 @@ def load_scuplture(asDf, group):
     scuplture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
 
     return scuplture
-
-
-def load_metrics(metrics=None, featureName='coefficients'):
-
-    if not metrics:
-        metrics = [Metric(roc_auc_score), Metric(average_precision_score),
-                   FeatureWeights(sort=featureName), ThresholdRates()]
-
-    return metrics

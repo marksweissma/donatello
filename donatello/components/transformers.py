@@ -199,7 +199,8 @@ class TransformNode(Dobject, BaseTransformer):
     Node in model execution grap
     """
     def __init__(self, name, transformer=None, aggregator=None,
-                 combine=concat, fitOnly=False, store=True):
+                 combine=concat, fitOnly=False, store=True,
+                 enforceTarget=True):
 
         self.name = name
         self.transformer = transformer
@@ -210,6 +211,7 @@ class TransformNode(Dobject, BaseTransformer):
 
         self.information = None
         self.isFit = False
+        self.enforceTarget = enforceTarget
 
     @property
     def information_available(self):
@@ -243,6 +245,9 @@ class TransformNode(Dobject, BaseTransformer):
             information = self.information
         else:
             information = self._transform(dataset=dataset, **kwargs)
+
+        if isinstance(information, data.Dataset) and self.enforceTarget and not information._has_target:
+            information.targetData = dataset.targetData
 
         return information
 

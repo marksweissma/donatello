@@ -29,6 +29,7 @@ def _option_sort(df, sort):
     return df
 
 
+# move off xs
 def _unwrap_multiple(df, definitionSort):
     levels = df.columns.nlevels
     current = levels - 1
@@ -45,7 +46,6 @@ class Measure(Dobject):
     Object for scoring model performance
 
     Args:
-        scoreClay (str): denotes ml context classification / regression / clustering etc
         method (str): name of prediction method from estimator to call
         gridSearchFlag (bool): whether or not to grid search during fitting
     """
@@ -125,10 +125,10 @@ class Measure(Dobject):
             [_append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
         measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
-                                                                .groupby(metric.key)\
-                                                                .agg(metric.agg),
-                                                                metric.sort))
-                  for metric in metrics}
+                                                     .groupby(metric.key)\
+                                                     .agg(metric.agg),
+                                                     metric.sort))
+                        for metric in metrics}
 
         return measurements
 
