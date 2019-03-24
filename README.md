@@ -1,4 +1,4 @@
-Docs via (github pages)[https://marksweissma.github.io/donatello/]
+Docs via [github pages](https://marksweissma.github.io/donatello/)
 
 Donatello is a modeling framework designed to improve iteration speed of developemnt while bringing traceability and reporducibility
 without additional overhead
