@@ -13,6 +13,9 @@ To get started, connect a dataset via
 :py:class:`donatello.components.core.Sculpture`
 
 
+Intent
+------
+
 .. code:: python
 
 
@@ -66,6 +69,9 @@ To get started, connect a dataset via
     sculpture = load_scuplture()
 
 
+Declaration
+-----------
+
 Sculptures are declaratively defined modeling objects enabling
 repeatable and traceable experimentation. Donetallo's framework
 attempts to follow scikit-learn's pattern with an eye toward
@@ -101,10 +107,9 @@ over which (subsets) of data estimators are fit and metrics are calculated
 
 .. parsed-literal::
 
-    {'validation': True,
-     'holdOut': True,
-     'entire': False
-     }
+    'validation': True,
+    'holdOut': True,
+    'entire': False
 
 
 The metrics list is a collection of :py:class:`donatello.components.measure.Metric` objects
@@ -121,6 +126,9 @@ to be shared across folds for computation, it can be stored during the ``fit`` m
                  ThresholdRates_2019_03_24_13_02]
 
 
+
+Fitting
+-------
 
 The sculputre's fit method defaults to instructions provided during instantiation.
 
@@ -147,15 +155,8 @@ The sculputre's fit method defaults to instructions provided during instantiatio
 
 
 
-.. code:: python
-
-    ls *pkl
-
-
-.. parsed-literal::
-
-    Estimator.pkl  Sculpture.pkl
-
+Evaluating
+----------
 
 During the fitting process, metrics are calculated over the
 specified samples of data and stored in a :py:class:`sklearn.utils.Bunch`
@@ -503,3 +504,21 @@ The default aggregations are ``mean`` and ``std`` which are collected into a Bun
       </tbody>
     </table>
     </div>
+
+
+Persisting
+----------
+
+Donatello produces artifacts to enable traceability and distribution.
+Objects are persribed through donatello's data accesss protocal (dap)
+which gives  nested access and lazy evaluation to enable simple and narrow
+user defined flexibility
+
+.. code:: python
+
+    ls *pkl
+
+
+.. parsed-literal::
+
+    Estimator.pkl  Sculpture.pkl

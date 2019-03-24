@@ -185,8 +185,8 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
     return args, kwargs
 
 
-def persist(obj=None, attr="", root='.', extension='pkl', *writeArgs, **writeKwargs):
+def persist(obj=None, attr="", root='.', name='', extension='pkl', *writeArgs, **writeKwargs):
     obj = access(obj, [attr])
-    name = ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
+    name = name if name else ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
     local = os.path.join(root, name)
     joblib.dump(obj, local, *writeArgs, **writeKwargs)
