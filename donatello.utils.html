@@ -1,0 +1,580 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>donatello.utils package &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="donatello package" href="donatello.html"/>
+        <link rel="prev" title="donatello.examples package" href="donatello.examples.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="donatello.html">donatello package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="donatello.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="donatello.components.html">donatello.components package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="donatello.examples.html">donatello.examples package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">donatello.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-donatello.utils.base">donatello.utils.base module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-donatello.utils.decorators">donatello.utils.decorators module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-donatello.utils.helpers">donatello.utils.helpers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-donatello.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="donatello.html#module-donatello">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="donatello.html">donatello package</a> &raquo;</li>
+      
+    <li>donatello.utils package</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/donatello.utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="donatello-utils-package">
+<h1>donatello.utils package<a class="headerlink" href="#donatello-utils-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-donatello.utils.base">
+<span id="donatello-utils-base-module"></span><h2>donatello.utils.base module<a class="headerlink" href="#module-donatello.utils.base" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="donatello.utils.base.Dobject">
+<em class="property">class </em><code class="descclassname">donatello.utils.base.</code><code class="descname">Dobject</code><a class="reference internal" href="_modules/donatello/utils/base.html#Dobject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.Dobject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Base object for Donatello - templates in name and __repr___</p>
+<dl class="attribute">
+<dt id="donatello.utils.base.Dobject.name">
+<code class="descname">name</code><a class="headerlink" href="#donatello.utils.base.Dobject.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="donatello.utils.base.Dobject.foldClay">
+<code class="descname">foldClay</code><a class="headerlink" href="#donatello.utils.base.Dobject.foldClay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define type of splitting</p>
+<ol class="arabic simple">
+<li>None -&gt; KFold</li>
+<li>stratify</li>
+<li>group</li>
+</ol>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="donatello.utils.base.Dobject.scoreClay">
+<code class="descname">scoreClay</code><a class="headerlink" href="#donatello.utils.base.Dobject.scoreClay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define type of learning</p>
+<ol class="arabic simple">
+<li>None -&gt; regression</li>
+<li>classificaiton</li>
+<li>anomaly</li>
+</ol>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="donatello.utils.base.Dobject.foldDispatch">
+<code class="descname">foldDispatch</code><a class="headerlink" href="#donatello.utils.base.Dobject.foldDispatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="donatello.utils.base.Dobject.scoreDispatch">
+<code class="descname">scoreDispatch</code><a class="headerlink" href="#donatello.utils.base.Dobject.scoreDispatch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="donatello.utils.base.PandasAttrs">
+<em class="property">class </em><code class="descclassname">donatello.utils.base.</code><code class="descname">PandasAttrs</code><a class="reference internal" href="_modules/donatello/utils/base.html#PandasAttrs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.PandasAttrs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a></p>
+<p>Mixin for improving scikit-learn &lt;&gt; pandas interaction</p>
+<dl class="attribute">
+<dt id="donatello.utils.base.PandasAttrs.fields">
+<code class="descname">fields</code><a class="headerlink" href="#donatello.utils.base.PandasAttrs.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Incoming column names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="donatello.utils.base.PandasAttrs.features">
+<code class="descname">features</code><a class="headerlink" href="#donatello.utils.base.PandasAttrs.features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outgoing column names</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="donatello.utils.base.PandasAttrs.transformedDtypes">
+<code class="descname">transformedDtypes</code><a class="headerlink" href="#donatello.utils.base.PandasAttrs.transformedDtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="donatello.utils.base.PandasAttrs.get_fields">
+<code class="descname">get_fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/base.html#PandasAttrs.get_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.PandasAttrs.get_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="donatello.utils.base.PandasAttrs.get_feature_names">
+<code class="descname">get_feature_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/base.html#PandasAttrs.get_feature_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.PandasAttrs.get_feature_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="donatello.utils.base.BaseTransformer">
+<em class="property">class </em><code class="descclassname">donatello.utils.base.</code><code class="descname">BaseTransformer</code><a class="reference internal" href="_modules/donatello/utils/base.html#BaseTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.BaseTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.TransformerMixin.html#sklearn.base.TransformerMixin" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.TransformerMixin</span></code></a></p>
+<p>Base scikit-learn style transformer</p>
+<dl class="method">
+<dt id="donatello.utils.base.BaseTransformer.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/base.html#BaseTransformer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.BaseTransformer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="donatello.utils.base.BaseTransformer.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/base.html#BaseTransformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.BaseTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="donatello.utils.base.BaseTransformer.name">
+<code class="descname">name</code><a class="headerlink" href="#donatello.utils.base.BaseTransformer.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of object, defaults to class name + model name</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="donatello.utils.base.BaseDatasetTransformer">
+<em class="property">class </em><code class="descclassname">donatello.utils.base.</code><code class="descname">BaseDatasetTransformer</code><a class="reference internal" href="_modules/donatello/utils/base.html#BaseDatasetTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.BaseDatasetTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
+<p>Base scikit-learn style transformer</p>
+<dl class="method">
+<dt id="donatello.utils.base.BaseDatasetTransformer.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/base.html#BaseDatasetTransformer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.BaseDatasetTransformer.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="donatello.utils.base.BaseDatasetTransformer.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/base.html#BaseDatasetTransformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.BaseDatasetTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="donatello.utils.base.BaseDatasetTransformer.fit_transform">
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/base.html#BaseDatasetTransformer.fit_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.base.BaseDatasetTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit to data, then transform it.</p>
+<p>Fits transformer to X and y with optional parameters fit_params
+and returns a transformed version of X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<em>numpy array of shape</em><em> [</em><em>n_samples</em><em>, </em><em>n_features</em><em>]</em>) – Training set.</li>
+<li><strong>y</strong> (<em>numpy array of shape</em><em> [</em><em>n_samples</em><em>]</em>) – Target values.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>X_new</strong> – Transformed array.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">numpy array of shape [n_samples, n_features_new]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-donatello.utils.decorators">
+<span id="donatello-utils-decorators-module"></span><h2>donatello.utils.decorators module<a class="headerlink" href="#module-donatello.utils.decorators" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="donatello.utils.decorators.init_time">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">init_time</code><span class="sig-paren">(</span><em>wrapped</em>, <em>instance</em>, <em>args</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#init_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.init_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add _initTime attribute to object, format prescribed by
+<strong>strFormat</strong> kwarg</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.decorators.pandas_series">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">pandas_series</code><span class="sig-paren">(</span><em>wrapped</em>, <em>instance</em>, <em>args</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#pandas_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.pandas_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforce output as <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Series</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.decorators.pandas_df">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">pandas_df</code><span class="sig-paren">(</span><em>wrapped</em>, <em>instance</em>, <em>args</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#pandas_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.pandas_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enforce output as <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.decorators.coelesce">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">coelesce</code><span class="sig-paren">(</span><em>**defaults</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#coelesce"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.coelesce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Key value pairs to enforce null value logic</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.decorators.fallback">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">fallback</code><span class="sig-paren">(</span><em>*defaults</em>, <em>**replacements</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#fallback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.fallback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keyword arguments of attribute to fallback to of object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.decorators.name">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">name</code><span class="sig-paren">(</span><em>wrapped</em>, <em>instance</em>, <em>args</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.decorators.mem_cache">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">mem_cache</code><span class="sig-paren">(</span><em>existing=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#mem_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.mem_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>memoization cache</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>existing</strong> – __getitem__ sliceable cache, defaults to <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.decorators.to_kwargs">
+<code class="descclassname">donatello.utils.decorators.</code><code class="descname">to_kwargs</code><span class="sig-paren">(</span><em>wrapped</em>, <em>instance</em>, <em>args</em>, <em>kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/decorators.html#to_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.decorators.to_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-donatello.utils.helpers">
+<span id="donatello-utils-helpers-module"></span><h2>donatello.utils.helpers module<a class="headerlink" href="#module-donatello.utils.helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="donatello.utils.helpers.now_string">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">now_string</code><span class="sig-paren">(</span><em>strFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#now_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.now_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pandas formatted string from time</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>strFormat</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – format for time</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.nvl">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">nvl</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#nvl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.nvl" title="Permalink to this definition">¶</a></dt>
+<dd><p>SQL like coelesce / redshift NVL, returns first non Falsey arg</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.has_nested_attribute">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">has_nested_attribute</code><span class="sig-paren">(</span><em>obj</em>, <em>attrPath</em>, <em>separator='_'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#has_nested_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.has_nested_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether nested attribute exists via string name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Object to traverse.</li>
+<li><strong>attrPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to attribute location split by separator,            use empty string “” to return obj</li>
+<li><strong>separator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – separator for nesting levels in string representation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.get_nested_attribute">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">get_nested_attribute</code><span class="sig-paren">(</span><em>obj</em>, <em>attrPath</em>, <em>separator='_'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#get_nested_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.get_nested_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get nested attribute via string name. passing empty string returns obj</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Object to traverse.</li>
+<li><strong>attrPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to attribute location split by separator,            use empty string “” to return obj</li>
+<li><strong>separator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – separator for nesting levels in string representation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.reformat_aggs">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">reformat_aggs</code><span class="sig-paren">(</span><em>d</em>, <em>idx=0</em>, <em>sortValues=None</em>, <em>indexName=None</em>, <em>filterNulls=0.95</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#reformat_aggs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.reformat_aggs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.has">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">has</code><span class="sig-paren">(</span><em>obj</em>, <em>attr</em>, <em>slicers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#has"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.has" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.get">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">get</code><span class="sig-paren">(</span><em>obj</em>, <em>attr</em>, <em>slicers</em>, <em>errors</em>, <em>default</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get from object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.access">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">access</code><span class="sig-paren">(</span><em>obj=None</em>, <em>attrPath=None</em>, <em>method=None</em>, <em>methodArgs=None</em>, <em>methodKwargs=None</em>, <em>cb=None</em>, <em>cbArgs=None</em>, <em>cbKwargs=None</em>, <em>slicers=(&lt;type 'dict'&gt;</em>, <em>&lt;type 'list'&gt;</em>, <em>&lt;type 'tuple'&gt;</em>, <em>&lt;type 'numpy.ndarray'&gt;</em>, <em>&lt;class 'pandas.core.series.Series'&gt;</em>, <em>&lt;class 'pandas.core.frame.DataFrame'&gt;</em>, <em>&lt;class 'pandas.core.panel.Panel'&gt;)</em>, <em>default=None</em>, <em>errors='raise'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#access"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access information from nested object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – object to access from</li>
+<li><strong>attrPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – sequence of traversal</li>
+<li><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) method to call at end of path</li>
+<li><strong>methodArgs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – positional args for method</li>
+<li><strong>methodKwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – keyword args for method</li>
+<li><strong>cb</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – (optional) cb to call at end of path</li>
+<li><strong>cbArgs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – positional args for cb</li>
+<li><strong>cbKwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – keyword args for cb</li>
+<li><strong>slicers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – object types to use <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> slice rather than getattr</li>
+<li><strong>default</strong> (<em>obj</em>) – option to return default (if not rasiing errors)</li>
+<li><strong>errors</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – option to raise errors (‘raise’) or ignore (‘ignore’)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">value of given prescription</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">obj</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.find_value">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">find_value</code><span class="sig-paren">(</span><em>func</em>, <em>args</em>, <em>kwargs</em>, <em>accessKey</em>, <em>how='name'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#find_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.find_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find a value from a function signature</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.replace_value">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">replace_value</code><span class="sig-paren">(</span><em>func</em>, <em>args</em>, <em>kwargs</em>, <em>accessKey</em>, <em>accessValue</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#replace_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.replace_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace a value from a function signature</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="donatello.utils.helpers.persist">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">persist</code><span class="sig-paren">(</span><em>obj=None</em>, <em>attr=''</em>, <em>root='.'</em>, <em>name=''</em>, <em>extension='pkl'</em>, <em>*writeArgs</em>, <em>**writeKwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#persist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.persist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-donatello.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-donatello.utils" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="donatello.examples.html" class="btn btn-neutral" title="donatello.examples package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

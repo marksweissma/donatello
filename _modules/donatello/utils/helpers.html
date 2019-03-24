@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>donatello.utils.helpers &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>donatello.utils.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for donatello.utils.helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="k">import</span> <span class="n">joblib</span>
+
+
+<div class="viewcode-block" id="now_string"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.now_string">[docs]</a><span class="k">def</span> <span class="nf">now_string</span><span class="p">(</span><span class="n">strFormat</span><span class="o">=</span><span class="s2">&quot;%Y_%m_</span><span class="si">%d</span><span class="s2">_%H_%M&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pandas formatted string from time</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        strFormat (str): format for time</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">strFormat</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="nvl"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.nvl">[docs]</a><span class="k">def</span> <span class="nf">nvl</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SQL like coelesce / redshift NVL, returns first non Falsey arg</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">arg</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">arg</span>
+    <span class="k">return</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="has_nested_attribute"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.has_nested_attribute">[docs]</a><span class="k">def</span> <span class="nf">has_nested_attribute</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check whether nested attribute exists via string name</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj (object): Object to traverse.</span>
+<span class="sd">        attrPath (str): Path to attribute location split by separator,\</span>
+<span class="sd">            use empty string &quot;&quot; to return obj</span>
+<span class="sd">        separator (str): separator for nesting levels in string representation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">attrPath</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nextLevel</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">attrPath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">separator</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_get_nested_attribute</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">nextLevel</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                     <span class="n">tail</span><span class="p">,</span> <span class="n">separator</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_nested_attribute</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">attrPath</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nextLevel</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">attrPath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">separator</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_get_nested_attribute</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">nextLevel</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                                     <span class="n">tail</span><span class="p">,</span> <span class="n">separator</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_nested_attribute"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.get_nested_attribute">[docs]</a><span class="k">def</span> <span class="nf">get_nested_attribute</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get nested attribute via string name. passing empty string returns obj</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj (object): Object to traverse.</span>
+<span class="sd">        attrPath (str): Path to attribute location split by separator,\</span>
+<span class="sd">            use empty string &quot;&quot; to return obj</span>
+<span class="sd">        separator (str): separator for nesting levels in string representation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">attrPath</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_nested_attribute</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">,</span> <span class="n">separator</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{obj}</span><span class="s1"> does not have </span><span class="si">{attrPath}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                             <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="o">=</span><span class="n">attrPath</span><span class="p">)</span>
+                             <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_get_nested_attribute</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="p">,</span> <span class="n">separator</span><span class="p">)</span></div>
+
+
+<span class="c1"># dispatch on shape make registers :/</span>
+<div class="viewcode-block" id="reformat_aggs"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.reformat_aggs">[docs]</a><span class="k">def</span> <span class="nf">reformat_aggs</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sortValues</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indexName</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filterNulls</span><span class="o">=.</span><span class="mi">95</span><span class="p">):</span>
+    <span class="n">information</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span> <span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">information</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">sortValues</span><span class="p">)</span> <span class="k">if</span> <span class="n">sortValues</span> <span class="k">else</span> <span class="n">df</span>
+    <span class="k">if</span> <span class="n">indexName</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">indexName</span>
+    <span class="k">if</span> <span class="n">filterNulls</span><span class="p">:</span>
+        <span class="n">rates</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">rate</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">rates</span><span class="p">)</span> <span class="k">if</span> <span class="n">rate</span> <span class="o">&gt;</span> <span class="n">filterNulls</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="has"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.has">[docs]</a><span class="k">def</span> <span class="nf">has</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">slicers</span><span class="p">):</span>
+    <span class="n">condition</span> <span class="o">=</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">obj</span> <span class="k">if</span> <span class="p">(</span><span class="n">slicers</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">slicers</span><span class="p">))</span> <span class="k">else</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">condition</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">slicers</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">slicers</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<div class="viewcode-block" id="get"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.get">[docs]</a><span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">slicers</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">default</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get from object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">condition</span> <span class="o">=</span> <span class="p">(</span><span class="n">errors</span> <span class="o">==</span> <span class="s1">&#39;raise&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">has</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">slicers</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">_get</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">slicers</span><span class="p">)</span> <span class="k">if</span> <span class="n">condition</span> <span class="k">else</span> <span class="n">default</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="access"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.access">[docs]</a><span class="k">def</span> <span class="nf">access</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attrPath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">methodArgs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">methodKwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">cb</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cbArgs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cbKwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+           <span class="n">slicers</span><span class="o">=</span><span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">),</span>
+           <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;raise&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Access information from nested object</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj (object): object to access from</span>
+<span class="sd">        attrPath (list): sequence of traversal</span>
+<span class="sd">        method (str): (optional) method to call at end of path</span>
+<span class="sd">        methodArgs (tuple): positional args for method</span>
+<span class="sd">        methodKwargs (tuple): keyword args for method</span>
+<span class="sd">        cb (str): (optional) cb to call at end of path</span>
+<span class="sd">        cbArgs (tuple): positional args for cb</span>
+<span class="sd">        cbKwargs (tuple): keyword args for cb</span>
+<span class="sd">        slicers (tuple): object types to use ``__getitem__`` slice rather than getattr</span>
+<span class="sd">        default (obj): option to return default (if not rasiing errors)</span>
+<span class="sd">        errors (str): option to raise errors (&#39;raise&#39;) or ignore (&#39;ignore&#39;)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        obj: value of given prescription</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">attrPath</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">attrPath</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span><span class="o">*</span><span class="n">nvl</span><span class="p">(</span><span class="n">methodArgs</span><span class="p">,</span> <span class="p">()),</span> <span class="o">**</span><span class="n">nvl</span><span class="p">(</span><span class="n">methodKwargs</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">obj</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cb</span> <span class="k">else</span> <span class="n">cb</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">nvl</span><span class="p">(</span><span class="n">cbArgs</span><span class="p">,</span> <span class="p">()),</span> <span class="o">**</span><span class="n">nvl</span><span class="p">(</span><span class="n">cbKwargs</span><span class="p">,</span> <span class="p">{}))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">head</span><span class="p">,</span> <span class="n">attrPath</span> <span class="o">=</span> <span class="n">attrPath</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">attrPath</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">head</span><span class="p">,</span> <span class="n">slicers</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attrPath</span><span class="o">=</span><span class="n">attrPath</span><span class="p">,</span>
+                       <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">methodArgs</span><span class="o">=</span><span class="n">methodArgs</span><span class="p">,</span> <span class="n">methodKwargs</span><span class="o">=</span><span class="n">methodKwargs</span><span class="p">,</span>
+                       <span class="n">cb</span><span class="o">=</span><span class="n">cb</span><span class="p">,</span> <span class="n">cbArgs</span><span class="o">=</span><span class="n">cbArgs</span><span class="p">,</span> <span class="n">cbKwargs</span><span class="o">=</span><span class="n">cbKwargs</span><span class="p">,</span>
+                       <span class="n">slicers</span><span class="o">=</span><span class="n">slicers</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="find_value"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.find_value">[docs]</a><span class="k">def</span> <span class="nf">find_value</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">accessKey</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;name&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find a value from a function signature</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">_args</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="k">else</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">_args</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">accessKey</span><span class="p">)</span> <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s1">&#39;name&#39;</span> <span class="k">else</span> <span class="n">accessKey</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">_args</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">nvl</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">defaults</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="n">offset</span><span class="p">]</span> <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="n">offset</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">accessKey</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span> <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="k">else</span> <span class="n">args</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">accessKey</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+
+<div class="viewcode-block" id="replace_value"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.replace_value">[docs]</a><span class="k">def</span> <span class="nf">replace_value</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">accessKey</span><span class="p">,</span> <span class="n">accessValue</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Replace a value from a function signature</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">_args</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismethod</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="k">else</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">_args</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">accessKey</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="n">accessKey</span><span class="p">]</span> <span class="o">=</span> <span class="n">accessValue</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">args</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">accessValue</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span></div>
+
+
+<div class="viewcode-block" id="persist"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.persist">[docs]</a><span class="k">def</span> <span class="nf">persist</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;pkl&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">writeArgs</span><span class="p">,</span> <span class="o">**</span><span class="n">writeKwargs</span><span class="p">):</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">[</span><span class="n">attr</span><span class="p">])</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span> <span class="n">extension</span><span class="p">])</span>
+    <span class="n">local</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">local</span><span class="p">,</span> <span class="o">*</span><span class="n">writeArgs</span><span class="p">,</span> <span class="o">**</span><span class="n">writeKwargs</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

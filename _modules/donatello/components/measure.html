@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>donatello.components.measure &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>donatello.components.measure</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for donatello.components.measure</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">clone</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">Bunch</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">confusion_matrix</span>
+
+<span class="kn">from</span> <span class="nn">donatello.utils.decorators</span> <span class="k">import</span> <span class="n">init_time</span><span class="p">,</span> <span class="n">coelesce</span><span class="p">,</span> <span class="n">name</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.base</span> <span class="k">import</span> <span class="n">Dobject</span>
+<span class="kn">from</span> <span class="nn">donatello.components.data</span> <span class="k">import</span> <span class="n">package_dataset</span>
+
+
+<div class="viewcode-block" id="pass_through"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.pass_through">[docs]</a><span class="k">def</span> <span class="nf">pass_through</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    returns x</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+
+<span class="c1"># FIX THIS</span>
+<span class="k">def</span> <span class="nf">_append_in_place</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">df2</span><span class="p">):</span>
+    <span class="n">store</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df2</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_option_sort</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">sort</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">sort</span><span class="p">)</span> <span class="k">if</span> <span class="n">sort</span> <span class="k">else</span> <span class="n">df</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="c1"># move off xs</span>
+<span class="k">def</span> <span class="nf">_unwrap_multiple</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">definitionSort</span><span class="p">):</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">nlevels</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">levels</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">current</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">df</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">_option_sort</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">current</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">definitionSort</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">current</span><span class="p">))})</span>
+    <span class="k">return</span> <span class="n">output</span>
+
+
+<div class="viewcode-block" id="Measure"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Measure">[docs]</a><span class="k">class</span> <span class="nc">Measure</span><span class="p">(</span><span class="n">Dobject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object for scoring model performance</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        method (str): name of prediction method from estimator to call</span>
+<span class="sd">        gridSearchFlag (bool): whether or not to grid search during fitting</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@init_time</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s1">&#39;score&#39;</span><span class="p">,</span>
+                 <span class="n">gridSearchFlag</span><span class="o">=</span><span class="kc">True</span>
+                 <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gridSearchFlag</span> <span class="o">=</span> <span class="n">gridSearchFlag</span>
+
+    <span class="k">def</span> <span class="nf">_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">designTest</span><span class="p">,</span> <span class="n">targetTest</span><span class="p">):</span>
+        <span class="n">yhat</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">)(</span><span class="n">designTest</span><span class="p">)</span>
+        <span class="n">scored</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">targetTest</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;truth&#39;</span><span class="p">),</span> <span class="n">yhat</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s1">&#39;predicted&#39;</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scored</span>
+
+    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">scored</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">measurements</span> <span class="o">=</span> <span class="p">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">metric</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">scored</span><span class="o">.</span><span class="n">truth</span><span class="p">,</span> <span class="n">scored</span><span class="o">.</span><span class="n">predicted</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">measurements</span>
+
+<div class="viewcode-block" id="Measure.score_evaluate"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Measure.score_evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">score_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Score the fitted estimator on y and evaluate metrics</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estimator (BaseEstimator): Fit estimator to evaluate</span>
+<span class="sd">            X (pandas.DataFrame): design</span>
+<span class="sd">            y (pandas.Series): target</span>
+<span class="sd">            metrics (dict): metrics to evaluate</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple(pandas.Series, metric evaluations): scored, measurements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scored</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_score</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">measurements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">scored</span><span class="p">,</span> <span class="n">metrics</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scored</span><span class="p">,</span> <span class="n">measurements</span></div>
+
+<div class="viewcode-block" id="Measure.fit_score_folds"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Measure.fit_score_folds">[docs]</a>    <span class="nd">@package_dataset</span>
+    <span class="k">def</span> <span class="nf">fit_score_folds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cross validating measure, clones and fits estimator on each fold of X|y</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            estimator (BaseEstimator): Fit estimator to evaluate</span>
+<span class="sd">            dataset (donatello.data.Dataset) object to cross val over</span>
+<span class="sd">            X (pandas.DataFrame): design</span>
+<span class="sd">            y (pandas.Series): target</span>
+<span class="sd">            metrics (dict): metrics to evaluate</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple(pandas.Series, metric evaluations): scored, measurements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scored</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="n">estimators</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">fold</span><span class="p">,</span> <span class="p">(</span><span class="n">designTrain</span><span class="p">,</span> <span class="n">designTest</span><span class="p">,</span> <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+            <span class="n">estimator</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+            <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">designTrain</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">targetTrain</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gridSearchFlag</span><span class="p">)</span>
+            <span class="n">estimators</span><span class="p">[</span><span class="n">fold</span><span class="p">]</span> <span class="o">=</span> <span class="n">estimator</span>
+
+            <span class="n">_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_score</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">designTest</span><span class="p">,</span> <span class="n">targetTest</span><span class="p">)</span>
+            <span class="n">_temp</span><span class="p">[</span><span class="s1">&#39;fold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fold</span>
+            <span class="n">scored</span> <span class="o">=</span> <span class="n">scored</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_temp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">estimators</span><span class="p">,</span> <span class="n">scored</span></div>
+
+<div class="viewcode-block" id="Measure.evaluate_scored_folds"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Measure.evaluate_scored_folds">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate_scored_folds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimators</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scored</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate metrics from cross val measurements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">[</span><span class="n">metric</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">scored</span><span class="p">)</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">]</span>
+
+        <span class="c1"># move to list of dict -&gt; concat</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fold</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">scored</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;fold&#39;</span><span class="p">):</span>
+            <span class="n">_outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">estimators</span><span class="p">[</span><span class="n">fold</span><span class="p">],</span> <span class="n">df</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+            <span class="p">[</span><span class="n">_append_in_place</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">_outputs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+        <span class="n">measurements</span> <span class="o">=</span> <span class="p">{</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">metric</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">_unwrap_multiple</span><span class="p">(</span><span class="n">outputs</span><span class="p">[</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>\
+                                                     <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>\
+                                                     <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">metric</span><span class="o">.</span><span class="n">agg</span><span class="p">),</span>
+                                                     <span class="n">metric</span><span class="o">.</span><span class="n">sort</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">measurements</span></div>
+
+<div class="viewcode-block" id="Measure.buildCV"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Measure.buildCV">[docs]</a>    <span class="nd">@package_dataset</span>
+    <span class="k">def</span> <span class="nf">buildCV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build cross validated scoring report</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">estimators</span><span class="p">,</span> <span class="n">scored</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_score_folds</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="n">measurements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_scored_folds</span><span class="p">(</span><span class="n">estimators</span><span class="o">=</span><span class="n">estimators</span><span class="p">,</span> <span class="n">scored</span><span class="o">=</span><span class="n">scored</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;estimators&#39;</span><span class="p">:</span> <span class="n">estimators</span><span class="p">,</span> <span class="s1">&#39;scored&#39;</span><span class="p">:</span> <span class="n">scored</span><span class="p">,</span> <span class="s1">&#39;measurements&#39;</span><span class="p">:</span> <span class="n">measurements</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Measure.build_holdout"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Measure.build_holdout">[docs]</a>    <span class="k">def</span> <span class="nf">build_holdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        score already fit estimator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scored</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_score</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">scored</span><span class="p">[</span><span class="s1">&#39;fold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">estimators</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">estimator</span><span class="p">}</span>
+        <span class="n">measurements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_scored_folds</span><span class="p">(</span><span class="n">estimators</span><span class="o">=</span><span class="n">estimators</span><span class="p">,</span> <span class="n">scored</span><span class="o">=</span><span class="n">scored</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;estimators&#39;</span><span class="p">:</span> <span class="n">estimators</span><span class="p">,</span> <span class="s1">&#39;scored&#39;</span><span class="p">:</span> <span class="n">scored</span><span class="p">,</span> <span class="s1">&#39;measurements&#39;</span><span class="p">:</span> <span class="n">measurements</span><span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="Metric"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Metric">[docs]</a><span class="k">class</span> <span class="nc">Metric</span><span class="p">(</span><span class="n">Dobject</span><span class="p">):</span>
+    <span class="nd">@init_time</span>
+    <span class="nd">@name</span>
+    <span class="nd">@coelesce</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scorer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scoreClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">callback</span><span class="o">=</span><span class="n">pass_through</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span> <span class="o">=</span> <span class="n">scorer</span>
+        <span class="n">_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">scorer</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="n">_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scoreClay</span> <span class="o">=</span> <span class="n">scoreClay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agg</span> <span class="o">=</span> <span class="n">agg</span>
+        <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_key&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="p">])</span>
+
+    <span class="nd">@key</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="Metric.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Metric.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scored</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Metric.evaluate"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Metric.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="p">(</span><span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_key&#39;</span><span class="p">):</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FeatureWeights"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.FeatureWeights">[docs]</a><span class="k">class</span> <span class="nc">FeatureWeights</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;feature_weights&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;names&#39;</span><span class="p">,</span>
+                 <span class="n">callback</span><span class="o">=</span><span class="n">pass_through</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">FeatureWeights</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+            <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="n">agg</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FeatureWeights.evaluate"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.FeatureWeights.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            estimator (donatello.estimator.Estimator): has `features` and `model` attributes</span>
+<span class="sd">            attr (str): option to specify additional attribute to pull</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pandas.DataFrame: values of feature weights</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">features</span> <span class="k">if</span> <span class="n">estimator</span><span class="o">.</span><span class="n">features</span> <span class="k">else</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">model</span>
+        <span class="n">columnNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">coef_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;coef_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">intercept_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;intercept_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">feature_importances_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;feature_importances_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">coef_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">columnNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;coefficients&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">intercept_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;intercept_&#39;</span><span class="p">)</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">intercept_</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">feature_importances_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">columnNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;feature_importances&#39;</span><span class="p">)</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_importances_</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">values</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">columnNames</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">vectors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columnNames</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">names</span><span class="p">,</span> <span class="n">vectors</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">data</span></div></div>
+
+
+<div class="viewcode-block" id="ThresholdRates"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.ThresholdRates">[docs]</a><span class="k">class</span> <span class="nc">ThresholdRates</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;points&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ThresholdRates</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ThresholdRates.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.ThresholdRates.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scored</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">percentiles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">spacing</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">scored</span><span class="o">.</span><span class="n">predicted</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">percentiles</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">points</span></div>
+
+<div class="viewcode-block" id="ThresholdRates.evaluate"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.ThresholdRates.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">]</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+                          <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;true_negative&#39;</span><span class="p">,</span> <span class="s1">&#39;false_positive&#39;</span><span class="p">,</span>
+                                   <span class="s1">&#39;false_negative&#39;</span><span class="p">,</span> <span class="s1">&#39;true_positive&#39;</span><span class="p">],</span>
+                          <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;points&#39;</span><span class="p">)</span>
+                          <span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">true_positive</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">true_positive</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">false_positive</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;recall&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">true_positive</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">true_positive</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">false_negative</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;specificity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">true_negative</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">true_negative</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">false_positive</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;false_omission_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">false_negative</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">false_negative</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">true_negative</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;negative_predictive_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">true_negative</span> <span class="o">/</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">true_negative</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">false_negative</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;f1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">true_positive</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">true_positive</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">false_positive</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">false_negative</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;fall_out&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">specificity</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;false_discovery_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">precision</span>
+
+        <span class="k">return</span> <span class="n">df</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

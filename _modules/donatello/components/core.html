@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>donatello.components.core &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>donatello.components.core</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for donatello.components.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Manager for model building and evaluating</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="k">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">clone</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">Bunch</span>
+
+<span class="kn">from</span> <span class="nn">donatello.components.data</span> <span class="k">import</span> <span class="n">package_dataset</span><span class="p">,</span> <span class="n">subset_dataset</span>
+<span class="kn">from</span> <span class="nn">donatello.components.measure</span> <span class="k">import</span> <span class="n">Measure</span>
+
+<span class="kn">from</span> <span class="nn">donatello.utils.helpers</span> <span class="k">import</span> <span class="n">now_string</span><span class="p">,</span> <span class="n">persist</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.decorators</span> <span class="k">import</span> <span class="n">fallback</span><span class="p">,</span> <span class="n">coelesce</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.base</span> <span class="k">import</span> <span class="n">Dobject</span>
+
+
+<div class="viewcode-block" id="Sculpture"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.core.Sculpture">[docs]</a><span class="k">class</span> <span class="nc">Sculpture</span><span class="p">(</span><span class="n">Dobject</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instance for model processing. Accessors will fallback to accessing from estimator attributes</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset (donatello.components.data.Dataset): accesses  dataset</span>
+<span class="sd">        estimator(donatello.components.estimator.Estimator): executes ML</span>
+<span class="sd">        validation (bool): flag for calculating scoring metrics from nested\</span>
+<span class="sd">                cross val of training + validation sets</span>
+<span class="sd">        holdOut (bool): flag for fitting estimator on single training set and scoring on test set</span>
+<span class="sd">        measure (donatello.components.measure.Measure): own calculateing stats</span>
+<span class="sd">        metrics (iterable.Metric): :py:class:`donatello.components.measure.Metric` to score</span>
+<span class="sd">        persist (func): function to write</span>
+<span class="sd">        persistAttrs (tuple): attributes to write out to disk</span>
+<span class="sd">        timeFormat (str): format for creation time string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">validation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">holdOut</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">entire</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">measure</span><span class="o">=</span><span class="n">Measure</span><span class="p">(),</span> <span class="n">persist</span><span class="o">=</span><span class="n">persist</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">storeReferences</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">writeAttrs</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;estimator&#39;</span><span class="p">),</span>
+                 <span class="n">timeFormat</span><span class="o">=</span><span class="s2">&quot;%Y_%m_</span><span class="si">%d</span><span class="s2">_%H_%M&quot;</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initTime</span> <span class="o">=</span> <span class="n">now_string</span><span class="p">(</span><span class="n">timeFormat</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">estimator</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">measure</span> <span class="o">=</span> <span class="n">measure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persist</span> <span class="o">=</span> <span class="n">persist</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span>
+
+        <span class="c1"># Build options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">validation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">holdOut</span> <span class="o">=</span> <span class="n">holdOut</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entire</span> <span class="o">=</span> <span class="n">entire</span>
+
+        <span class="c1"># Other</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writeAttrs</span> <span class="o">=</span> <span class="n">writeAttrs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storeReferences</span> <span class="o">=</span> <span class="n">storeReferences</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_references</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_declaration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">declaration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dictionary of kwargs given during instantiation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_declaration</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Sculpture.build_cross_validation"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.core.Sculpture.build_cross_validation">[docs]</a>    <span class="nd">@subset_dataset</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">build_cross_validation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build cross validated measurements over training data of models</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Building Over Cross Validation&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">,</span> <span class="s1">&#39;metrics&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measureCrossValidation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">buildCV</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">measureCrossValidation</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_references</span><span class="p">[</span><span class="s1">&#39;cross_validation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">storeReferences</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Sculpture.build_holdout"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.core.Sculpture.build_holdout">[docs]</a>    <span class="k">def</span> <span class="nf">build_holdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build model over training data and score</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Building Over Holdout&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">)</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">,</span> <span class="s1">&#39;metrics&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">,</span>
+                   <span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designTest</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetTest</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measureHoldout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">build_holdout</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">holdout</span> <span class="o">=</span> <span class="n">Bunch</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">measureHoldout</span><span class="p">[</span><span class="s1">&#39;measurements&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_references</span><span class="p">[</span><span class="s1">&#39;holdout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">storeReferences</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Sculpture.build_entire"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.core.Sculpture.build_entire">[docs]</a>    <span class="k">def</span> <span class="nf">build_entire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build model over entire data set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Building Over Entire Dataset&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_references</span><span class="p">[</span><span class="s1">&#39;entire&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">storeReferences</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Sculpture.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.core.Sculpture.fit">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;writeAttrs&#39;</span><span class="p">,</span> <span class="s1">&#39;validation&#39;</span><span class="p">,</span> <span class="s1">&#39;holdOut&#39;</span><span class="p">,</span> <span class="s1">&#39;entire&#39;</span><span class="p">)</span>
+    <span class="nd">@package_dataset</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">writeAttrs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">validation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">holdOut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">entire</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build models, tune hyperparameters, and evaluate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_cross_validation</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">)</span> <span class="k">if</span> <span class="n">validation</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_holdout</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">)</span> <span class="k">if</span> <span class="n">holdOut</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_entire</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">)</span> <span class="k">if</span> <span class="n">entire</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">writeAttrs</span><span class="o">=</span><span class="n">writeAttrs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Sculpture.write"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.core.Sculpture.write">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;writeAttrs&#39;</span><span class="p">)</span>
+    <span class="nd">@coelesce</span><span class="p">(</span><span class="n">writeAttrs</span><span class="o">=</span><span class="p">[])</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writeAttrs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">writeAttrs</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="n">attr</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span><span class="s1">&#39;attr&#39;</span><span class="p">:</span> <span class="n">attr</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">payload</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">!=</span> <span class="s1">&#39;_name&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span></div>
+
+
+<div class="viewcode-block" id="Garden"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.core.Garden">[docs]</a><span class="k">class</span> <span class="nc">Garden</span><span class="p">(</span><span class="n">Dobject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Front end enabler for visualization and comparison</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

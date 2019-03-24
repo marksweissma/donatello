@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>donatello.components.estimator &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>donatello.components.estimator</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for donatello.components.estimator</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">GridSearchCV</span>
+
+<span class="kn">from</span> <span class="nn">donatello.components</span> <span class="k">import</span> <span class="n">data</span>
+
+<span class="kn">from</span> <span class="nn">donatello.utils.base</span> <span class="k">import</span> <span class="n">Dobject</span><span class="p">,</span> <span class="n">BaseTransformer</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.decorators</span> <span class="k">import</span> <span class="n">pandas_series</span><span class="p">,</span> <span class="n">fallback</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.helpers</span> <span class="k">import</span> <span class="n">now_string</span><span class="p">,</span> <span class="n">access</span>
+
+
+<div class="viewcode-block" id="no_op"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.no_op">[docs]</a><span class="k">def</span> <span class="nf">no_op</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scoring function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_method</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="score_second"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.score_second">[docs]</a><span class="k">def</span> <span class="nf">score_second</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scoring function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_method</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="score_invert"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.score_invert">[docs]</a><span class="k">def</span> <span class="nf">score_invert</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scoring function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_method</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">)</span></div>
+
+
+<span class="n">SCORE_REGISTRY</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;no_op&#39;</span><span class="p">:</span> <span class="n">no_op</span><span class="p">,</span>
+        <span class="s1">&#39;score_second&#39;</span><span class="p">:</span> <span class="n">score_second</span><span class="p">,</span>
+        <span class="s1">&#39;score_invert&#39;</span><span class="p">:</span> <span class="n">score_invert</span>
+        <span class="p">}</span>
+
+
+<div class="viewcode-block" id="Estimator"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator">[docs]</a><span class="k">class</span> <span class="nc">Estimator</span><span class="p">(</span><span class="n">Dobject</span><span class="p">,</span> <span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Donatello&#39;s estimation object to support model training and prediction</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        sklearn GridSearchCV does not support indexing throuhg collections. If</span>
+<span class="sd">        executing skSearch, dataset.designData must be flat (not dict)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model (sklearn.base.BaseEstimator): ML model implementing fit, predict[a-z]*</span>
+<span class="sd">        method (str): string name of prediction method</span>
+<span class="sd">        scorer (func | str): callable or string name of method for scoring</span>
+<span class="sd">        paramGrid (dict): specificiont of  HPs to grid search</span>
+<span class="sd">        gridKwargs (dict): options for grid search</span>
+<span class="sd">        timeFormat (str): option to specify timestamp format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict&#39;</span><span class="p">,</span>
+                 <span class="n">scorer</span><span class="o">=</span><span class="s1">&#39;no_op&#39;</span><span class="p">,</span>
+                 <span class="n">paramGrid</span><span class="o">=</span><span class="p">{},</span>
+                 <span class="n">gridKwargs</span><span class="o">=</span><span class="p">{},</span>
+                 <span class="n">timeFormat</span><span class="o">=</span><span class="s2">&quot;%Y_%m_</span><span class="si">%d</span><span class="s2">_%H_%M&quot;</span>
+                 <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initTime</span> <span class="o">=</span> <span class="n">now_string</span><span class="p">(</span><span class="n">timeFormat</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span> <span class="o">=</span> <span class="n">scorer</span> <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">scorer</span><span class="p">)</span> <span class="k">else</span> <span class="n">SCORE_REGISTRY</span><span class="p">[</span><span class="n">scorer</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">paramGrid</span> <span class="o">=</span> <span class="n">paramGrid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gridKwargs</span> <span class="o">=</span> <span class="n">gridKwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeFormat</span> <span class="o">=</span> <span class="n">timeFormat</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">declaration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">predict_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unified prediction interface</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
+
+<span class="c1"># Estimator determined properties</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fields passed into model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;_fields&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Features coming from model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;_features&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+<span class="c1"># Fitting</span>
+<div class="viewcode-block" id="Estimator.grid_search"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator.grid_search">[docs]</a>    <span class="k">def</span> <span class="nf">grid_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">paramGrid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridKwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Grid search over hyperparameter space</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">paramGrid</span> <span class="ow">and</span> <span class="n">gridSearch</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;grid searching&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gridSearch</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                           <span class="n">param_grid</span><span class="o">=</span><span class="n">paramGrid</span><span class="p">,</span>
+                                           <span class="o">**</span><span class="n">gridKwargs</span><span class="p">)</span>
+
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">**</span><span class="n">dataset</span><span class="o">.</span><span class="n">dap</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gridSearch</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="p">,</span>
+                    <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">gridSearch</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Estimator.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;paramGrid&#39;</span><span class="p">,</span> <span class="s1">&#39;gridKwargs&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">paramGrid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gridKwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit method with options for grid searching hyperparameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_search</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="n">gridSearch</span><span class="p">,</span>
+                         <span class="n">paramGrid</span><span class="o">=</span><span class="n">paramGrid</span><span class="p">,</span> <span class="n">gridKwargs</span><span class="o">=</span><span class="n">gridKwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># Move to dispatch</span>
+<div class="viewcode-block" id="Estimator.score"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator.score">[docs]</a>    <span class="nd">@pandas_series</span>
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scores</span></div>
+
+<div class="viewcode-block" id="Estimator.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Estimator.get_feature_names"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator.get_feature_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span></div>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr</span> <span class="o">!=</span> <span class="s1">&#39;_name&#39;</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

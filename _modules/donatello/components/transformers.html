@@ -1,0 +1,688 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>donatello.components.transformers &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>donatello.components.transformers</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for donatello.components.transformers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">OneHotEncoder</span><span class="p">,</span> <span class="n">Imputer</span><span class="p">,</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="k">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">clone</span>
+
+<span class="kn">from</span> <span class="nn">donatello.utils.base</span> <span class="k">import</span> <span class="n">Dobject</span><span class="p">,</span> <span class="n">PandasAttrs</span><span class="p">,</span> <span class="n">BaseTransformer</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.decorators</span> <span class="k">import</span> <span class="n">fallback</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.helpers</span> <span class="k">import</span> <span class="n">access</span><span class="p">,</span> <span class="n">nvl</span><span class="p">,</span> <span class="n">now_string</span>
+<span class="kn">from</span> <span class="nn">donatello.components</span> <span class="k">import</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="PandasMixin"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasMixin">[docs]</a><span class="k">class</span> <span class="nc">PandasMixin</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">PandasAttrs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scikit-learn transformer with pandas bindings</span>
+<span class="sd">    to enforce fields and features</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PandasMixin.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasMixin.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_fields</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PandasMixin.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasMixin.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PandasTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasTransformer">[docs]</a><span class="k">class</span> <span class="nc">PandasTransformer</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
+<div class="viewcode-block" id="PandasTransformer.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasTransformer.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_fields</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="PandasTransformer.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasTransformer.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dataset</span></div>
+
+<div class="viewcode-block" id="PandasTransformer.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasTransformer.fit_transform">[docs]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TargetConductor"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TargetConductor">[docs]</a><span class="k">class</span> <span class="nc">TargetConductor</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">passTarget</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passTarget</span> <span class="o">=</span> <span class="n">passTarget</span>
+
+<div class="viewcode-block" id="TargetConductor.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TargetConductor.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passTarget</span> <span class="k">else</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="select_data_type"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.select_data_type">[docs]</a><span class="k">def</span> <span class="nf">select_data_type</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">inclusionExclusionKwargs</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="o">**</span><span class="n">inclusionExclusionKwargs</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">X</span></div>
+
+
+<div class="viewcode-block" id="select_regex"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.select_regex">[docs]</a><span class="k">def</span> <span class="nf">select_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">patterns</span><span class="p">):</span>
+    <span class="n">inclusions</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">X</span> <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="n">inclusions</span></div>
+
+
+<span class="n">CONDUCTION_REGISTRY</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="n">select_data_type</span><span class="p">,</span> <span class="s1">&#39;regex&#39;</span><span class="p">:</span> <span class="n">select_regex</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="DesignConductor"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DesignConductor">[docs]</a><span class="k">class</span> <span class="nc">DesignConductor</span><span class="p">(</span><span class="n">PandasTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Select subset of columns from keylike-valuelike store</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        selectValue (obj): values used for selection</span>
+<span class="sd">        selectMethod (str): type of selection</span>
+
+<span class="sd">            #. None / &#39;&#39; -&gt; direct key /value look up (i.e. column names to slice with)</span>
+<span class="sd">            # &#39;data_type&#39; -&gt; uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.</span>
+
+<span class="sd">        reverse (bool): option to select all except those fields isolated\</span>
+<span class="sd">            by selectValue and selectMethod</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">(),</span> <span class="n">selectMethod</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span> <span class="o">=</span> <span class="n">selectValue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span> <span class="o">=</span> <span class="n">selectMethod</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span> <span class="o">=</span> <span class="n">reverse</span>
+
+<div class="viewcode-block" id="DesignConductor.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DesignConductor.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span><span class="p">:</span>
+            <span class="n">inclusions</span> <span class="o">=</span> <span class="n">CONDUCTION_REGISTRY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span><span class="p">](</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inclusions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span><span class="p">:</span>
+            <span class="n">exclusions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inclusions</span><span class="p">)</span>
+            <span class="n">inclusions</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inclusions</span> <span class="o">=</span> <span class="n">inclusions</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DesignConductor.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DesignConductor.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inclusions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">DesignConductor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DatasetConductor"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor">[docs]</a><span class="k">class</span> <span class="nc">DatasetConductor</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">selectValue</span><span class="o">=</span><span class="p">(),</span> <span class="n">selectMethod</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passDesign</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span> <span class="o">=</span> <span class="n">selectValue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span> <span class="o">=</span> <span class="n">selectMethod</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span> <span class="o">=</span> <span class="n">reverse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passTarget</span> <span class="o">=</span> <span class="n">passTarget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passDesign</span> <span class="o">=</span> <span class="n">passDesign</span>
+
+<div class="viewcode-block" id="DatasetConductor.fit_design"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor.fit_design">[docs]</a>    <span class="k">def</span> <span class="nf">fit_design</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span><span class="p">:</span>
+            <span class="n">inclusions</span> <span class="o">=</span> <span class="n">CONDUCTION_REGISTRY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span><span class="p">](</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inclusions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span><span class="p">:</span>
+            <span class="n">exclusions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inclusions</span><span class="p">)</span>
+            <span class="n">inclusions</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inclusions</span> <span class="o">=</span> <span class="n">inclusions</span></div>
+
+<div class="viewcode-block" id="DatasetConductor.transform_target"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor.transform_target">[docs]</a>    <span class="k">def</span> <span class="nf">transform_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passTarget</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DatasetConductor.transform_design"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor.transform_design">[docs]</a>    <span class="k">def</span> <span class="nf">transform_design</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="n">design</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inclusions</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passDesign</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">design</span></div>
+
+<div class="viewcode-block" id="DatasetConductor.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_fields</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_design</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DatasetConductor.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
+        <span class="n">design</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_design</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_target</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">with_params</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">design</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataset</span></div>
+
+<div class="viewcode-block" id="DatasetConductor.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor.fit_transform">[docs]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AccessTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.AccessTransformer">[docs]</a><span class="k">class</span> <span class="nc">AccessTransformer</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dap</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="o">=</span> <span class="n">dap</span>
+
+<div class="viewcode-block" id="AccessTransformer.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.AccessTransformer.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">dap</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">AccessTransformer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="concat"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.concat">[docs]</a><span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        datasets (list): list of datasets to combine</span>
+<span class="sd">        params (dict): params for dataset object, if None infered from first dataset</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        data.Dataset: combined dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">datasets</span><span class="p">:</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span> <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">Xs</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">ys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">nvl</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">datasets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">dataset</span></div>
+
+
+<div class="viewcode-block" id="TransformNode"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode">[docs]</a><span class="k">class</span> <span class="nc">TransformNode</span><span class="p">(</span><span class="n">Dobject</span><span class="p">,</span> <span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Node in model execution grap</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aggregator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">combine</span><span class="o">=</span><span class="n">concat</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">enforceTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">transformer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregator</span> <span class="o">=</span> <span class="n">aggregator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="o">=</span> <span class="n">fitOnly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combine</span> <span class="o">=</span> <span class="n">combine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">information</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforceTarget</span> <span class="o">=</span> <span class="n">enforceTarget</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">information_available</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">information</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="TransformNode.reset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">information</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TransformNode.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">}</span>
+            <span class="n">payload</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="p">})</span> <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="TransformNode.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">information_available</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span><span class="p">:</span>
+            <span class="n">information</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">information</span> <span class="o">=</span> <span class="n">information</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span><span class="p">:</span>
+            <span class="n">information</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">information</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">information</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">information</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">enforceTarget</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">information</span><span class="o">.</span><span class="n">_has_target</span><span class="p">:</span>
+            <span class="n">information</span><span class="o">.</span><span class="n">targetData</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span>
+
+        <span class="k">return</span> <span class="n">information</span></div>
+
+    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+
+<div class="viewcode-block" id="TransformNode.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.fit_transform">[docs]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ModelDAG"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG">[docs]</a><span class="k">class</span> <span class="nc">ModelDAG</span><span class="p">(</span><span class="n">Dobject</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executor</span><span class="o">=</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span>
+                 <span class="n">conductor</span><span class="o">=</span><span class="n">DatasetConductor</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                 <span class="n">timeFormat</span><span class="o">=</span><span class="s2">&quot;%Y_%m_</span><span class="si">%d</span><span class="s2">_%H_%M&quot;</span><span class="p">,</span>
+                 <span class="n">_nodes</span><span class="o">=</span><span class="nb">set</span><span class="p">([]),</span> <span class="n">_edges</span><span class="o">=</span><span class="p">{},</span>
+                 <span class="n">graphArgs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">graphKwargs</span><span class="o">=</span><span class="p">{}</span>
+                 <span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ModelDAG</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">graphArgs</span><span class="p">,</span> <span class="o">**</span><span class="n">graphKwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeFormat</span> <span class="o">=</span> <span class="n">timeFormat</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initTime</span> <span class="o">=</span> <span class="n">now_string</span><span class="p">(</span><span class="n">timeFormat</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphArgs</span> <span class="o">=</span> <span class="n">graphArgs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graphKwargs</span> <span class="o">=</span> <span class="n">graphKwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">executor</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conductor</span> <span class="o">=</span> <span class="n">conductor</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span> <span class="o">=</span> <span class="n">_nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="n">_edges</span>
+
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">add_node_transformer</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_nodes</span><span class="p">]</span>
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">add_edge_conductor</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_edges</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+<div class="viewcode-block" id="ModelDAG.set_params"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the parameters of this estimator.</span>
+
+<span class="sd">        **Ripped from sklearn 0.20.02** enables setting transformer attributers</span>
+<span class="sd">        accessed via node names and `_` separated edges</span>
+
+<span class="sd">        The method works on simple estimators as well as on nested objects</span>
+<span class="sd">        (such as pipelines). The latter have parameters of the form</span>
+<span class="sd">        ``&lt;component&gt;__&lt;parameter&gt;`` so that it&#39;s possible to update each</span>
+<span class="sd">        component of a nested object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="p">:</span>
+            <span class="c1"># Simple optimization to gain speed (inspect is slow)</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">valid_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">valid_params</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+            <span class="n">valid_params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;__&#39;</span> <span class="o">+</span> <span class="n">k</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">]</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+        <span class="k">for</span> <span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">),</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">n1_n2</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">])</span>
+            <span class="n">valid_params</span><span class="p">[</span><span class="n">n1_n2</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge</span>
+            <span class="n">valid_params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">n1_n2</span> <span class="o">+</span> <span class="s1">&#39;__&#39;</span> <span class="o">+</span> <span class="n">k</span><span class="p">:</span> <span class="n">val</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)][</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">]</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+        <span class="n">nested_params</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># grouped by prefix</span>
+        <span class="n">node_params</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># grouped by prefix</span>
+        <span class="n">edge_params</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># grouped by prefix</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">delim</span><span class="p">,</span> <span class="n">sub_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_params</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid parameter </span><span class="si">%s</span><span class="s1"> for estimator </span><span class="si">%s</span><span class="s1">. &#39;</span>
+                                 <span class="s1">&#39;Check the list of available parameters &#39;</span>
+                                 <span class="s1">&#39;with `estimator.get_params().keys()`.&#39;</span> <span class="o">%</span>
+                                 <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">delim</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+                    <span class="n">node_params</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">sub_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">])</span> <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">]):</span>
+                    <span class="n">edge_params</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">sub_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">nested_params</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">sub_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_node_transformer</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">([</span><span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">])</span> <span class="k">for</span> <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">]):</span>
+                    <span class="n">n1</span><span class="p">,</span> <span class="n">n2</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_edge_conductor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">valid_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_params</span> <span class="ow">in</span> <span class="n">nested_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">valid_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">sub_params</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_params</span> <span class="ow">in</span> <span class="n">node_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">sub_params</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">sub_params</span> <span class="ow">in</span> <span class="n">edge_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">edge_exec</span><span class="p">(</span><span class="o">*</span><span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">sub_params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ModelDAG.node_exec"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.node_exec">[docs]</a>    <span class="k">def</span> <span class="nf">node_exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ModelDAG.edge_exec"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.edge_exec">[docs]</a>    <span class="k">def</span> <span class="nf">edge_exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_to</span><span class="p">,</span> <span class="n">node_from</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">node_to</span><span class="p">,</span> <span class="n">node_from</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ModelDAG.clean"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_degree</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">terminal</span> <span class="o">=</span> <span class="n">terminal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">terminal</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">terminal</span>
+        <span class="k">return</span> <span class="n">terminal</span>
+
+<div class="viewcode-block" id="ModelDAG.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
+            <span class="n">upstreams</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;fit_transform&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">]</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">upstream</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">upstream</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="n">upstreams</span><span class="p">)]</span>
+
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ModelDAG.predict_proba"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.predict_proba">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">parents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
+            <span class="n">upstreams</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">]</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">upstream</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">upstream</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="n">upstreams</span><span class="p">)]</span>
+
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
+
+        <span class="n">probas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">probas</span></div>
+
+<div class="viewcode-block" id="ModelDAG.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
+            <span class="n">upstreams</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">]</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">upstream</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">upstream</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="n">upstreams</span><span class="p">)]</span>
+
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
+
+        <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transformed</span></div>
+
+<div class="viewcode-block" id="ModelDAG.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.fit_transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelDAG.apply"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">information</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">information_available</span> <span class="k">else</span>
+                      <span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span>
+                                 <span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">),</span> <span class="p">[</span><span class="n">method</span><span class="p">])(</span><span class="n">data</span><span class="p">),</span>
+                                 <span class="n">method</span>
+                                 <span class="p">))</span> <span class="k">for</span>
+                      <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">),</span> <span class="n">method</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;dataset&#39;</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">}</span>
+            <span class="n">payload</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="p">})</span> <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">information</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">methodKwargs</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">information</span></div>
+
+<div class="viewcode-block" id="ModelDAG.add_node_transformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.add_node_transformer">[docs]</a>    <span class="k">def</span> <span class="nf">add_node_transformer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">:</span> <span class="n">node</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="ModelDAG.add_edge_conductor"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.add_edge_conductor">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;conductor&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">add_edge_conductor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_from</span><span class="p">,</span> <span class="n">node_to</span><span class="p">,</span> <span class="n">conductor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">conductor</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">conductor</span><span class="p">)</span>
+        <span class="n">conductor</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_node_transformer</span><span class="p">(</span><span class="n">node_from</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_from</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_node_transformer</span><span class="p">(</span><span class="n">node_to</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_to</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="n">node_from</span> <span class="o">=</span> <span class="n">node_from</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_from</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">node_from</span>
+        <span class="n">node_to</span> <span class="o">=</span> <span class="n">node_to</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node_to</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">node_to</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">node_from</span><span class="p">,</span> <span class="n">node_to</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">:</span> <span class="n">conductor</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">update</span><span class="p">({(</span><span class="n">node_from</span><span class="p">,</span> <span class="n">node_to</span><span class="p">):</span> <span class="n">conductor</span><span class="p">})</span></div>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="p">),</span> <span class="n">attr</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OneHotEncoder"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.OneHotEncoder">[docs]</a><span class="k">class</span> <span class="nc">OneHotEncoder</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Imputer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Imputer">[docs]</a><span class="k">class</span> <span class="nc">Imputer</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">Imputer</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="StandardScaler"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.StandardScaler">[docs]</a><span class="k">class</span> <span class="nc">StandardScaler</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Pipeline"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Pipeline">[docs]</a><span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">attr</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
