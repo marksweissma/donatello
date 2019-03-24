@@ -4,10 +4,10 @@ donatello.components package
 Submodules
 ----------
 
-donatello.components.manager module
------------------------------------
+donatello.components.core module
+--------------------------------
 
-.. automodule:: donatello.components.manager
+.. automodule:: donatello.components.core
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,14 +20,6 @@ donatello.components.data module
     :undoc-members:
     :show-inheritance:
 
-donatello.components.splitter module
-------------------------------------
-
-.. automodule:: donatello.components.splitter
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 donatello.components.estimator module
 -------------------------------------
 
@@ -36,18 +28,26 @@ donatello.components.estimator module
     :undoc-members:
     :show-inheritance:
 
-donatello.components.scorer module
-----------------------------------
+donatello.components.fold module
+--------------------------------
 
-.. automodule:: donatello.components.scorer
+.. automodule:: donatello.components.fold
     :members:
     :undoc-members:
     :show-inheritance:
 
-donatello.components.disk module
---------------------------------
+donatello.components.measure module
+-----------------------------------
 
-.. automodule:: donatello.components.disk
+.. automodule:: donatello.components.measure
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+donatello.components.transformers module
+----------------------------------------
+
+.. automodule:: donatello.components.transformers
     :members:
     :undoc-members:
     :show-inheritance:

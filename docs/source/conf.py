@@ -33,7 +33,6 @@ sys.path.insert(0, os.path.abspath('../../'))
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
-    'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.githubpages',
     'nbsphinx',]
@@ -171,6 +170,9 @@ texinfo_documents = [
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'python': ('https://docs.python.org/', None),
+                       'pandas': ('http://pandas.pydata.org/pandas-docs/dev', None),
+                       'sklearn': ('http://scikit-learn.org/stable', None),
+                       }
 
 autodoc_member_order = 'bysource'

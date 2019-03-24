@@ -28,14 +28,6 @@ donatello.utils.helpers module
     :undoc-members:
     :show-inheritance:
 
-donatello.utils.transformers module
------------------------------------
-
-.. automodule:: donatello.utils.transformers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------
