@@ -182,13 +182,12 @@ and stored in the measurements attribute
 
 
 
-.. code:: python
-
-    sculpture.measurements.crossValidation.average_precision_score
 
 The default aggregations are ``mean`` and ``std`` which are collected into a Bunch as well.
 
-.. parsed-literal::
+.. code:: python
+
+    sculpture.measurements.crossValidation.average_precision_score
 
     {'mean':           0
      _          
@@ -506,6 +505,7 @@ The default aggregations are ``mean`` and ``std`` which are collected into a Bun
     </div>
 
 
+
 Persisting
 ----------
 
@@ -518,7 +518,5 @@ user defined flexibility
 
     ls *pkl
 
-
-.. parsed-literal::
 
     Estimator.pkl  Sculpture.pkl
