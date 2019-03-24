@@ -42,28 +42,28 @@ def fit_fold(wrapped, instance, args, kwargs):
 
 class Dataset(Dobject):
     """
-    Object for owning a dataset
+    Maintain and provide access to underlying information and metadata
 
     Args:
-        raws (obj): raw data
-        queries (dict): queries to execute to fetch data if not directly passed
-        querier (func): default function to execute queries
-        copyRaws (bool): option to have data return copy of raws to preserve fetch
+        raw (obj): raw data
         X (obj): option to specify design directly
         y (obj): option to specify target directly
+        queries (dict): queries to execute to fetch data if not directly passed
+        querier (func): default function to execute queries
+        copyRaw (bool): option to have data return copy of raw to preserve fetch
         type (obj) foldType: type of fold to leverage in iterator
         foldDeclaration (obj): kwargs for split type to instantiate with in constructor
     """
     @init_time
-    def __init__(self, raws=None, X=None, y=None,
-                 queries=None, querier=pd.read_csv, copyRaws=False,
+    def __init__(self, raw=None, X=None, y=None,
+                 queries=None, querier=pd.read_csv, copyRaw=False,
                  foldClay=None, foldType=Fold,
                  scoreClay=None,
                  target=None, primaryKey=None,
                  dap=None, force=False
                  ):
 
-        self.copyRaws = copyRaws
+        self.copyRaw = copyRaw
         self.queries = queries
         self.querier = querier
 
@@ -76,8 +76,8 @@ class Dataset(Dobject):
 
         self.fold = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
 
-        if any([i is not None for i in [raws, X, y]]):
-            self.link(raws, X, y)
+        if any([i is not None for i in [raw, X, y]]):
+            self.link(raw, X, y)
 
     @property
     def dap(self):
@@ -86,7 +86,7 @@ class Dataset(Dobject):
     @property
     def params(self):
         spec = inspect.getargspec(self.__init__)
-        exclusions = set(['self', 'raws', 'X', 'y'])
+        exclusions = set(['self', 'raw', 'X', 'y'])
         params = {param: getattr(self, param) for param in spec.args if param not in exclusions}
         return params
 
@@ -94,10 +94,10 @@ class Dataset(Dobject):
     def data(self):
         value = getattr(self, '_data', None)
         if value is None:
-            if self.copyRaws and self.raws is not None:
-                value = self.raws.copy()
+            if self.copyRaw and self.raw is not None:
+                value = self.raw.copy()
             else:
-                value = getattr(self, 'raws', None)
+                value = getattr(self, 'raw', None)
         return value
 
     @data.setter
@@ -108,19 +108,19 @@ class Dataset(Dobject):
     def hasData(self):
         return has_data(self.data)
 
-    def link(self, raws=None, X=None, y=None):
-        if raws is None and (X is not None or y is not None):
-            raws = [X] if X is not None else []
-            raws.append(y) if y is not None else None
-            self.raws = pd.concat(raws, axis=1)
+    def link(self, raw=None, X=None, y=None):
+        if raw is None and (X is not None or y is not None):
+            raw = [X] if X is not None else []
+            raw.append(y) if y is not None else None
+            self.raw = pd.concat(raw, axis=1)
             self.designData = X
             self.targetData = y
             name = getattr(y, 'name', getattr(self, 'target', None))
             self.target = name
         else:
-            self.raws = raws
+            self.raw = raw
 
-        if has_data(raws) or has_data(X):
+        if has_data(raw) or has_data(X):
             self._fit_fold()
 
     def _fit_fold(self):
@@ -194,7 +194,7 @@ class Dataset(Dobject):
     def execute_queries(self, queries=None, querier=None, force=False):
         """
         Execute data extraction via cascading querying dependencies
-        Attaches return to :py:attr:`Data.raws`, which can be
+        Attaches return to :py:attr:`Data.raw`, which can be
         accessed via py:attr:`Data.data`
 
         Args:
@@ -204,16 +204,16 @@ class Dataset(Dobject):
         """
 
         if not queries:
-            self.raws = querier()
+            self.raw = querier()
         else:
             for name, query in queries.items():
                 querier = query.get('querier', querier)
 
                 payload = {i: j for i, j in query.items() if i != 'querier'}
                 if len(queries) == 1:
-                    self.raws = querier(**payload)
+                    self.raw = querier(**payload)
                 else:
-                    self.raws[name] = querier(**payload)
+                    self.raw[name] = querier(**payload)
 
     def subset(self, subset='train'):
         subset = subset.capitalize()
@@ -235,9 +235,9 @@ class Dataset(Dobject):
         results = self._take(train, test)
         return results
 
-    def with_params(self, raws=None, X=None, y=None, **kwargs):
+    def with_params(self, raw=None, X=None, y=None, **kwargs):
         kwargs.update({i: j for i, j in self.params.items() if i not in kwargs})
-        return type(self)(raws=raws, X=X, y=y, **kwargs)
+        return type(self)(raw=raw, X=X, y=y, **kwargs)
 
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):

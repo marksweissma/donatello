@@ -16,20 +16,17 @@ from donatello.utils.base import Dobject
 
 class Sculpture(Dobject, BaseEstimator):
     """
-    Instance for model processing. [a-z]*Declaration parameters map 1:1 to
-    component objects attached via property setters. Other parameters
-    attached directly.
-
-    Manager accessors will fallback to accessing from estimator attributes
+    Instance for model processing. Accessors will fallback to accessing from estimator attributes
 
     Args:
-        dataDeclaration (dict): :py:class:`donatello.components.data.Dataset`
-        estimatorDeclaration (dict): arguments for :py:class:`donatello.components.estimator.Estimator`
-        measureDeclaration (dict): arguments for :py:class:`donatello.components.measure.Measure`
-        validation (bool): flag for calculating scoring metrics from nested cross val of training + validation sets
+        dataset (donatello.components.data.Dataset): accesses  dataset
+        estimator(donatello.components.estimator.Estimator): executes ML
+        validation (bool): flag for calculating scoring metrics from nested\
+                cross val of training + validation sets
         holdOut (bool): flag for fitting estimator on single training set and scoring on test set
-        metrics (iterable): list or dict of metrics for measure
-        persist (func): function to write with
+        measure (donatello.components.measure.Measure): own calculateing stats
+        metrics (iterable.Metric): :py:class:`donatello.components.measure.Metric` to score
+        persist (func): function to write
         persistAttrs (tuple): attributes to write out to disk
         timeFormat (str): format for creation time string
     """

@@ -39,6 +39,10 @@ class Estimator(Dobject, BaseTransformer):
     """
     Donatello's estimation object to support model training and prediction
 
+    Note:
+        sklearn GridSearchCV does not support indexing throuhg collections. If
+        executing skSearch, dataset.designData must be flat (not dict)
+
     Args:
         model (sklearn.base.BaseEstimator): ML model implementing fit, predict[a-z]*
         method (str): string name of prediction method

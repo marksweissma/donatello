@@ -34,7 +34,7 @@ def load_scuplture():
     """
     Helper to load sculpture
     """
-    dataset = Dataset(raws=load_sklearn_bc_dataset(), target='is_malignant')
+    dataset = Dataset(raw=load_sklearn_bc_dataset(), target='is_malignant')
 
     model = Pipeline([('scale', StandardScaler()),
                       ('ml', LogisticRegression())])

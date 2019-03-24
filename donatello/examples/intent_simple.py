@@ -31,7 +31,7 @@ def load_scuplture():
     """
     Helper to load sculpture
     """
-    dataset = Dataset(raws=load_sklearn_bc_dataset(), target='is_malignant')
+    dataset = Dataset(raw=load_sklearn_bc_dataset(), target='is_malignant')
 
     estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': list(pd.np.logspace(-2, 0, 5))},
