@@ -59,14 +59,14 @@ class Sculpture(Dobject, BaseEstimator):
         self.storeReferences = storeReferences
         self._references = {}
         self.measurements = Bunch()
-        self._declaration = self.get_params(deep=False)
+        self._declaration = self.get_params(deep=False).copy()
 
     @property
     def declaration(self):
         """
         Dictionary of kwargs given during instantiation
         """
-        return {i: clone(j) for i, j in self._declaration.items()}
+        return self._declaration.copy()
 
     @subset_dataset('train')
     def build_cross_validation(self, dataset, **fitParams):
