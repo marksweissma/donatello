@@ -320,10 +320,31 @@
 
 
 <div class="viewcode-block" id="persist"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.persist">[docs]</a><span class="k">def</span> <span class="nf">persist</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;pkl&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">writeArgs</span><span class="p">,</span> <span class="o">**</span><span class="n">writeKwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write an object (or attribute) to persist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obj</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">[</span><span class="n">attr</span><span class="p">])</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span> <span class="n">extension</span><span class="p">])</span>
     <span class="n">local</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
     <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">local</span><span class="p">,</span> <span class="o">*</span><span class="n">writeArgs</span><span class="p">,</span> <span class="o">**</span><span class="n">writeKwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="view_sk_metric"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.helpers.view_sk_metric">[docs]</a><span class="k">def</span> <span class="nf">view_sk_metric</span><span class="p">(</span><span class="n">bunch</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unnest a sklearn metric (or other single value only returning metric)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bunch (bunch): dict of aggregated scores</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pandas.DataFrame: flattened view</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span>
+                                 <span class="n">bunch</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                       <span class="p">}</span>
+                      <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
 </pre></div>
 
            </div>
@@ -366,6 +387,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../../_static/language_data.js"></script>
 
   
 

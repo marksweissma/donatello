@@ -2,32 +2,30 @@
 Quick Start
 ===========
 
-This quick starts with a simple classification problem and demonstrates  how to
+This guide starts with a simple classification problem and demonstrates how to
 iterate with donatello 
 
 
 Sculpture
 =========
+
 To get started, connect a dataset via
 :py:class:`donatello.components.data.Dataset` and
 :py:class:`donatello.components.estimator.Estimator` to
 :py:class:`donatello.components.core.Sculpture`
 
-Scupltures are modeling object that uphold scikit-learn's estimator contractors
+Sculptures are modeling object that uphold scikit-learn's estimator contracts
 
-    #. ``__init__`` cannot mutate parameters,
+    #. ``__init__`` cannot mutate parameters
+    #. ``get_params`` and ``set_params``
     #. fit, transform, fit_transform supported throughout
 
 
-Scupltures can be embedded as nodes in :py:class:`donatello.components.transformers.ModelDAG` as well 
+Sculptures can be embedded as nodes in :py:class:`donatello.components.transformers.ModelDAG` as well 
 as transformers in :py:class:`sklearn.pipeline.Pipeline`
 
-
 Donatello approaches model configurations as declararing intent. Everything required
-to build evaluate and produce artifacts is specified during instantiation of the objects.
-Parameters can be updated through :py:meth:`donatello.components.core.Sculpture.set_params` 
-like standard scikit-learn transformer and will be packaged with the object when persisted,
-but this is not recommended
+to build evaluate and produce artifacts is specified during instantiation.
 
 
 Intent
