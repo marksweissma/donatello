@@ -1,3 +1,5 @@
+Refactor measurements / metrics -> smooth return
+
 refactor estimator to better support dataset
 
 sklearn parallelization
@@ -5,6 +7,8 @@ sklearn parallelization
 fix dataset packaging for sculpture
 
 fix name
+
+XGBoost cv + early stopping
 
 look into passing target through pandas nodes
 
@@ -23,3 +27,6 @@ examples
     #. branching graph
     #. many : 1
     #. y transforms
+
+
+Look at panel for measurement / metric organization

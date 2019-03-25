@@ -39,3 +39,6 @@ test: env
 test-dev: 
 	docker run -v `pwd`:/opt/workspace $(BASE) -c "pytest $(TEST_PATH)"
 
+ship-wheel:
+	python setup.py bdist_wheel --universal -upload -r pypi
+
