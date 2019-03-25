@@ -186,7 +186,28 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
 
 
 def persist(obj=None, attr="", root='.', name='', extension='pkl', *writeArgs, **writeKwargs):
+    """
+    Write an object (or attribute) to persist.
+    """
     obj = access(obj, [attr])
     name = name if name else ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
     local = os.path.join(root, name)
     joblib.dump(obj, local, *writeArgs, **writeKwargs)
+
+
+def view_sk_metric(bunch):
+    """
+    Unnest a sklearn metric (or other single value only returning metric)
+
+    Args:
+        bunch (bunch): dict of aggregated scores
+
+    Returns:
+        pandas.DataFrame: flattened view
+    """
+    df = pd.DataFrame({'score': {key: value.values[0][0]
+                                 for key, value in
+                                 bunch.items()}
+                       }
+                      )
+    return df
