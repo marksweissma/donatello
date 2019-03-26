@@ -33,6 +33,9 @@ class PandasMixin(TransformerMixin, PandasAttrs):
 
 
 class PandasTransformer(BaseTransformer):
+    """
+    The scikit-learn TransformerMixin renders on fit_transform, disregard
+    """
     @data.package_dataset
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
@@ -57,14 +60,35 @@ class TargetConductor(BaseTransformer):
         return dataset.targetData if self.passTarget else None
 
 
-def select_data_type(X, inclusionExclusionKwargs):
-    X = X.select_dtypes(**inclusionExclusionKwargs).columns.tolist()
-    return X
+def select_data_type(X, **kwargs):
+    """
+    Select columns from X through :py:meth:`pandas.DataFrame.select_dtypes`
+    kwargs are keyword arguments for the method
+
+    Args:
+        X (pandas.DataFrame):  table to select from
+        **kwargs (): selection arguments
+    Returns:
+        list: features to include
+    """
+    features = X.select_dtypes(**kwargs).columns.tolist()
+    return features
 
 
-def select_regex(self, X, patterns):
-    inclusions = [i for i in X if any([re.match(j, i) for j in patterns])]
-    return inclusions
+def select_regex(X, patterns):
+    """
+    Select columns from X through matching any :py:func:`re.match`
+    pattern in patterns
+    kwargs are keyword arguments for the method
+
+    Args:
+        X (pandas.DataFrame):  table to select from
+        patterns (iterable): patterns to search for matches
+    Returns:
+        list: features to include
+    """
+    features = [i for i in X if any([re.match(j, i) for j in patterns])]
+    return features
 
 
 CONDUCTION_REGISTRY = {'data_type': select_data_type, 'regex': select_regex}
@@ -112,6 +136,20 @@ class DesignConductor(PandasTransformer):
 
 
 class DatasetConductor(BaseTransformer):
+    """
+    Select subset of columns from keylike-valuelike store
+
+    Args:
+        selectValue (obj): values used for selection
+        selectMethod (str): type of selection
+
+            #. None / '' -> direct key /value look up (i.e. column names to slice with)
+            # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.
+        reverse (bool): option to select all except those fields isolated\
+            by selectValue and selectMethod
+        passTarget (bool): flag to raw dataset's targetData through
+        passDesign (bool): flag to raw dataset's designData through
+    """
     def __init__(self,
                  selectValue=(), selectMethod=None, reverse=False,
                  passTarget=True, passDesign=True):
@@ -159,6 +197,12 @@ class DatasetConductor(BaseTransformer):
 
 class AccessTransformer(BaseTransformer):
     """
+    Unified transform only interace. Leverages donatello's
+    data access protoal to apply transform. For more info
+    seoo :py:func:`donatello.utils.helpers.access`
+
+    Args:
+        dap (dict): keyword arguments to apply on dataset via access protocol
     """
     def __init__(self, dap):
         self.dap = dap
@@ -173,6 +217,8 @@ class AccessTransformer(BaseTransformer):
 
 def concat(datasets, params=None):
     """
+    Simple helper to combine design and target data  from propogation through
+    :py:class:`ModelDAG`
 
     Args:
         datasets (list): list of datasets to combine
@@ -197,14 +243,22 @@ def concat(datasets, params=None):
 class TransformNode(Dobject, BaseTransformer):
     """
     Node in model execution grap
+
+    Args:
+        name (str): identifier for node in graph
+        transformer (obj): supporting fit, transform, and fit_transform calls
+        combine (func): function to combine incoming datasets from upstream nodes
+        fitOnly (bool): flag if transform is only to be applied during fitting (i.e SMOTE)
+        store (bool): hold information on Node (improves in memory calcs if multiple calls)
+        enforceTarget (bool): enforce target in transformed dataset - this\
+                is mainly a patch for scikit-learn wrapped transformers which ignore\
+                y in transform calls preventing it from passing through the transformer
     """
-    def __init__(self, name, transformer=None, aggregator=None,
-                 combine=concat, fitOnly=False, store=True,
-                 enforceTarget=True):
+    def __init__(self, name, transformer=None, combine=concat,
+                 fitOnly=False, store=False, enforceTarget=False):
 
         self.name = name
         self.transformer = transformer
-        self.aggregator = aggregator
         self.fitOnly = fitOnly
         self.combine = combine
         self.store = store
@@ -269,6 +323,35 @@ class TransformNode(Dobject, BaseTransformer):
 
 
 class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
+    """
+    In memory data transformation graph. Nodes are accessed via
+    via any :py:class:`networkx.DiGraph` accessor of the node's name.
+    The networkx graph is constucted via the names with the goal that
+    all user operations are more intuitively accomplished by a string / name
+    access pattern. The ModelDAG acts as a wrapper to enable that concept
+    in the context of a scikit-learn style transformer
+
+    Note:
+
+        ``set_params`` method
+        is patches to set node[executor].transformer attributes.
+        Changing the ``C`` value of a graph with a Logistic Regression in node 'n2'
+        is accomplished via graph.set_params(n2__C=value)
+
+
+    Warning:
+
+        private (``_``) node and edges arguments in constructor  are a hack
+        to maintin the scikit-learn contracts. Supplying nodes in the graphArgs/Kwargs
+        will cause cloning to fail or cloning to lose neccesary information. Please
+        do not do this
+
+    Args:
+        executor (str): name of attribute in each node where transform object is stored
+        conductor (obj): default edge conduction transformer
+        timeFormat (str): str format for logging init time
+        _nodes (set): patch for handlin
+    """
     def __init__(self, executor='executor',
                  conductor=DatasetConductor(reverse=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
@@ -363,16 +446,36 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         return self
 
     def node_exec(self, node):
+        """
+        Return object accessed by node name
+
+        Arg:
+            node (hashable): node accessor
+        Returns:
+            obj: (by default a TransformNode)
+        """
         return self.nodes[node][self.executor]
 
-    def edge_exec(self, node_to, node_from):
-        return self.get_edge_data(node_to, node_from)[self.executor]
+    def edge_exec(self, node_from, node_to):
+        """
+        Return object accessed by edge
+
+        Arg:
+            node_from (hashable): node accessor for originating node
+            node_to (hashable): node accessor for terminating node
+        Returns:
+            obj: by default graph's default conductor
+        """
+        return self.get_edge_data(node_from, node_to)[self.executor]
 
     def clean(self):
         [self.node_exec(node).reset() for node in self]
 
     @property
     def terminal(self):
+        """
+        accessor for terminal node, or list of terminal nodes if not single terminating node
+        """
         terminal = [node for node in self.nodes if self.out_degree(node) == 0]
         terminal = terminal[0] if len(terminal) == 1 else terminal
         return terminal
