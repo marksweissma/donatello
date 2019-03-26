@@ -7,7 +7,7 @@ Welcome to donatello's documentation!
 =====================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 6
    :caption: Contents:
 
    quickstart
