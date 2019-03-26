@@ -171,7 +171,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'python': ('https://docs.python.org/', None),
-                       'pandas': ('http://pandas.pydata.org/pandas-docs/dev', None),
+                       'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
                        'sklearn': ('http://scikit-learn.org/stable', None),
                        }
 
