@@ -183,7 +183,7 @@
 <p>Manager for model building and evaluating</p>
 <dl class="class">
 <dt id="donatello.components.core.Sculpture">
-<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdOut=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_03_25_09_22</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdOut=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_03_25_21_13</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></a></p>
 <p>Instance for model processing. Accessors will fallback to accessing from estimator attributes</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -610,8 +610,8 @@ Packages dataframes and dictionaries of dataframes</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>estimator</strong> (<em>BaseEstimator</em>) – Fit estimator to evaluate</li>
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) – design</li>
-<li><strong>y</strong> (<em>pandas.Series</em>) – target</li>
+<li><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v0.24.2)"><em>pandas.DataFrame</em></a>) – design</li>
+<li><strong>y</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v0.24.2)"><em>pandas.Series</em></a>) – target</li>
 <li><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – metrics to evaluate</li>
 </ul>
 </td>
@@ -619,7 +619,7 @@ Packages dataframes and dictionaries of dataframes</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">scored, measurements</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a>(pandas.Series, metric evaluations)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a>(<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v0.24.2)">pandas.Series</a>, metric evaluations)</p>
 </td>
 </tr>
 </tbody>
@@ -637,8 +637,8 @@ Packages dataframes and dictionaries of dataframes</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>estimator</strong> (<em>BaseEstimator</em>) – Fit estimator to evaluate</li>
 <li><strong>dataset</strong> (<em>donatello.data.Dataset</em>) – </li>
-<li><strong>X</strong> (<em>pandas.DataFrame</em>) – design</li>
-<li><strong>y</strong> (<em>pandas.Series</em>) – target</li>
+<li><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v0.24.2)"><em>pandas.DataFrame</em></a>) – design</li>
+<li><strong>y</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v0.24.2)"><em>pandas.Series</em></a>) – target</li>
 <li><strong>metrics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – metrics to evaluate</li>
 </ul>
 </td>
@@ -646,7 +646,7 @@ Packages dataframes and dictionaries of dataframes</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">scored, measurements</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a>(pandas.Series, metric evaluations)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a>(<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v0.24.2)">pandas.Series</a>, metric evaluations)</p>
 </td>
 </tr>
 </tbody>
@@ -714,7 +714,7 @@ Packages dataframes and dictionaries of dataframes</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">values of feature weights</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">pandas.DataFrame</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v0.24.2)">pandas.DataFrame</a></p>
 </td>
 </tr>
 </tbody>
@@ -764,6 +764,7 @@ to enforce fields and features</p>
 <dt id="donatello.components.transformers.PandasTransformer">
 <em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">PandasTransformer</code><a class="reference internal" href="_modules/donatello/components/transformers.html#PandasTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.PandasTransformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
+<p>The scikit-learn TransformerMixin renders on fit_transform, disregard</p>
 <dl class="method">
 <dt id="donatello.components.transformers.PandasTransformer.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#PandasTransformer.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.PandasTransformer.fit" title="Permalink to this definition">¶</a></dt>
@@ -815,13 +816,54 @@ and returns a transformed version of X.</p>
 
 <dl class="function">
 <dt id="donatello.components.transformers.select_data_type">
-<code class="descclassname">donatello.components.transformers.</code><code class="descname">select_data_type</code><span class="sig-paren">(</span><em>X</em>, <em>inclusionExclusionKwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#select_data_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.select_data_type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">donatello.components.transformers.</code><code class="descname">select_data_type</code><span class="sig-paren">(</span><em>X</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#select_data_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.select_data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select columns from X through <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.select_dtypes.html#pandas.DataFrame.select_dtypes" title="(in pandas v0.24.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.select_dtypes()</span></code></a>
+kwargs are keyword arguments for the method</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v0.24.2)"><em>pandas.DataFrame</em></a>) – table to select from</li>
+<li><strong>(</strong><strong>)</strong> (<em>**kwargs</em>) – selection arguments</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">features to include</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="donatello.components.transformers.select_regex">
-<code class="descclassname">donatello.components.transformers.</code><code class="descname">select_regex</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>patterns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#select_regex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.select_regex" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">donatello.components.transformers.</code><code class="descname">select_regex</code><span class="sig-paren">(</span><em>X</em>, <em>patterns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#select_regex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.select_regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select columns from X through matching any <a class="reference external" href="https://docs.python.org/3/library/re.html#re.match" title="(in Python v3.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">re.match()</span></code></a>
+pattern in patterns
+kwargs are keyword arguments for the method</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>X</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v0.24.2)"><em>pandas.DataFrame</em></a>) – table to select from</li>
+<li><strong>patterns</strong> (<em>iterable</em>) – patterns to search for matches</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">features to include</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="class">
 <dt id="donatello.components.transformers.DesignConductor">
@@ -836,7 +878,7 @@ and returns a transformed version of X.</p>
 <li><strong>selectValue</strong> (<em>obj</em>) – values used for selection</li>
 <li><strong>selectMethod</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>type of selection</p>
 <p>#. None / ‘’ -&gt; direct key /value look up (i.e. column names to slice with)
-# ‘data_type’ -&gt; uses <code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.select_dtypes()</span></code> to select by data type.</p>
+# ‘data_type’ -&gt; uses <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.select_dtypes.html#pandas.DataFrame.select_dtypes" title="(in pandas v0.24.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.select_dtypes()</span></code></a> to select by data type.</p>
 </li>
 <li><strong>reverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – option to select all except those fields isolated            by selectValue and selectMethod</li>
 </ul>
@@ -860,6 +902,25 @@ and returns a transformed version of X.</p>
 <dt id="donatello.components.transformers.DatasetConductor">
 <em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">DatasetConductor</code><span class="sig-paren">(</span><em>selectValue=()</em>, <em>selectMethod=None</em>, <em>reverse=False</em>, <em>passTarget=True</em>, <em>passDesign=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
+<p>Select subset of columns from keylike-valuelike store</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>selectValue</strong> (<em>obj</em>) – values used for selection</li>
+<li><strong>selectMethod</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – <p>type of selection</p>
+<p>#. None / ‘’ -&gt; direct key /value look up (i.e. column names to slice with)
+# ‘data_type’ -&gt; uses <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.select_dtypes.html#pandas.DataFrame.select_dtypes" title="(in pandas v0.24.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.select_dtypes()</span></code></a> to select by data type.</p>
+</li>
+<li><strong>reverse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – option to select all except those fields isolated            by selectValue and selectMethod</li>
+<li><strong>passTarget</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – flag to raw dataset’s targetData through</li>
+<li><strong>passDesign</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – flag to raw dataset’s designData through</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="donatello.components.transformers.DatasetConductor.fit_design">
 <code class="descname">fit_design</code><span class="sig-paren">(</span><em>dataset</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor.fit_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor.fit_design" title="Permalink to this definition">¶</a></dt>
@@ -917,6 +978,17 @@ and returns a transformed version of X.</p>
 <dt id="donatello.components.transformers.AccessTransformer">
 <em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">AccessTransformer</code><span class="sig-paren">(</span><em>dap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#AccessTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.AccessTransformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
+<p>Unified transform only interace. Leverages donatello’s
+data access protoal to apply transform. For more info
+seoo <a class="reference internal" href="donatello.utils.html#donatello.utils.helpers.access" title="donatello.utils.helpers.access"><code class="xref py py-func docutils literal notranslate"><span class="pre">donatello.utils.helpers.access()</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dap</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – keyword arguments to apply on dataset via access protocol</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="donatello.components.transformers.AccessTransformer.transform">
 <code class="descname">transform</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#AccessTransformer.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.AccessTransformer.transform" title="Permalink to this definition">¶</a></dt>
@@ -927,7 +999,9 @@ and returns a transformed version of X.</p>
 <dl class="function">
 <dt id="donatello.components.transformers.concat">
 <code class="descclassname">donatello.components.transformers.</code><code class="descname">concat</code><span class="sig-paren">(</span><em>datasets</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.concat" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Simple helper to combine design and target data  from propogation through
+<a class="reference internal" href="#donatello.components.transformers.ModelDAG" title="donatello.components.transformers.ModelDAG"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelDAG</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
@@ -949,9 +1023,25 @@ and returns a transformed version of X.</p>
 
 <dl class="class">
 <dt id="donatello.components.transformers.TransformNode">
-<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">TransformNode</code><span class="sig-paren">(</span><em>name</em>, <em>transformer=None</em>, <em>aggregator=None</em>, <em>combine=&lt;function concat&gt;</em>, <em>fitOnly=False</em>, <em>store=True</em>, <em>enforceTarget=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TransformNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TransformNode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">TransformNode</code><span class="sig-paren">(</span><em>name</em>, <em>transformer=None</em>, <em>combine=&lt;function concat&gt;</em>, <em>fitOnly=False</em>, <em>store=False</em>, <em>enforceTarget=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TransformNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TransformNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
 <p>Node in model execution grap</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – identifier for node in graph</li>
+<li><strong>transformer</strong> (<em>obj</em>) – supporting fit, transform, and fit_transform calls</li>
+<li><strong>combine</strong> (<em>func</em>) – function to combine incoming datasets from upstream nodes</li>
+<li><strong>fitOnly</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – flag if transform is only to be applied during fitting (i.e SMOTE)</li>
+<li><strong>store</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – hold information on Node (improves in memory calcs if multiple calls)</li>
+<li><strong>enforceTarget</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – enforce target in transformed dataset - this                is mainly a patch for scikit-learn wrapped transformers which ignore                y in transform calls preventing it from passing through the transformer</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="donatello.components.transformers.TransformNode.information_available">
 <code class="descname">information_available</code><a class="headerlink" href="#donatello.components.transformers.TransformNode.information_available" title="Permalink to this definition">¶</a></dt>
@@ -1004,6 +1094,40 @@ and returns a transformed version of X.</p>
 <dt id="donatello.components.transformers.ModelDAG">
 <em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">ModelDAG</code><span class="sig-paren">(</span><em>executor='executor'</em>, <em>conductor=DatasetConductor_[no_init_time] created at [no init time]  ---   **sklearn repr**   ---  DatasetConductor(passDesign=True</em>, <em>passTarget=True</em>, <em>reverse=True</em>, <em>selectMethod=None</em>, <em>selectValue=())</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em>, <em>_nodes=set([])</em>, <em>_edges={}</em>, <em>graphArgs=()</em>, <em>graphKwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.digraph.DiGraph</span></code>, <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
+<p>In memory data transformation graph. Nodes are accessed via
+via any <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.DiGraph</span></code> accessor of the node’s name.
+The networkx graph is constucted via the names with the goal that
+all user operations are more intuitively accomplished by a string / name
+access pattern. The ModelDAG acts as a wrapper to enable that concept
+in the context of a scikit-learn style transformer</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">set_params</span></code> method
+is patches to set node[executor].transformer attributes.
+Changing the <code class="docutils literal notranslate"><span class="pre">C</span></code> value of a graph with a Logistic Regression in node ‘n2’
+is accomplished via graph.set_params(n2__C=value)</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">private (<code class="docutils literal notranslate"><span class="pre">_</span></code>) node and edges arguments in constructor  are a hack
+to maintin the scikit-learn contracts. Supplying nodes in the graphArgs/Kwargs
+will cause cloning to fail or cloning to lose neccesary information. Please
+do not do this</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>executor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of attribute in each node where transform object is stored</li>
+<li><strong>conductor</strong> (<em>obj</em>) – default edge conduction transformer</li>
+<li><strong>timeFormat</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – str format for logging init time</li>
+<li><strong>_nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – patch for handlin</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.set_params">
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.set_params" title="Permalink to this definition">¶</a></dt>
@@ -1029,12 +1153,43 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.node_exec">
 <code class="descname">node_exec</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.node_exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.node_exec" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return object accessed by node name</p>
+<dl class="docutils">
+<dt>Arg:</dt>
+<dd>node (hashable): node accessor</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(by default a TransformNode)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">obj</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.edge_exec">
-<code class="descname">edge_exec</code><span class="sig-paren">(</span><em>node_to</em>, <em>node_from</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.edge_exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.edge_exec" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">edge_exec</code><span class="sig-paren">(</span><em>node_from</em>, <em>node_to</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.edge_exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.edge_exec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return object accessed by edge</p>
+<dl class="docutils">
+<dt>Arg:</dt>
+<dd>node_from (hashable): node accessor for originating node
+node_to (hashable): node accessor for terminating node</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">by default graph’s default conductor</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">obj</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.clean">
@@ -1044,7 +1199,8 @@ component of a nested object.</p>
 <dl class="attribute">
 <dt id="donatello.components.transformers.ModelDAG.terminal">
 <code class="descname">terminal</code><a class="headerlink" href="#donatello.components.transformers.ModelDAG.terminal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>accessor for terminal node, or list of terminal nodes if not single terminating node</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.fit">

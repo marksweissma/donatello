@@ -1,0 +1,760 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sculpture &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="Quick Start" href="quickstart.html"/>
+        <link rel="next" title="&lt;no title&gt;" href="dataset.html"/>
+        <link rel="prev" title="Quick Start" href="quickstart.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="quickstart.html">Quick Start</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#install">Install</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="quickstart.html#overview">Overview</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sculpture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#intent">Intent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#declaration">Declaration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fitting">Fitting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#evaluating">Evaluating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#persisting">Persisting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="quickstart.html">Quick Start</a> &raquo;</li>
+      
+    <li>Sculpture</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/sculpture.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="sculpture">
+<h1>Sculpture<a class="headerlink" href="#sculpture" title="Permalink to this headline">¶</a></h1>
+<p>To get started, connect a dataset via
+<a class="reference internal" href="donatello.components.html#donatello.components.data.Dataset" title="donatello.components.data.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.data.Dataset</span></code></a> and
+<a class="reference internal" href="donatello.components.html#donatello.components.estimator.Estimator" title="donatello.components.estimator.Estimator"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.estimator.Estimator</span></code></a> to
+<a class="reference internal" href="donatello.components.html#donatello.components.core.Sculpture" title="donatello.components.core.Sculpture"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.core.Sculpture</span></code></a></p>
+<p>Sculptures are modeling object that uphold scikit-learn’s estimator contracts</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><code class="docutils literal notranslate"><span class="pre">__init__</span></code> cannot mutate parameters</li>
+<li><code class="docutils literal notranslate"><span class="pre">get_params</span></code> and <code class="docutils literal notranslate"><span class="pre">set_params</span></code> support</li>
+<li><code class="docutils literal notranslate"><span class="pre">fit</span></code>, <code class="docutils literal notranslate"><span class="pre">transform</span></code>, and <code class="docutils literal notranslate"><span class="pre">fit_transform</span></code> support</li>
+</ol>
+</div></blockquote>
+<p>Sculptures can be embedded as nodes in <a class="reference internal" href="donatello.components.html#donatello.components.transformers.ModelDAG" title="donatello.components.transformers.ModelDAG"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.ModelDAG</span></code></a> as well
+as transformers in <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></p>
+<p>Donatello approaches model configuration as declaring intent. Everything required
+to build evaluate and produce artifacts is specified during instantiation.</p>
+<div class="section" id="intent">
+<h2>Intent<a class="headerlink" href="#intent" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_breast_cancer</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">average_precision_score</span>
+
+<span class="kn">from</span> <span class="nn">donatello.components.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">donatello.components.estimator</span> <span class="kn">import</span> <span class="n">Estimator</span>
+<span class="kn">from</span> <span class="nn">donatello.components.measure</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">FeatureWeights</span><span class="p">,</span> <span class="n">ThresholdRates</span>
+<span class="kn">from</span> <span class="nn">donatello.components.core</span> <span class="kn">import</span> <span class="n">Sculpture</span>
+
+
+<span class="k">def</span> <span class="nf">load_sklearn_bc_dataset</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper to load sklearn dataset into a pandas dataframe</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: X and y combined</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">load_breast_cancer</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span> <span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]],</span>
+                      <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;feature_names&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;is_malignant&#39;</span><span class="p">])</span>
+                      <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">load_scuplture</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper to load sculpture</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="n">load_sklearn_bc_dataset</span><span class="p">(),</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;is_malignant&#39;</span><span class="p">)</span>
+
+    <span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span>
+                          <span class="n">paramGrid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;model__C&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">))},</span>
+                          <span class="n">gridKwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;scoring&#39;</span><span class="p">:</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                          <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict_proba&#39;</span><span class="p">,</span>
+                          <span class="n">scorer</span><span class="o">=</span><span class="s1">&#39;score_second&#39;</span>
+                          <span class="p">)</span>
+
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">Metric</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">),</span> <span class="n">Metric</span><span class="p">(</span><span class="n">average_precision_score</span><span class="p">),</span>
+               <span class="n">FeatureWeights</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="s1">&#39;coefficients&#39;</span><span class="p">),</span> <span class="n">ThresholdRates</span><span class="p">()]</span>
+
+    <span class="n">scuplture</span> <span class="o">=</span> <span class="n">Sculpture</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">scuplture</span>
+
+
+<span class="n">sculpture</span> <span class="o">=</span> <span class="n">load_scuplture</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="declaration">
+<h2>Declaration<a class="headerlink" href="#declaration" title="Permalink to this headline">¶</a></h2>
+<p>Sculptures are declaratively defined modeling objects enabling
+repeatable and traceable experimentation. Donetallo’s framework
+attempts to follow scikit-learn’s pattern with an eye toward
+improving utilization with pandas.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">declaration</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">Dataset_2019_03_24_13_02</span><span class="p">,</span>
+ <span class="s1">&#39;entire&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+ <span class="s1">&#39;estimator&#39;</span><span class="p">:</span> <span class="n">Estimator_2019_03_24_13_02</span><span class="p">,</span>
+ <span class="s1">&#39;holdOut&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+ <span class="s1">&#39;measure&#39;</span><span class="p">:</span> <span class="n">Measure_2019_03_24_13_02</span><span class="p">,</span>
+ <span class="s1">&#39;metrics&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">roc_auc_score_2019_03_24_13_02</span><span class="p">,</span>
+             <span class="n">average_precision_score_2019_03_24_13_02</span><span class="p">,</span>
+             <span class="n">feature_weights_2019_03_24_13_02</span><span class="p">,</span>
+             <span class="n">ThresholdRates_2019_03_24_13_02</span><span class="p">],</span>
+ <span class="s1">&#39;persist&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">donatello</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">persist</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="s1">&#39;storeReferences&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+ <span class="s1">&#39;timeFormat&#39;</span><span class="p">:</span> <span class="s1">&#39;%Y_%m_</span><span class="si">%d</span><span class="s1">_%H_%M&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;validation&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+ <span class="s1">&#39;writeAttrs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;estimator&#39;</span><span class="p">)}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">validation</span></code>, <code class="docutils literal notranslate"><span class="pre">holdOut</span></code>, and <code class="docutils literal notranslate"><span class="pre">entire</span></code> flags dictate
+over which (subsets) of data estimators are fit and metrics are calculated (if applicable)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;validation&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="s1">&#39;holdOut&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="s1">&#39;entire&#39;</span><span class="p">:</span> <span class="kc">False</span>
+</pre></div>
+</div>
+<p>The metrics list is a collection of <a class="reference internal" href="donatello.components.html#donatello.components.measure.Metric" title="donatello.components.measure.Metric"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.measure.Metric</span></code></a> objects
+which fit calculate statistics around model performance, which can either wrap a
+scikit-learn metric or execute custom scoring functionality. If information needs
+to be shared across folds for computation, it can be stored during the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;metrics&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">roc_auc_score_2019_03_24_13_02</span><span class="p">,</span>
+            <span class="n">average_precision_score_2019_03_24_13_02</span><span class="p">,</span>
+            <span class="n">feature_weights_2019_03_24_13_02</span><span class="p">,</span>
+            <span class="n">ThresholdRates_2019_03_24_13_02</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fitting">
+<h2>Fitting<a class="headerlink" href="#fitting" title="Permalink to this headline">¶</a></h2>
+<p>The sculputre’s fit method defaults to instructions provided during instantiation.</p>
+<p>Declared by the given flags above, this sculpture will perform a 5 fold
+stratified K Fold cross validation within the training subset of the data
+and then fit a model over the entire training set and evaluate on the hold out set.</p>
+<p>Per scikit-learn Transformer pattern, fitting returns the object itslef</p>
+<p><code class="docutils literal notranslate"><span class="pre">sculpture.fit()</span> <span class="pre">==</span> <span class="pre">sculpture.fit(dataset=sculpture.dataset)</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Building</span> <span class="n">Over</span> <span class="n">Cross</span> <span class="n">Validation</span>
+<span class="n">grid</span> <span class="n">searching</span>
+<span class="n">grid</span> <span class="n">searching</span>
+<span class="n">grid</span> <span class="n">searching</span>
+<span class="n">grid</span> <span class="n">searching</span>
+<span class="n">grid</span> <span class="n">searching</span>
+
+<span class="n">Building</span> <span class="n">Over</span> <span class="n">Cross</span> <span class="n">Validation</span>
+<span class="n">grid</span> <span class="n">searching</span>
+
+<span class="n">Sculpture_2019_03_24_13_02</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evaluating">
+<h2>Evaluating<a class="headerlink" href="#evaluating" title="Permalink to this headline">¶</a></h2>
+<p>During the fitting process, metrics are calculated over the
+specified samples of data and stored in a <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.utils.Bunch</span></code>
+(a lighlty wrapped dict, with attribute style accessors)</p>
+<p>This information is attached to the Sculpture in the <code class="docutils literal notranslate"><span class="pre">measurements</span></code> attribute</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+<span class="p">[</span><span class="s1">&#39;crossValidation&#39;</span><span class="p">,</span> <span class="s1">&#39;holdOut&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+<span class="p">[</span><span class="s1">&#39;ThresholdRates&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;roc_auc_score&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;feature_weights&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;average_precision_score&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The default aggregations are <code class="docutils literal notranslate"><span class="pre">mean</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code> which are collected into a Bunch as well.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">average_precision_score</span>
+
+<span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span>           <span class="mi">0</span>
+ <span class="n">_</span>
+ <span class="mi">0</span>  <span class="mf">0.994795</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">:</span>           <span class="mi">0</span>
+ <span class="n">_</span>
+ <span class="mi">0</span>  <span class="mf">0.003311</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Because all scikit-learn scorers and many metrics are scalar returns
+<a class="reference internal" href="donatello.utils.html#donatello.utils.helpers.view_sk_metric" title="donatello.utils.helpers.view_sk_metric"><code class="xref py py-func docutils literal notranslate"><span class="pre">donatello.utils.helpers.view_sk_metric()</span></code></a> will unfurl the bunch
+into a flat table</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.utils</span> <span class="kn">import</span> <span class="n">helpers</span>
+<span class="n">helpers</span><span class="o">.</span><span class="n">view_sk_metric</span><span class="p">(</span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">average_precision_score</span><span class="p">)</span>
+</pre></div>
+</div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.994795</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.003311</td>
+    </tr>
+  </tbody>
+</table>
+</div><p>The feature weights metric is a short cut to pulling coefficients for glms
+and feature_importances from ensemble method</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">feature_weights</span><span class="o">.</span><span class="n">mean</span>
+</pre></div>
+</div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coefficients</th>
+    </tr>
+    <tr>
+      <th>names</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>worst concavity</th>
+      <td>-1.266728</td>
+    </tr>
+    <tr>
+      <th>worst compactness</th>
+      <td>-0.841691</td>
+    </tr>
+    <tr>
+      <th>mean concavity</th>
+      <td>-0.465869</td>
+    </tr>
+    <tr>
+      <th>worst concave points</th>
+      <td>-0.459076</td>
+    </tr>
+    <tr>
+      <th>worst texture</th>
+      <td>-0.372945</td>
+    </tr>
+    <tr>
+      <th>worst symmetry</th>
+      <td>-0.287106</td>
+    </tr>
+    <tr>
+      <th>mean compactness</th>
+      <td>-0.275708</td>
+    </tr>
+    <tr>
+      <th>mean concave points</th>
+      <td>-0.226367</td>
+    </tr>
+    <tr>
+      <th>worst smoothness</th>
+      <td>-0.201951</td>
+    </tr>
+    <tr>
+      <th>worst perimeter</th>
+      <td>-0.176177</td>
+    </tr>
+    <tr>
+      <th>mean symmetry</th>
+      <td>-0.108250</td>
+    </tr>
+    <tr>
+      <th>area error</th>
+      <td>-0.096981</td>
+    </tr>
+    <tr>
+      <th>mean smoothness</th>
+      <td>-0.094524</td>
+    </tr>
+    <tr>
+      <th>worst fractal dimension</th>
+      <td>-0.081174</td>
+    </tr>
+    <tr>
+      <th>concavity error</th>
+      <td>-0.070118</td>
+    </tr>
+    <tr>
+      <th>concave points error</th>
+      <td>-0.029708</td>
+    </tr>
+    <tr>
+      <th>worst area</th>
+      <td>-0.021795</td>
+    </tr>
+    <tr>
+      <th>smoothness error</th>
+      <td>-0.013807</td>
+    </tr>
+    <tr>
+      <th>compactness error</th>
+      <td>-0.011120</td>
+    </tr>
+    <tr>
+      <th>mean fractal dimension</th>
+      <td>-0.009681</td>
+    </tr>
+    <tr>
+      <th>mean area</th>
+      <td>-0.009288</td>
+    </tr>
+    <tr>
+      <th>symmetry error</th>
+      <td>-0.003870</td>
+    </tr>
+    <tr>
+      <th>fractal dimension error</th>
+      <td>0.001776</td>
+    </tr>
+    <tr>
+      <th>radius error</th>
+      <td>0.044685</td>
+    </tr>
+    <tr>
+      <th>mean perimeter</th>
+      <td>0.078273</td>
+    </tr>
+    <tr>
+      <th>mean texture</th>
+      <td>0.138544</td>
+    </tr>
+    <tr>
+      <th>perimeter error</th>
+      <td>0.269350</td>
+    </tr>
+    <tr>
+      <th>intercept_</th>
+      <td>0.326572</td>
+    </tr>
+    <tr>
+      <th>texture error</th>
+      <td>1.225060</td>
+    </tr>
+    <tr>
+      <th>worst radius</th>
+      <td>1.362734</td>
+    </tr>
+    <tr>
+      <th>mean radius</th>
+      <td>1.558584</td>
+    </tr>
+  </tbody>
+</table>
+</div><p>The Threshold Rates Metric helps parameterize the binary confusion matrix
+by sampling scores from the held out data and evaluting the</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">ThresholdRates</span><span class="o">.</span><span class="n">mean</span><span class="p">[[</span><span class="s1">&#39;precision&#39;</span><span class="p">,</span> <span class="s1">&#39;recall&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">loc</span><span class="p">[::</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>precision</th>
+      <th>recall</th>
+    </tr>
+    <tr>
+      <th>points</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1.612093e-49</th>
+      <td>0.629792</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>2.911910e-11</th>
+      <td>0.661888</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>1.498740e-08</th>
+      <td>0.699280</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>5.683305e-06</th>
+      <td>0.741465</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>4.253043e-04</th>
+      <td>0.786078</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>3.806747e-03</th>
+      <td>0.839318</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>9.748648e-02</th>
+      <td>0.895883</td>
+      <td>0.993331</td>
+    </tr>
+    <tr>
+      <th>4.145121e-01</th>
+      <td>0.942478</td>
+      <td>0.971273</td>
+    </tr>
+    <tr>
+      <th>8.199383e-01</th>
+      <td>0.985902</td>
+      <td>0.939640</td>
+    </tr>
+    <tr>
+      <th>9.046890e-01</th>
+      <td>0.992590</td>
+      <td>0.864397</td>
+    </tr>
+    <tr>
+      <th>9.464445e-01</th>
+      <td>0.996154</td>
+      <td>0.786247</td>
+    </tr>
+    <tr>
+      <th>9.787446e-01</th>
+      <td>0.996000</td>
+      <td>0.709326</td>
+    </tr>
+    <tr>
+      <th>9.851476e-01</th>
+      <td>0.995652</td>
+      <td>0.630941</td>
+    </tr>
+    <tr>
+      <th>9.912757e-01</th>
+      <td>0.994872</td>
+      <td>0.551700</td>
+    </tr>
+    <tr>
+      <th>9.944655e-01</th>
+      <td>1.000000</td>
+      <td>0.477573</td>
+    </tr>
+    <tr>
+      <th>9.961186e-01</th>
+      <td>1.000000</td>
+      <td>0.397381</td>
+    </tr>
+    <tr>
+      <th>9.981246e-01</th>
+      <td>1.000000</td>
+      <td>0.317077</td>
+    </tr>
+    <tr>
+      <th>9.987119e-01</th>
+      <td>1.000000</td>
+      <td>0.241480</td>
+    </tr>
+    <tr>
+      <th>9.993354e-01</th>
+      <td>1.000000</td>
+      <td>0.161605</td>
+    </tr>
+    <tr>
+      <th>9.996519e-01</th>
+      <td>1.000000</td>
+      <td>0.080097</td>
+    </tr>
+    <tr>
+      <th>9.999980e-01</th>
+      <td>NaN</td>
+      <td>0.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+<div class="section" id="persisting">
+<h2>Persisting<a class="headerlink" href="#persisting" title="Permalink to this headline">¶</a></h2>
+<p>Donatello produces artifacts to enable traceability and distribution.
+Objects are persribed through donatello’s data accesss protocal (dap)
+which gives  nested access and lazy evaluation to enable simple and narrow
+user defined flexibility</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ls</span> <span class="o">*</span><span class="n">pkl</span>
+
+
+<span class="n">Estimator</span><span class="o">.</span><span class="n">pkl</span>  <span class="n">Sculpture</span><span class="o">.</span><span class="n">pkl</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dataset.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral" title="Quick Start" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

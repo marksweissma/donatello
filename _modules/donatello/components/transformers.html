@@ -167,6 +167,9 @@
 
 
 <div class="viewcode-block" id="PandasTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasTransformer">[docs]</a><span class="k">class</span> <span class="nc">PandasTransformer</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The scikit-learn TransformerMixin renders on fit_transform, disregard</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="PandasTransformer.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasTransformer.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">extract_fields</span>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -191,14 +194,35 @@
         <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passTarget</span> <span class="k">else</span> <span class="kc">None</span></div></div>
 
 
-<div class="viewcode-block" id="select_data_type"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.select_data_type">[docs]</a><span class="k">def</span> <span class="nf">select_data_type</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">inclusionExclusionKwargs</span><span class="p">):</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="o">**</span><span class="n">inclusionExclusionKwargs</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">X</span></div>
+<div class="viewcode-block" id="select_data_type"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.select_data_type">[docs]</a><span class="k">def</span> <span class="nf">select_data_type</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Select columns from X through :py:meth:`pandas.DataFrame.select_dtypes`</span>
+<span class="sd">    kwargs are keyword arguments for the method</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        X (pandas.DataFrame):  table to select from</span>
+<span class="sd">        **kwargs (): selection arguments</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        list: features to include</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">features</span></div>
 
 
-<div class="viewcode-block" id="select_regex"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.select_regex">[docs]</a><span class="k">def</span> <span class="nf">select_regex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">patterns</span><span class="p">):</span>
-    <span class="n">inclusions</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">X</span> <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">])]</span>
-    <span class="k">return</span> <span class="n">inclusions</span></div>
+<div class="viewcode-block" id="select_regex"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.select_regex">[docs]</a><span class="k">def</span> <span class="nf">select_regex</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">patterns</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Select columns from X through matching any :py:func:`re.match`</span>
+<span class="sd">    pattern in patterns</span>
+<span class="sd">    kwargs are keyword arguments for the method</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        X (pandas.DataFrame):  table to select from</span>
+<span class="sd">        patterns (iterable): patterns to search for matches</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        list: features to include</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">X</span> <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">])]</span>
+    <span class="k">return</span> <span class="n">features</span></div>
 
 
 <span class="n">CONDUCTION_REGISTRY</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data_type&#39;</span><span class="p">:</span> <span class="n">select_data_type</span><span class="p">,</span> <span class="s1">&#39;regex&#39;</span><span class="p">:</span> <span class="n">select_regex</span><span class="p">}</span>
@@ -246,6 +270,20 @@
 
 
 <div class="viewcode-block" id="DatasetConductor"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DatasetConductor">[docs]</a><span class="k">class</span> <span class="nc">DatasetConductor</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Select subset of columns from keylike-valuelike store</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        selectValue (obj): values used for selection</span>
+<span class="sd">        selectMethod (str): type of selection</span>
+
+<span class="sd">            #. None / &#39;&#39; -&gt; direct key /value look up (i.e. column names to slice with)</span>
+<span class="sd">            # &#39;data_type&#39; -&gt; uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.</span>
+<span class="sd">        reverse (bool): option to select all except those fields isolated\</span>
+<span class="sd">            by selectValue and selectMethod</span>
+<span class="sd">        passTarget (bool): flag to raw dataset&#39;s targetData through</span>
+<span class="sd">        passDesign (bool): flag to raw dataset&#39;s designData through</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">selectValue</span><span class="o">=</span><span class="p">(),</span> <span class="n">selectMethod</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passDesign</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -293,6 +331,12 @@
 
 <div class="viewcode-block" id="AccessTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.AccessTransformer">[docs]</a><span class="k">class</span> <span class="nc">AccessTransformer</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unified transform only interace. Leverages donatello&#39;s</span>
+<span class="sd">    data access protoal to apply transform. For more info</span>
+<span class="sd">    seoo :py:func:`donatello.utils.helpers.access`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dap (dict): keyword arguments to apply on dataset via access protocol</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dap</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="o">=</span> <span class="n">dap</span>
@@ -307,6 +351,8 @@
 
 <div class="viewcode-block" id="concat"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.concat">[docs]</a><span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple helper to combine design and target data  from propogation through</span>
+<span class="sd">    :py:class:`ModelDAG`</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        datasets (list): list of datasets to combine</span>
@@ -331,14 +377,22 @@
 <div class="viewcode-block" id="TransformNode"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode">[docs]</a><span class="k">class</span> <span class="nc">TransformNode</span><span class="p">(</span><span class="n">Dobject</span><span class="p">,</span> <span class="n">BaseTransformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Node in model execution grap</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): identifier for node in graph</span>
+<span class="sd">        transformer (obj): supporting fit, transform, and fit_transform calls</span>
+<span class="sd">        combine (func): function to combine incoming datasets from upstream nodes</span>
+<span class="sd">        fitOnly (bool): flag if transform is only to be applied during fitting (i.e SMOTE)</span>
+<span class="sd">        store (bool): hold information on Node (improves in memory calcs if multiple calls)</span>
+<span class="sd">        enforceTarget (bool): enforce target in transformed dataset - this\</span>
+<span class="sd">                is mainly a patch for scikit-learn wrapped transformers which ignore\</span>
+<span class="sd">                y in transform calls preventing it from passing through the transformer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aggregator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">combine</span><span class="o">=</span><span class="n">concat</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">enforceTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="n">concat</span><span class="p">,</span>
+                 <span class="n">fitOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">transformer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aggregator</span> <span class="o">=</span> <span class="n">aggregator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="o">=</span> <span class="n">fitOnly</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine</span> <span class="o">=</span> <span class="n">combine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span>
@@ -403,6 +457,35 @@
 
 
 <div class="viewcode-block" id="ModelDAG"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG">[docs]</a><span class="k">class</span> <span class="nc">ModelDAG</span><span class="p">(</span><span class="n">Dobject</span><span class="p">,</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">BaseTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    In memory data transformation graph. Nodes are accessed via</span>
+<span class="sd">    via any :py:class:`networkx.DiGraph` accessor of the node&#39;s name.</span>
+<span class="sd">    The networkx graph is constucted via the names with the goal that</span>
+<span class="sd">    all user operations are more intuitively accomplished by a string / name</span>
+<span class="sd">    access pattern. The ModelDAG acts as a wrapper to enable that concept</span>
+<span class="sd">    in the context of a scikit-learn style transformer</span>
+
+<span class="sd">    Note:</span>
+
+<span class="sd">        ``set_params`` method</span>
+<span class="sd">        is patches to set node[executor].transformer attributes.</span>
+<span class="sd">        Changing the ``C`` value of a graph with a Logistic Regression in node &#39;n2&#39;</span>
+<span class="sd">        is accomplished via graph.set_params(n2__C=value)</span>
+
+
+<span class="sd">    Warning:</span>
+
+<span class="sd">        private (``_``) node and edges arguments in constructor  are a hack</span>
+<span class="sd">        to maintin the scikit-learn contracts. Supplying nodes in the graphArgs/Kwargs</span>
+<span class="sd">        will cause cloning to fail or cloning to lose neccesary information. Please</span>
+<span class="sd">        do not do this</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        executor (str): name of attribute in each node where transform object is stored</span>
+<span class="sd">        conductor (obj): default edge conduction transformer</span>
+<span class="sd">        timeFormat (str): str format for logging init time</span>
+<span class="sd">        _nodes (set): patch for handlin</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executor</span><span class="o">=</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span>
                  <span class="n">conductor</span><span class="o">=</span><span class="n">DatasetConductor</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
                  <span class="n">timeFormat</span><span class="o">=</span><span class="s2">&quot;%Y_%m_</span><span class="si">%d</span><span class="s2">_%H_%M&quot;</span><span class="p">,</span>
@@ -497,16 +580,36 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="ModelDAG.node_exec"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.node_exec">[docs]</a>    <span class="k">def</span> <span class="nf">node_exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return object accessed by node name</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            node (hashable): node accessor</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            obj: (by default a TransformNode)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="ModelDAG.edge_exec"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.edge_exec">[docs]</a>    <span class="k">def</span> <span class="nf">edge_exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_to</span><span class="p">,</span> <span class="n">node_from</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">node_to</span><span class="p">,</span> <span class="n">node_from</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">]</span></div>
+<div class="viewcode-block" id="ModelDAG.edge_exec"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.edge_exec">[docs]</a>    <span class="k">def</span> <span class="nf">edge_exec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_from</span><span class="p">,</span> <span class="n">node_to</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return object accessed by edge</span>
+
+<span class="sd">        Arg:</span>
+<span class="sd">            node_from (hashable): node accessor for originating node</span>
+<span class="sd">            node_to (hashable): node accessor for terminating node</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            obj: by default graph&#39;s default conductor</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_edge_data</span><span class="p">(</span><span class="n">node_from</span><span class="p">,</span> <span class="n">node_to</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="ModelDAG.clean"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">terminal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        accessor for terminal node, or list of terminal nodes if not single terminating node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">terminal</span> <span class="o">=</span> <span class="p">[</span><span class="n">node</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_degree</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">terminal</span> <span class="o">=</span> <span class="n">terminal</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">terminal</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">terminal</span>
         <span class="k">return</span> <span class="n">terminal</span>
