@@ -8,12 +8,9 @@ clean-pyc:
 	find . -name '*~' -delete ;
 
 clean-build:
-	rm --force --recursive build/ 
-	rm --force --recursive dist/ 
-	rm --force --recursive *.egg-info
-
-isort:
-	sh -c "isort --skip-glob=.tox --recursive . "
+	rm -rf  build/ 
+	rm -rf  dist/ 
+	rm -rf  *.egg-info
 
 lint: clean-pyc
 	flake8 --exclude=.tox
@@ -39,6 +36,10 @@ test: env
 test-dev: 
 	docker run -v `pwd`:/opt/workspace $(BASE) -c "pytest $(TEST_PATH)"
 
-ship-wheel:
-	python setup.py bdist_wheel --universal -upload -r pypi
+ship-wheel: clean-build
+	python setup.py bdist_wheel --universal &&\
+    twine upload dist/*
 
+test-wheel: clean-build
+	python setup.py bdist_wheel --universal &&\
+    twine upload --repository-url https://test.pypi.org/legacy/ dist/*
