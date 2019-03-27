@@ -34,7 +34,4 @@ can be altered or redefined as needed.
    :caption: Contents:
 
    sculpture
-   dataset
-   estimator
-
-
+   model_types
