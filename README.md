@@ -1,3 +1,7 @@
+Note donatello is not officially released, there is a test wheel on test.pypi.org
+if you to take a look. The core is intact and basic examples are all turn key
+
+
 Docs via [github pages](https://marksweissma.github.io/donatello/)
 
 Donatello is a modeling framework designed to improve iteration speed of developemnt while bringing traceability and reporducibility
