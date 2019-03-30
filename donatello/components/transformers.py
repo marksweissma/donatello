@@ -202,17 +202,26 @@ class AccessTransformer(BaseTransformer):
     seoo :py:func:`donatello.utils.helpers.access`
 
     Args:
-        dap (dict): keyword arguments to apply on dataset via access protocol
+        designDap (dict): keyword arguments to apply on designData attribute via access protocol
+        targetDap (dict): keyword arguments to apply on targetData attribute via access protocol
+        datasetDap (dict): keyword arguments to apply on dataset via access protocol
     """
-    def __init__(self, dap):
-        self.dap = dap
+    def __init__(self, designDap=None, targetDap=None, datasetDap=None):
+        self.designDap = designDap
+        self.targetDap = targetDap
 
     @data.package_dataset
     @data.enforce_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None):
-        dataset.designData = access(dataset.designData, **self.dap)
-        return super(AccessTransformer, self).transform(X=dataset.designData, y=y)
+        if self.designDap:
+            dataset.designData = access(dataset.designData, **self.designDatadap)
+        if self.targetDap:
+            dataset.targetData = access(dataset.targetData, **self.targetDatadap)
+        if self.datasetDap:
+            dataset = access(dataset, **self.datasetDap)
+
+        return dataset
 
 
 def concat(datasets, params=None):
@@ -291,6 +300,7 @@ class TransformNode(Dobject, BaseTransformer):
         return self
 
     @data.package_dataset
+    @data.extract_features
     def transform(self, X=None, y=None, dataset=None, **kwargs):
         if not self.information_available and not self.isFit:
             information = self._transform(dataset=dataset, **kwargs)
@@ -307,7 +317,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.enforce_dataset
     def _transform(self, X=None, y=None, dataset=None, **kwargs):
-        if self.fitOnly:
+        if self.fitOnly and not getattr(self, 'features', None) is not None:
             output = dataset
         else:
             output = self.transformer.transform(dataset=dataset)
