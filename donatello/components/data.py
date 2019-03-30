@@ -216,9 +216,25 @@ class Dataset(Dobject):
                     self.raw[name] = querier(**payload)
 
     def subset(self, subset='train'):
-        subset = subset.capitalize()
-        attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
-        X, y = tuple(getattr(self,  attr) for attr in attrs)
+        """
+        Create a new `donatello.components.data.Dataset`
+        with a (sub)set of the dataset's data. Either
+        by referencing by name (train, test) or passing
+        a dap for :py:func:`donatello.utils.helpers.access`
+
+        Args:
+            subset (str|dict): attribute to select
+
+        Returns:
+            Dataset: with same params as current dataset
+        """
+        if isinstance(subset, basestring):
+            subset = subset.capitalize()
+            attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
+            X, y = tuple(getattr(self,  attr) for attr in attrs)
+        else:
+            X = access(self.designData, **subset)
+            y = access(self.targetData, **subset)
         return self.with_params(X=X, y=y)
 
     def _take(self, train, test):
@@ -276,7 +292,10 @@ def pull(wrapped, instance, args, kwargs):
 @decorator
 def package_dataset(wrapped, instance, args, kwargs):
     """
-    From arguments - package X (and y if supervised) in Data object via type
+    Package Dataset, and remove X, y from call.
+    Iff passed X [y] packgae into dataset,
+    if instance has an associated dataset and dataset not passed
+    use instance.dataset params
     """
     args, kwargs = pull(wrapped, instance, args, kwargs)
     result = wrapped(*args, **kwargs)
@@ -285,6 +304,9 @@ def package_dataset(wrapped, instance, args, kwargs):
 
 @decorator
 def enforce_dataset(wrapped, instance, args, kwargs):
+    """"
+    Enforce return is dataset, if X, [y] package into dataset
+    """
     args, kwargs = pull(wrapped, instance, args, kwargs)
     dataset = kwargs['dataset']
     result = wrapped(*args, **kwargs)
@@ -305,6 +327,9 @@ def enforce_dataset(wrapped, instance, args, kwargs):
 
 
 def subset_dataset(subset):
+    """
+    decorator to susbet dataset passed to function
+    """
     @decorator
     def wrapper(wrapped, instance, args, kwargs):
         dataset = find_value(wrapped, args, kwargs, 'dataset').subset(subset)
@@ -316,6 +341,10 @@ def subset_dataset(subset):
 
 @decorator
 def extract_fields(wrapped, instance, args, kwargs):
+    """
+    Record the column names and/or keys of the incoming dataset
+    before a function call
+    """
     result = wrapped(*args, **kwargs)
     instance.features = None
     instance.isFit = True
@@ -333,6 +362,10 @@ def extract_fields(wrapped, instance, args, kwargs):
 
 @decorator
 def extract_features(wrapped, instance, args, kwargs):
+    """
+    Record the column names and/or keys of the incoming dataset
+    after a function call if not already attached to instance
+    """
     result = wrapped(*args, **kwargs)
     df = result.designData if isinstance(result, Dataset) else result
 
