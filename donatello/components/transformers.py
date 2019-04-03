@@ -232,13 +232,13 @@ class AccessTransformer(DatasetTransformer):
 
     @data.package_dataset
     @data.enforce_dataset
-    @data.extract_features
+    # @data.extract_features
     def transform(self, X=None, y=None, dataset=None):
         if self.designDap:
             dataset = access(dataset.designData, **self.designDatadap)
-        if self.targetDap:
+        elif self.targetDap:
             dataset = access(dataset.targetData, **self.targetDatadap)
-        if self.datasetDap:
+        elif self.datasetDap:
             dataset = access(dataset, **self.datasetDap)
         return dataset
 
