@@ -10,7 +10,7 @@ from sklearn.base import TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn import clone
 
-from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer
+from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer, BaseDatasetTransformer
 from donatello.utils.decorators import fallback
 from donatello.utils.helpers import access, nvl, now_string
 from donatello.components import data
@@ -49,6 +49,25 @@ class PandasTransformer(BaseTransformer):
     def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
         self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
         return self.transform(X=X, dataset=dataset, *args, **kwargs)
+
+
+class DatasetTransformer(BaseDatasetTransformer):
+    """
+    Base scikit-learn style transformer
+    """
+    def fit(self, X=None, y=None, dataset=None, **kwargs):
+        self.fields = list(dataset.designData) if dataset.designData is not None else []
+        return self
+
+    @data.enforce_dataset
+    @data.extract_features
+    def transform(self, X=None, y=None, dataset=None, **kwargs):
+        self.features = list(dataset.designData) if dataset.designData is not None else []
+        return dataset
+
+    def fit_transform(self, X=None, y=None, dataset=None, **kwargs):
+        self.fit(X=X, y=y, dataset=dataset, **kwargs)
+        return self.transform(X=X, y=y, dataset=dataset, **kwargs)
 
 
 class TargetConductor(BaseTransformer):
@@ -195,7 +214,7 @@ class DatasetConductor(BaseTransformer):
         return self.transform(dataset=dataset, *args, **kwargs)
 
 
-class AccessTransformer(BaseTransformer):
+class AccessTransformer(DatasetTransformer):
     """
     Unified transform only interace. Leverages donatello's
     data access protoal to apply transform. For more info
@@ -209,18 +228,18 @@ class AccessTransformer(BaseTransformer):
     def __init__(self, designDap=None, targetDap=None, datasetDap=None):
         self.designDap = designDap
         self.targetDap = targetDap
+        self.datasetDap = datasetDap
 
     @data.package_dataset
     @data.enforce_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None):
         if self.designDap:
-            dataset.designData = access(dataset.designData, **self.designDatadap)
+            dataset = access(dataset.designData, **self.designDatadap)
         if self.targetDap:
-            dataset.targetData = access(dataset.targetData, **self.targetDatadap)
+            dataset = access(dataset.targetData, **self.targetDatadap)
         if self.datasetDap:
             dataset = access(dataset, **self.datasetDap)
-
         return dataset
 
 
