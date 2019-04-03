@@ -109,7 +109,7 @@ def load_declaration(load_estimator, group=True, asDf=False, metrics=None, featu
                    'estimator': Estimator(**estimator),
                    'metrics': metrics,
                    'validation': True,
-                   'holdOut': True,
+                   'holdout': True,
                    # 'entire': True
                    }
 
