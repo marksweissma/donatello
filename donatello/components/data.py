@@ -242,7 +242,7 @@ class Dataset(Dobject):
     @property
     def params(self):
         spec = inspect.getargspec(self.__init__)
-        exclusions = set(['self', 'raw', 'X', 'y'])
+        exclusions = set(['self', 'raw', 'X', 'y', 'data'])
         params = {param: getattr(self, param) for param in spec.args if param not in exclusions}
         return params
 
@@ -417,7 +417,7 @@ class Dataset(Dobject):
         raise StopIteration
 
     def __len__(self):
-        return len(self.data)
+        return len(self.data if self.data is not None else [])
 
 
 # not a decorator, function for helping data decorators
