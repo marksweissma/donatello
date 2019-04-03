@@ -6,6 +6,7 @@ from donatello.utils.helpers import nvl
 
 RANDOM_SEED = 22
 
+
 class Dobject(object):
     """
     Base object for Donatello - templates in name and __repr___
