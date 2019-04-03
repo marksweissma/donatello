@@ -23,7 +23,7 @@ class Sculpture(Dobject, BaseEstimator):
         estimator(donatello.components.estimator.Estimator): executes ML
         validation (bool): flag for calculating scoring metrics from nested\
                 cross val of training + validation sets
-        holdOut (bool): flag for fitting estimator on single training set and scoring on test set
+        holdout (bool): flag for fitting estimator on single training set and scoring on test set
         measure (donatello.components.measure.Measure): own calculateing stats
         metrics (iterable.Metric): :py:class:`donatello.components.measure.Metric` to score
         persist (func): function to write
@@ -34,7 +34,7 @@ class Sculpture(Dobject, BaseEstimator):
     def __init__(self,
                  dataset=None,
                  estimator=None,
-                 validation=True, holdOut=False, entire=False,
+                 validation=True, holdout=False, entire=False,
                  measure=Measure(), persist=persist, metrics=None,
                  storeReferences=True, writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
@@ -51,7 +51,7 @@ class Sculpture(Dobject, BaseEstimator):
 
         # Build options
         self.validation = validation
-        self.holdOut = holdOut
+        self.holdout = holdout
         self.entire = entire
 
         # Other
@@ -68,24 +68,26 @@ class Sculpture(Dobject, BaseEstimator):
         """
         return self._declaration.copy()
 
+    @fallback('estimator')
     @subset_dataset('train')
-    def build_cross_validation(self, dataset, **fitParams):
+    def build_cross_validation(self, dataset, estimator=None, **fitParams):
         """
         Build cross validated measurements over training data of models
         """
-        print('Building Over Cross Validation')
-        self.estimator = clone(self.estimator)
-        payload = {'estimator': self.estimator, 'metrics': self.metrics, 'dataset': dataset}
+        print('Cross Validation')
+        estimator = clone(estimator)
+        payload = {'estimator': estimator, 'metrics': self.metrics, 'dataset': dataset}
         self.measureCrossValidation = self.measure.buildCV(**payload)
         self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
-        self._references['cross_validation'] = deepcopy(self.estimator) if self.storeReferences else None
+        self._references['cross_validation'] = deepcopy(estimator) if self.storeReferences else None
 
-    def build_holdout(self, dataset, **fitParams):
+    @fallback('estimator')
+    def build_holdout(self, dataset, estimator=None, **fitParams):
         """
         Build model over training data and score
         """
-        print('Building Over Holdout')
-        estimator = clone(self.estimator)
+        print('Holdout')
+        estimator = clone(estimator)
         estimator.fit(dataset=dataset.subset('train'), gridSearch=True, **fitParams)
 
         payload = {'estimator': estimator, 'metrics': self.metrics,
@@ -94,25 +96,31 @@ class Sculpture(Dobject, BaseEstimator):
         self.measurements.holdout = Bunch(**self.measureHoldout['measurements'])
         self._references['holdout'] = deepcopy(estimator) if self.storeReferences else None
 
-    def build_entire(self, dataset, **fitParams):
+    @fallback('estimator')
+    def build_entire(self, dataset, estimator=None, **fitParams):
         """
         Build model over entire data set
         """
-        print('Building Over Entire Dataset')
-        self.estimator = clone(self.estimator)
-        self.estimator.fit(dataset=dataset, gridSearch=True, **fitParams)
-        self._references['entire'] = deepcopy(self.estimator) if self.storeReferences else None
+        print('Entire Dataset')
+        estimator = clone(estimator)
+        estimator.fit(dataset=dataset, gridSearch=True, **fitParams)
 
-    @fallback('dataset', 'writeAttrs', 'validation', 'holdOut', 'entire')
+        if self.storeReferences:
+            self._references['entire'] = deepcopy(estimator)
+            self.estimator = estimator
+        else 
+            self._references['entire'] = None
+
+    @fallback('dataset', 'writeAttrs', 'validation', 'holdout', 'entire')
     @package_dataset
     def fit(self, X=None, y=None, dataset=None, writeAttrs=None,
-            validation=None, holdOut=None, entire=None, **fitParams):
+            validation=None, holdout=None, entire=None, **fitParams):
         """
         Build models, tune hyperparameters, and evaluate
         """
 
         self.build_cross_validation(dataset, **fitParams) if validation else None
-        self.build_holdout(dataset, **fitParams) if holdOut else None
+        self.build_holdout(dataset, **fitParams) if holdout else None
         self.build_entire(dataset, **fitParams) if entire else None
 
         self.write(writeAttrs=writeAttrs)
