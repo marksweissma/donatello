@@ -119,6 +119,7 @@ class Estimator(Dobject, BaseTransformer):
         """
         Fit method with options for grid searching hyperparameters
         """
+        self._records = len(dataset)
         self.grid_search(dataset=dataset, gridSearch=gridSearch,
                          paramGrid=paramGrid, gridKwargs=gridKwargs, **kwargs)
         self.model.fit(X=dataset.designData, y=dataset.targetData, **kwargs)

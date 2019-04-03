@@ -260,6 +260,9 @@ class Dataset(Dobject):
             yield xTrain, xTest, yTrain, yTest
         raise StopIteration
 
+    def __len__(self):
+        return len(self.data)
+
 
 # not a decorator, function for helping data decorators
 def pull(wrapped, instance, args, kwargs):

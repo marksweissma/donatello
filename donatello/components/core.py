@@ -85,14 +85,14 @@ class Sculpture(Dobject, BaseEstimator):
         Build model over training data and score
         """
         print('Building Over Holdout')
-        self.estimator = clone(self.estimator)
-        self.estimator.fit(dataset=dataset, gridSearch=True, **fitParams)
+        estimator = clone(self.estimator)
+        estimator.fit(dataset=dataset.subset('train'), gridSearch=True, **fitParams)
 
-        payload = {'estimator': self.estimator, 'metrics': self.metrics,
+        payload = {'estimator': estimator, 'metrics': self.metrics,
                    'X': dataset.designTest, 'y': dataset.targetTest}
         self.measureHoldout = self.measure.build_holdout(**payload)
         self.measurements.holdout = Bunch(**self.measureHoldout['measurements'])
-        self._references['holdout'] = deepcopy(self.estimator) if self.storeReferences else None
+        self._references['holdout'] = deepcopy(estimator) if self.storeReferences else None
 
     def build_entire(self, dataset, **fitParams):
         """
