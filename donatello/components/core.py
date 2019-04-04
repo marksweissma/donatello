@@ -108,7 +108,7 @@ class Sculpture(Dobject, BaseEstimator):
         if self.storeReferences:
             self._references['entire'] = deepcopy(estimator)
             self.estimator = estimator
-        else 
+        else:
             self._references['entire'] = None
 
     @fallback('dataset', 'writeAttrs', 'validation', 'holdout', 'entire')
