@@ -135,10 +135,166 @@
 <span></span><span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">donatello.utils.base</span> <span class="k">import</span> <span class="n">Dobject</span>
-<span class="kn">from</span> <span class="nn">donatello.components.fold</span> <span class="k">import</span> <span class="n">Fold</span>
-<span class="kn">from</span> <span class="nn">donatello.utils.decorators</span> <span class="k">import</span> <span class="n">decorator</span><span class="p">,</span> <span class="n">init_time</span><span class="p">,</span> <span class="n">fallback</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="p">(</span><span class="n">KFold</span><span class="p">,</span>
+                                     <span class="n">StratifiedKFold</span><span class="p">,</span>
+                                     <span class="n">GroupShuffleSplit</span><span class="p">,</span>
+                                     <span class="n">TimeSeriesSplit</span><span class="p">)</span>
+
+
+<span class="kn">from</span> <span class="nn">donatello.utils.base</span> <span class="k">import</span> <span class="n">Dobject</span><span class="p">,</span> <span class="n">RANDOM_SEED</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.decorators</span> <span class="k">import</span> <span class="n">decorator</span><span class="p">,</span> <span class="n">init_time</span><span class="p">,</span> <span class="n">fallback</span><span class="p">,</span> <span class="n">coelesce</span>
 <span class="kn">from</span> <span class="nn">donatello.utils.helpers</span> <span class="k">import</span> <span class="n">find_value</span><span class="p">,</span> <span class="n">replace_value</span><span class="p">,</span> <span class="n">nvl</span><span class="p">,</span> <span class="n">access</span>
+
+
+<span class="n">_base</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+         <span class="s1">&#39;shuffle&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+         <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="n">RANDOM_SEED</span><span class="p">}</span>
+
+
+<span class="n">typeDispatch</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">KFold</span><span class="p">,</span>
+                <span class="s1">&#39;stratify&#39;</span><span class="p">:</span> <span class="n">StratifiedKFold</span><span class="p">,</span>
+                <span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="n">GroupShuffleSplit</span><span class="p">,</span>
+                <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">TimeSeriesSplit</span>
+                <span class="p">}</span>
+
+
+<span class="n">kwargDispatch</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">_base</span><span class="p">,</span>
+                 <span class="s1">&#39;stratify&#39;</span><span class="p">:</span> <span class="n">_base</span><span class="p">,</span>
+                 <span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="n">RANDOM_SEED</span><span class="p">},</span>
+                 <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+                 <span class="p">}</span>
+
+
+<div class="viewcode-block" id="Fold"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold">[docs]</a><span class="k">class</span> <span class="nc">Fold</span><span class="p">(</span><span class="n">Dobject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object to split data into training and testing/validation groups.</span>
+<span class="sd">    Packages dataframes and dictionaries of dataframes</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        target (str): name of target field if supervised</span>
+<span class="sd">        primaryKey (str): if dictionary of dataframes, key of dictionary\</span>
+<span class="sd">            containing primrary df</span>
+<span class="sd">        str (splitOver): option to split over unique values instead \</span>
+<span class="sd">            of random or startification</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@init_time</span>
+    <span class="nd">@coelesce</span><span class="p">(</span><span class="n">dap</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">scoreClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">foldClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">splitDispatch</span><span class="o">=</span><span class="n">typeDispatch</span><span class="p">,</span> <span class="n">kwargDispatch</span><span class="o">=</span><span class="n">kwargDispatch</span><span class="p">,</span>
+                 <span class="n">dap</span><span class="o">=</span><span class="kc">None</span>
+                 <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span> <span class="o">=</span> <span class="n">primaryKey</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scoreClay</span> <span class="o">=</span> <span class="n">scoreClay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foldClay</span> <span class="o">=</span> <span class="n">foldClay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">typeDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">foldClay</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">foldClay</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="o">=</span> <span class="n">dap</span>
+
+<div class="viewcode-block" id="Fold.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.fit">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;primaryKey&#39;</span><span class="p">,</span> <span class="s1">&#39;dap&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        fit fold  =&gt; finds and store values for each set</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset (donatello.components.dataset): dataset to fit on</span>
+<span class="sd">            target (str): str name of target field to separate</span>
+<span class="sd">            primaryKey (str): key for primary field (if dataset.data \</span>
+<span class="sd">                is dict not df)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            object: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">primaryKey</span> <span class="k">else</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">primaryKey</span><span class="p">]</span>
+
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">dap</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="n">target</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="ow">in</span> <span class="n">df</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">condition</span> <span class="k">else</span> <span class="n">df</span><span class="p">,</span>
+                                       <span class="n">df</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="k">if</span> <span class="n">condition</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                                       <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                            <span class="p">)</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="n">groups</span> <span class="k">if</span> <span class="n">groups</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ids</span> <span class="o">=</span> <span class="p">[(</span><span class="n">values</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">trainIndices</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">testIndices</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">trainIndices</span><span class="p">,</span> <span class="n">testIndices</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_masks</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;index&#39;</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">trainMask</span> <span class="o">=</span> <span class="n">ids</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">testMask</span> <span class="o">=</span> <span class="n">ids</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">target</span> <span class="ow">and</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">df</span><span class="p">)</span> <span class="k">else</span> <span class="n">df</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">trainMask</span><span class="p">]</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">testMask</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span>
+
+<div class="viewcode-block" id="Fold.split"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">access</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="p">{})</span>
+        <span class="c1"># [kwargs.update({i: j}) for i, j in zip([&#39;X&#39;, &#39;y&#39;, &#39;groups&#39;], [X, y, groups]) if j is not None]</span>
+        <span class="p">[</span><span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="n">j</span><span class="p">})</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;groups&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">groups</span><span class="p">])]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Fold.fold"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.fold">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;primaryKey&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split data data into design/target train/test/data</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset (donatello.components.dataset): dataset to fit on</span>
+<span class="sd">            target (str): str name of target field to separate</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: paylod of train/test/data &lt;&gt; design/target subsets</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">primaryKey</span><span class="p">]</span> <span class="k">if</span> <span class="n">primaryKey</span> <span class="k">else</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">def</span> <span class="nf">_wrap_split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+            <span class="n">_trainMask</span><span class="p">,</span> <span class="n">_testMask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_masks</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataMap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
+            <span class="n">_designTrain</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">_designTest</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">_trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_designTrain</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">_designTest</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ids&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids</span><span class="p">:</span>
+            <span class="n">over</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">][</span><span class="s1">&#39;attrPath&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="s1">&#39;index&#39;</span>
+            <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_masks</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">over</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
+
+            <span class="n">designTrain</span><span class="p">,</span> <span class="n">designTest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+            <span class="n">_designTrain</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span> <span class="n">designTrain</span><span class="p">}</span>
+            <span class="n">_designTest</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span> <span class="n">designTest</span><span class="p">}</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span>
+                        <span class="n">_designTrain</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">_designTest</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_wrap_split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+
+            <span class="n">designTrain</span> <span class="o">=</span> <span class="n">_designTrain</span> <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_designTrain</span> <span class="k">else</span> <span class="n">_designTrain</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+            <span class="n">designTest</span> <span class="o">=</span> <span class="n">_designTest</span> <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_designTest</span> <span class="k">else</span> <span class="n">_designTest</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">target</span> <span class="ow">and</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+                <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">target</span><span class="p">],</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">designTrain</span><span class="p">,</span> <span class="n">designTest</span><span class="p">,</span> <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span><span class="p">]</span>
+
+            <span class="k">yield</span> <span class="n">results</span>
+        <span class="k">raise</span> <span class="ne">StopIteration</span></div></div>
 
 
 <div class="viewcode-block" id="has_data"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.has_data">[docs]</a><span class="k">def</span> <span class="nf">has_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
@@ -220,7 +376,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
-        <span class="n">exclusions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">])</span>
+        <span class="n">exclusions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">])</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">param</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">args</span> <span class="k">if</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">params</span>
 
@@ -350,9 +506,25 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">querier</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Dataset.subset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset.subset">[docs]</a>    <span class="k">def</span> <span class="nf">subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">):</span>
-        <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
-        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;design&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">]]</span>
-        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new `donatello.components.data.Dataset`</span>
+<span class="sd">        with a (sub)set of the dataset&#39;s data. Either</span>
+<span class="sd">        by referencing by name (train, test) or passing</span>
+<span class="sd">        a dap for :py:func:`donatello.utils.helpers.access`</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            subset (str|dict): attribute to select</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dataset: with same params as current dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;design&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">]]</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">**</span><span class="n">subset</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targetData</span><span class="p">,</span> <span class="o">**</span><span class="n">subset</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">with_params</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_take</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
@@ -376,7 +548,10 @@
     <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">xTrain</span><span class="p">,</span> <span class="n">xTest</span><span class="p">,</span> <span class="n">yTrain</span><span class="p">,</span> <span class="n">yTest</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">yield</span> <span class="n">xTrain</span><span class="p">,</span> <span class="n">xTest</span><span class="p">,</span> <span class="n">yTrain</span><span class="p">,</span> <span class="n">yTest</span>
-        <span class="k">raise</span> <span class="ne">StopIteration</span></div>
+        <span class="k">raise</span> <span class="ne">StopIteration</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[])</span></div>
 
 
 <span class="c1"># not a decorator, function for helping data decorators</span>
@@ -410,7 +585,10 @@
 <div class="viewcode-block" id="package_dataset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.package_dataset">[docs]</a><span class="nd">@decorator</span>
 <span class="k">def</span> <span class="nf">package_dataset</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    From arguments - package X (and y if supervised) in Data object via type</span>
+<span class="sd">    Package Dataset, and remove X, y from call.</span>
+<span class="sd">    Iff passed X [y] packgae into dataset,</span>
+<span class="sd">    if instance has an associated dataset and dataset not passed</span>
+<span class="sd">    use instance.dataset params</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">pull</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -419,6 +597,9 @@
 
 <div class="viewcode-block" id="enforce_dataset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.enforce_dataset">[docs]</a><span class="nd">@decorator</span>
 <span class="k">def</span> <span class="nf">enforce_dataset</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">    Enforce return is dataset, if X, [y] package into dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">pull</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -439,6 +620,9 @@
 
 
 <div class="viewcode-block" id="subset_dataset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.subset_dataset">[docs]</a><span class="k">def</span> <span class="nf">subset_dataset</span><span class="p">(</span><span class="n">subset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    decorator to susbet dataset passed to function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@decorator</span>
     <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">find_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
@@ -450,6 +634,10 @@
 
 <div class="viewcode-block" id="extract_fields"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.extract_fields">[docs]</a><span class="nd">@decorator</span>
 <span class="k">def</span> <span class="nf">extract_fields</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Record the column names and/or keys of the incoming dataset</span>
+<span class="sd">    before a function call</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">instance</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">instance</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">True</span>
@@ -467,10 +655,14 @@
 
 <div class="viewcode-block" id="extract_features"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.extract_features">[docs]</a><span class="nd">@decorator</span>
 <span class="k">def</span> <span class="nf">extract_features</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Record the column names and/or keys of the incoming dataset</span>
+<span class="sd">    after a function call if not already attached to instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">)</span> <span class="k">else</span> <span class="n">result</span>
 
-    <span class="n">postFit</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">features</span>
+    <span class="n">postFit</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">postFit</span><span class="p">:</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;columns&#39;</span><span class="p">)</span>\
             <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">get_feature_names</span><span class="p">())</span> <span class="k">if</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;get_feature_names&#39;</span><span class="p">)</span>
@@ -480,7 +672,10 @@
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">features</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">features</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">postFit</span><span class="p">:</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">featureDtypes</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;dtypes&#39;</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;to_dict&#39;</span><span class="p">,</span>
