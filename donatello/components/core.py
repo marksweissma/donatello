@@ -68,21 +68,21 @@ class Sculpture(Dobject, BaseEstimator):
         """
         return self._declaration.copy()
 
-    @fallback('estimator')
+    @fallback('estimator', 'metrics')
     @subset_dataset('train')
-    def build_cross_validation(self, dataset, estimator=None, **fitParams):
+    def build_cross_validation(self, dataset, estimator=None, metrics=None, **fitParams):
         """
         Build cross validated measurements over training data of models
         """
         print('Cross Validation')
         estimator = clone(estimator)
-        payload = {'estimator': estimator, 'metrics': self.metrics, 'dataset': dataset}
+        payload = {'estimator': estimator, 'metrics': metrics, 'dataset': dataset}
         self.measureCrossValidation = self.measure.buildCV(**payload)
         self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
         self._references['cross_validation'] = deepcopy(estimator) if self.storeReferences else None
 
-    @fallback('estimator')
-    def build_holdout(self, dataset, estimator=None, **fitParams):
+    @fallback('estimator', 'metrics')
+    def build_holdout(self, dataset, estimator=None, metrics=None, **fitParams):
         """
         Build model over training data and score
         """
@@ -90,7 +90,7 @@ class Sculpture(Dobject, BaseEstimator):
         estimator = clone(estimator)
         estimator.fit(dataset=dataset.subset('train'), gridSearch=True, **fitParams)
 
-        payload = {'estimator': estimator, 'metrics': self.metrics,
+        payload = {'estimator': estimator, 'metrics': metrics,
                    'X': dataset.designTest, 'y': dataset.targetTest}
         self.measureHoldout = self.measure.build_holdout(**payload)
         self.measurements.holdout = Bunch(**self.measureHoldout['measurements'])
