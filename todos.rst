@@ -1,32 +1,20 @@
-Refactor measurements / metrics -> smooth return
-
-refactor estimator to better support dataset
-
 sklearn parallelization
 
-fix dataset packaging for sculpture
-
-fix name
-
 XGBoost cv + early stopping
-
-look into passing target through pandas nodes
 
 collect parameter distributions from cross val
 
 nodes in graph constructor
 
-simplier single querier
-
 tests
 
 examples
-    #. simple
-    #. pipeline
-    #. line graph
-    #. branching graph
-    #. many : 1
-    #. y transforms
+#. branching graph
+#. many : 1
+#. y transforms
 
+Refactor measurements / metrics -> smooth return
 
 Look at panel for measurement / metric organization
+
+callback for slice execution graph
