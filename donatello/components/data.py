@@ -529,7 +529,7 @@ def extract_features(wrapped, instance, args, kwargs):
     df = result.designData if isinstance(result, Dataset) else result
 
     postFit = not getattr(instance, 'features', None)
-    if postFit:
+    if postFit and df is not None:
         features = df.columns.tolist() if hasattr(df, 'columns')\
             else list(instance.get_feature_names()) if (hasattr(instance, 'get_feature_names')
                     and instance.get_feature_names()) else instance.fields
@@ -537,11 +537,8 @@ def extract_features(wrapped, instance, args, kwargs):
         instance.features = features
 
     else:
-        features = instance.features
-    try:
-        df = df if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features)
-    except:
-        import pdb; pdb.set_trace()
+        features = getattr(instance, 'features', [])
+    df = df if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features)
 
     if postFit:
         instance.featureDtypes = access(df, ['dtypes'], method='to_dict',
