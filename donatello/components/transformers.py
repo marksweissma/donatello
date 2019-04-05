@@ -225,15 +225,20 @@ class AccessTransformer(DatasetTransformer):
         targetDap (dict): keyword arguments to apply on targetData attribute via access protocol
         datasetDap (dict): keyword arguments to apply on dataset via access protocol
     """
-    def __init__(self, designDap=None, targetDap=None, datasetDap=None):
+    def __init__(self, designDap=None, targetDap=None, datasetDap=None, fitOnly=False):
         self.designDap = designDap
         self.targetDap = targetDap
         self.datasetDap = datasetDap
+        self.fitOnly = fitOnly
 
     @data.package_dataset
+    @data.extract_features
     @data.enforce_dataset
-    # @data.extract_features
     def transform(self, X=None, y=None, dataset=None):
+
+        if self.fitOnly and getattr(self, 'features', None) not in ([], None):
+            return dataset
+
         if self.designDap:
             dataset = access(dataset.designData, **self.designDatadap)
         elif self.targetDap:
