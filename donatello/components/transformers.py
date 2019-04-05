@@ -5,7 +5,7 @@ import networkx as nx
 
 from collections import defaultdict
 
-from sklearn.preprocessing import OneHotEncoder, Imputer, StandardScaler
+from sklearn.preprocessing import Imputer, StandardScaler
 from sklearn.base import TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn import clone
@@ -613,18 +613,46 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         return getattr(self.node_exec(self.terminal), attr)
 
 
-class OneHotEncoder(PandasMixin, OneHotEncoder):
-    pass
+class OneHotEncoder(PandasTransformer):
+    def __init__(self, columns=None, dropOne=False):
+        self.columns = columns
+        self.dropOne = dropOne
+
+    @data.package_dataset
+    @data.extract_fields
+    def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
+        df = dataset.designData[[self.columns]] if self.columns else dataset.designData
+        self.taxonomy = {i: df[i].unique() for i in df}
+        return self
+
+    @data.enforce_dataset
+    @data.extract_features
+    def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        _X = pd.concat([dataset.designData.pop(column).astype('category').cat.set_categories(value)
+                        for column, value in self.taxonomy.items()], axis=1)
+        dataset.designData = pd.concat([dataset.designData, pd.get_dummies(_X, drop_first=self.dropOne)], axis=1)
+        return dataset
 
 
 class Imputer(PandasMixin, Imputer):
+    """
+    Wrapped :py:class:`sklearn.preprocessing.Imputer`
+    """
     pass
 
 
 class StandardScaler(PandasMixin, StandardScaler):
+    """
+    Wrapped :py:class:`sklearn.preprocessing.StandardScaler`
+    """
     pass
 
 
 class Pipeline(PandasMixin, Pipeline):
+    """
+    Wrapped :py:class:`sklearn.pipeline.Pipeline`
+
+    Will default to looking for attributes in last transformer
+    """
     def __getattr__(self, attr):
         return getattr(self.steps[-1][1], attr)
