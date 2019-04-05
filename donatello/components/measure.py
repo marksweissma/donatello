@@ -211,7 +211,12 @@ class FeatureWeights(Metric):
         model = estimator.model
         columnNames = ['names']
         values = []
-        coef_ = getattr(model, 'coef_', None)
+
+        if hasattr(model, 'coef_'):
+            coef_ = model.coef_[0] if (len(model.coef_.shape) == 2 and model.coef_.shape[1] == 1) else model.coef_
+        else:
+            coef_ = None
+
         intercept_ = getattr(model, 'intercept_', None)
         feature_importances_ = getattr(model, 'feature_importances_', None)
 
@@ -219,9 +224,10 @@ class FeatureWeights(Metric):
             columnNames.append('coefficients')
             if intercept_ is not None:
                 names.append('intercept_')
-                values.append(np.hstack((coef_[0], intercept_)))
+                values.append(np.hstack((coef_, intercept_)))
             else:
-                values.append(model.coef_[0])
+                values.append(coef_)
+
         if feature_importances_ is not None:
             columnNames.append('feature_importances')
             values.append(feature_importances_)
