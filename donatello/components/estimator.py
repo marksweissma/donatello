@@ -48,7 +48,7 @@ class Estimator(Dobject, BaseTransformer):
         method (str): string name of prediction method
         scorer (func | str): callable or string name of method for scoring
         paramGrid (dict): specificiont of  HPs to grid search
-        gridKwargs (dict): options for grid search
+        searchKwargs (dict): options for grid search
         timeFormat (str): option to specify timestamp format
     """
 
@@ -57,7 +57,7 @@ class Estimator(Dobject, BaseTransformer):
                  method='predict',
                  scorer='no_op',
                  paramGrid={},
-                 gridKwargs={},
+                 searchKwargs={},
                  timeFormat="%Y_%m_%d_%H_%M"
                  ):
 
@@ -68,7 +68,7 @@ class Estimator(Dobject, BaseTransformer):
         self.scorer = scorer if callable(scorer) else SCORE_REGISTRY[scorer]
 
         self.paramGrid = paramGrid
-        self.gridKwargs = gridKwargs
+        self.searchKwargs = searchKwargs
         self.timeFormat = timeFormat
 
         self.declaration = self.get_params()
@@ -97,7 +97,7 @@ class Estimator(Dobject, BaseTransformer):
 
 # Fitting
     def grid_search(self, dataset=None, gridSearch=True,
-                    paramGrid=None, gridKwargs=None):
+                    paramGrid=None, searchKwargs=None):
         """
         Grid search over hyperparameter space
         """
@@ -105,7 +105,7 @@ class Estimator(Dobject, BaseTransformer):
             print('grid searching')
             self.gridSearch = GridSearchCV(estimator=self,
                                            param_grid=paramGrid,
-                                           **gridKwargs)
+                                           **searchKwargs)
 
             groups = access(dataset.designData, **dataset.dap['groups']) if 'groups' in dataset.dap else None
             self.gridSearch.fit(X=dataset.designData, y=dataset.targetData,
@@ -113,15 +113,15 @@ class Estimator(Dobject, BaseTransformer):
             self.set_params(**self.gridSearch.best_params_)
 
     @data.package_dataset
-    @fallback('paramGrid', 'gridKwargs')
+    @fallback('paramGrid', 'searchKwargs')
     def fit(self, X=None, y=None, dataset=None, gridSearch=True,
-            paramGrid=None, gridKwargs=None, **kwargs):
+            paramGrid=None, searchKwargs=None, **kwargs):
         """
         Fit method with options for grid searching hyperparameters
         """
         self._records = len(dataset)
         self.grid_search(dataset=dataset, gridSearch=gridSearch,
-                         paramGrid=paramGrid, gridKwargs=gridKwargs, **kwargs)
+                         paramGrid=paramGrid, searchKwargs=searchKwargs, **kwargs)
         self.model.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
         return self
 

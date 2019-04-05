@@ -35,7 +35,7 @@ def load_scuplture():
 
     estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': list(pd.np.logspace(-2, 0, 5))},
-                          gridKwargs={'scoring': 'roc_auc', 'cv': 3},
+                          searchKwargs={'scoring': 'roc_auc', 'cv': 3},
                           method='predict_proba',
                           scorer='score_second'
                           )

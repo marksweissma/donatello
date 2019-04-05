@@ -41,7 +41,7 @@ def load_scuplture():
 
     estimator = Estimator(model=model,
                           paramGrid={'model__ml__C': list(pd.np.logspace(-2, 0, 5))},
-                          gridKwargs={'scoring': 'roc_auc', 'cv': 3},
+                          searchKwargs={'scoring': 'roc_auc', 'cv': 3},
                           method='predict_proba',
                           scorer='score_second'
                           )

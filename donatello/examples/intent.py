@@ -70,7 +70,7 @@ def load_metrics(metrics=None, featureName='coefficients'):
 def load_logit():
     estimator = {'model':  load_model(),
                  'paramGrid': {'model__n3__C': list(pd.np.logspace(-2, 0, 5))},
-                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 3},
+                 'searchKwargs': {'scoring': 'roc_auc', 'cv': 3},
                  'method': 'predict_proba',
                  'scorer': 'score_second'
 
@@ -82,7 +82,7 @@ def load_random_forest():
 
     estimator = {'model': load_model(RandomForestClassifier(n_estimators=40)),
                  'paramGrid': {'model__n3__max_depth': range(2, 5)},
-                 'gridKwargs': {'scoring': 'roc_auc', 'cv': 3},
+                 'searchKwargs': {'scoring': 'roc_auc', 'cv': 3},
                  'method': 'predict_proba',
                  'scorer': 'score_second'
                  }
