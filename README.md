@@ -1,5 +1,7 @@
-Note donatello is not officially released, there is a test wheel on test.pypi.org
+Note donatello is not officially released, there is a test wheel on `test.pypi.org`
 if you want to take a look. The core is intact and basic examples are all turn key
+
+`pip install -i https://test.pypi.org/simple/ donatello`
 
 
 Docs via [github pages](https://marksweissma.github.io/donatello/)
