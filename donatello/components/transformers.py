@@ -31,6 +31,10 @@ class PandasMixin(TransformerMixin, PandasAttrs):
     def transform(self, X=None, dataset=None, *args, **kwargs):
         return super(PandasMixin, self).transform(X=dataset.designData, *args, **kwargs)
 
+    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, dataset=dataset, *args, **kwargs)
+
 
 class PandasTransformer(BaseTransformer):
     """
@@ -214,9 +218,36 @@ class DatasetConductor(BaseTransformer):
         return self.transform(dataset=dataset, *args, **kwargs)
 
 
+class ApplyTransformer(DatasetTransformer):
+    """
+    Apply a function during transform step on a dataset
+
+    Args:
+        func (function): function to apply
+        fitOnly (bool): only apply during tranform following fit
+    """
+    def __init__(self, func=None, fitOnly=False):
+        self.func = func
+        self.fitOnly = fitOnly
+
+    @data.package_dataset
+    @data.extract_features
+    @data.enforce_dataset
+    def transform(self, X=None, y=None, dataset=None):
+
+        if self.fitOnly and getattr(self, 'features', None) not in ([], None):
+            output = dataset
+        else:
+            output = self.func(dataset)
+
+        return output
+
+
+
+
 class AccessTransformer(DatasetTransformer):
     """
-    Unified transform only interace. Leverages donatello's
+    Unified transform only interface. Leverages donatello's
     data access protoal to apply transform. For more info
     seoo :py:func:`donatello.utils.helpers.access`
 
@@ -224,6 +255,7 @@ class AccessTransformer(DatasetTransformer):
         designDap (dict): keyword arguments to apply on designData attribute via access protocol
         targetDap (dict): keyword arguments to apply on targetData attribute via access protocol
         datasetDap (dict): keyword arguments to apply on dataset via access protocol
+        fitOnly (bool): only apply during tranform following fit
     """
     def __init__(self, designDap=None, targetDap=None, datasetDap=None, fitOnly=False):
         self.designDap = designDap
