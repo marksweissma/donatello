@@ -133,9 +133,7 @@ class Sculpture(Dobject, BaseEstimator):
         """
         Write objects
         """
-        for attr in writeAttrs:
-            payload = attr if isinstance(attr, dict) else {'attr': attr}
-            self.persist(obj=self, **payload)
+        [self.persist(obj=self, dap=attr) for attr in writeAttrs]
 
     def __getattr__(self, attr):
         return getattr(self.estimator, attr) if attr != '_name' else self.__class__.__name__
