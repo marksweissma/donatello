@@ -135,6 +135,10 @@ class Sculpture(Dobject, BaseEstimator):
         """
         [self.persist(obj=self, dap=attr) for attr in writeAttrs]
 
+    @property
+    def references(self):
+        return self._references
+
     def __getattr__(self, attr):
         return getattr(self.estimator, attr) if attr != '_name' else self.__class__.__name__
 
