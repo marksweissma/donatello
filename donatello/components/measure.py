@@ -213,7 +213,7 @@ class FeatureWeights(Metric):
         values = []
 
         if hasattr(model, 'coef_'):
-            coef_ = model.coef_[0] if (len(model.coef_.shape) == 2 and model.coef_.shape[1] == 1) else model.coef_
+            coef_ = model.coef_[0] if (len(model.coef_.shape) == 2 and model.coef_.shape[0] == 1) else model.coef_
         else:
             coef_ = None
 
