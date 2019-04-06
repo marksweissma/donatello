@@ -185,11 +185,13 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
     return args, kwargs
 
 
-def persist(obj=None, attr="", root='.', name='', extension='pkl', *writeArgs, **writeKwargs):
+def persist(obj=None, dap="", root='.', name='', extension='pkl', *writeArgs, **writeKwargs):
     """
     Write an object (or attribute) to persist.
     """
-    obj = access(obj, [attr])
+
+    dap = {'attrPath': [dap]} if isinstance(dap, basestring) else dap
+    obj = access(obj, **dap)
     name = name if name else ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
     local = os.path.join(root, name)
     joblib.dump(obj, local, *writeArgs, **writeKwargs)
