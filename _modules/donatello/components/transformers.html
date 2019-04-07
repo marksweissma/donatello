@@ -139,7 +139,7 @@
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">defaultdict</span>
 
-<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">OneHotEncoder</span><span class="p">,</span> <span class="n">Imputer</span><span class="p">,</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">Imputer</span><span class="p">,</span> <span class="n">StandardScaler</span>
 <span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">TransformerMixin</span>
 <span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="k">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="k">import</span> <span class="n">clone</span>
@@ -163,7 +163,11 @@
 <div class="viewcode-block" id="PandasMixin.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasMixin.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PandasMixin.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasMixin.fit_transform">[docs]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="PandasTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.PandasTransformer">[docs]</a><span class="k">class</span> <span class="nc">PandasTransformer</span><span class="p">(</span><span class="n">BaseTransformer</span><span class="p">):</span>
@@ -258,13 +262,13 @@
 <span class="sd">            #. None / &#39;&#39; -&gt; direct key /value look up (i.e. column names to slice with)</span>
 <span class="sd">            # &#39;data_type&#39; -&gt; uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.</span>
 
-<span class="sd">        reverse (bool): option to select all except those fields isolated\</span>
+<span class="sd">        invert (bool): option to select all except those fields isolated\</span>
 <span class="sd">            by selectValue and selectMethod</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">(),</span> <span class="n">selectMethod</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">(),</span> <span class="n">selectMethod</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span> <span class="o">=</span> <span class="n">selectValue</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span> <span class="o">=</span> <span class="n">selectMethod</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span> <span class="o">=</span> <span class="n">reverse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invert</span> <span class="o">=</span> <span class="n">invert</span>
 
 <div class="viewcode-block" id="DesignConductor.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.DesignConductor.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fitParams</span><span class="p">):</span>
@@ -274,7 +278,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">inclusions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">invert</span><span class="p">:</span>
             <span class="n">exclusions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inclusions</span><span class="p">)</span>
             <span class="n">inclusions</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
 
@@ -298,17 +302,17 @@
 
 <span class="sd">            #. None / &#39;&#39; -&gt; direct key /value look up (i.e. column names to slice with)</span>
 <span class="sd">            # &#39;data_type&#39; -&gt; uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.</span>
-<span class="sd">        reverse (bool): option to select all except those fields isolated\</span>
+<span class="sd">        invert (bool): option to select all except those fields isolated\</span>
 <span class="sd">            by selectValue and selectMethod</span>
 <span class="sd">        passTarget (bool): flag to raw dataset&#39;s targetData through</span>
 <span class="sd">        passDesign (bool): flag to raw dataset&#39;s designData through</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">selectValue</span><span class="o">=</span><span class="p">(),</span> <span class="n">selectMethod</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">selectValue</span><span class="o">=</span><span class="p">(),</span> <span class="n">selectMethod</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passDesign</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span> <span class="o">=</span> <span class="n">selectValue</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">selectMethod</span> <span class="o">=</span> <span class="n">selectMethod</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span> <span class="o">=</span> <span class="n">reverse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invert</span> <span class="o">=</span> <span class="n">invert</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">passTarget</span> <span class="o">=</span> <span class="n">passTarget</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">passDesign</span> <span class="o">=</span> <span class="n">passDesign</span>
 
@@ -318,7 +322,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">inclusions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectValue</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reverse</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">invert</span><span class="p">:</span>
             <span class="n">exclusions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">inclusions</span><span class="p">)</span>
             <span class="n">inclusions</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclusions</span><span class="p">]</span>
 
@@ -348,9 +352,34 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="ApplyTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ApplyTransformer">[docs]</a><span class="k">class</span> <span class="nc">ApplyTransformer</span><span class="p">(</span><span class="n">DatasetTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Apply a function during transform step on a dataset</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        func (function): function to apply</span>
+<span class="sd">        fitOnly (bool): only apply during tranform following fit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="o">=</span> <span class="n">fitOnly</span>
+
+<div class="viewcode-block" id="ApplyTransformer.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ApplyTransformer.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">([],</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+
 <div class="viewcode-block" id="AccessTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.AccessTransformer">[docs]</a><span class="k">class</span> <span class="nc">AccessTransformer</span><span class="p">(</span><span class="n">DatasetTransformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Unified transform only interace. Leverages donatello&#39;s</span>
+<span class="sd">    Unified transform only interface. Leverages donatello&#39;s</span>
 <span class="sd">    data access protoal to apply transform. For more info</span>
 <span class="sd">    seoo :py:func:`donatello.utils.helpers.access`</span>
 
@@ -358,16 +387,22 @@
 <span class="sd">        designDap (dict): keyword arguments to apply on designData attribute via access protocol</span>
 <span class="sd">        targetDap (dict): keyword arguments to apply on targetData attribute via access protocol</span>
 <span class="sd">        datasetDap (dict): keyword arguments to apply on dataset via access protocol</span>
+<span class="sd">        fitOnly (bool): only apply during tranform following fit</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">designDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">targetDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">datasetDap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">designDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">targetDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">datasetDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">designDap</span> <span class="o">=</span> <span class="n">designDap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">targetDap</span> <span class="o">=</span> <span class="n">targetDap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">datasetDap</span> <span class="o">=</span> <span class="n">datasetDap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="o">=</span> <span class="n">fitOnly</span>
 
 <div class="viewcode-block" id="AccessTransformer.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.AccessTransformer.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
-    <span class="c1"># @data.extract_features</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">([],</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">dataset</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">designDap</span><span class="p">:</span>
             <span class="n">dataset</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">designDatadap</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetDap</span><span class="p">:</span>
@@ -410,23 +445,19 @@
 <span class="sd">        name (str): identifier for node in graph</span>
 <span class="sd">        transformer (obj): supporting fit, transform, and fit_transform calls</span>
 <span class="sd">        combine (func): function to combine incoming datasets from upstream nodes</span>
-<span class="sd">        fitOnly (bool): flag if transform is only to be applied during fitting (i.e SMOTE)</span>
 <span class="sd">        store (bool): hold information on Node (improves in memory calcs if multiple calls)</span>
 <span class="sd">        enforceTarget (bool): enforce target in transformed dataset - this\</span>
 <span class="sd">                is mainly a patch for scikit-learn wrapped transformers which ignore\</span>
 <span class="sd">                y in transform calls preventing it from passing through the transformer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="n">concat</span><span class="p">,</span>
-                 <span class="n">fitOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="n">concat</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">transformer</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="o">=</span> <span class="n">fitOnly</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combine</span> <span class="o">=</span> <span class="n">combine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">information</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enforceTarget</span> <span class="o">=</span> <span class="n">enforceTarget</span>
 
     <span class="nd">@property</span>
@@ -435,7 +466,6 @@
 
 <div class="viewcode-block" id="TransformNode.reset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">information</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TransformNode.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
@@ -449,17 +479,14 @@
         <span class="n">payload</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="TransformNode.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">information_available</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">information_available</span><span class="p">:</span>
             <span class="n">information</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">information</span> <span class="o">=</span> <span class="n">information</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span><span class="p">:</span>
-            <span class="n">information</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">information</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">information</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -470,11 +497,7 @@
 
     <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
     <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">dataset</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
-
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output</span>
 
 <div class="viewcode-block" id="TransformNode.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.TransformNode.fit_transform">[docs]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -515,10 +538,9 @@
 <span class="sd">        timeFormat (str): str format for logging init time</span>
 <span class="sd">        _nodes (set): patch for handlin</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">executor</span><span class="o">=</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span>
-                 <span class="n">conductor</span><span class="o">=</span><span class="n">DatasetConductor</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_nodes</span><span class="p">,</span> <span class="n">_edges</span><span class="p">,</span> <span class="n">executor</span><span class="o">=</span><span class="s1">&#39;executor&#39;</span><span class="p">,</span>
+                 <span class="n">conductor</span><span class="o">=</span><span class="n">DatasetConductor</span><span class="p">(</span><span class="n">invert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
                  <span class="n">timeFormat</span><span class="o">=</span><span class="s2">&quot;%Y_%m_</span><span class="si">%d</span><span class="s2">_%H_%M&quot;</span><span class="p">,</span>
-                 <span class="n">_nodes</span><span class="o">=</span><span class="nb">set</span><span class="p">([]),</span> <span class="n">_edges</span><span class="o">=</span><span class="p">{},</span>
                  <span class="n">graphArgs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">graphKwargs</span><span class="o">=</span><span class="p">{}</span>
                  <span class="p">):</span>
 
@@ -660,6 +682,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">isFit</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
+<div class="viewcode-block" id="ModelDAG.predict"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.predict">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="n">parents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
+            <span class="n">upstreams</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">]</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">upstream</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">upstream</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="n">upstreams</span><span class="p">)]</span>
+
+            <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">datas</span><span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">predictions</span></div>
+
 <div class="viewcode-block" id="ModelDAG.predict_proba"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.predict_proba">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -692,7 +729,7 @@
 <div class="viewcode-block" id="ModelDAG.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.fit_transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ModelDAG.apply"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
@@ -742,19 +779,47 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terminal</span><span class="p">),</span> <span class="n">attr</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="OneHotEncoder"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.OneHotEncoder">[docs]</a><span class="k">class</span> <span class="nc">OneHotEncoder</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<div class="viewcode-block" id="OneHotEncoder"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.OneHotEncoder">[docs]</a><span class="k">class</span> <span class="nc">OneHotEncoder</span><span class="p">(</span><span class="n">PandasTransformer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dropOne</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropOne</span> <span class="o">=</span> <span class="n">dropOne</span>
+
+<div class="viewcode-block" id="OneHotEncoder.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.OneHotEncoder.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_fields</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">taxonomy</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="p">}</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="OneHotEncoder.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.OneHotEncoder.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
+    <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">_X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">[:]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;category&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">set_categories</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">taxonomy</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">_X</span><span class="p">,</span> <span class="n">drop_first</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dropOne</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dataset</span></div></div>
 
 
 <div class="viewcode-block" id="Imputer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Imputer">[docs]</a><span class="k">class</span> <span class="nc">Imputer</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">Imputer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapped :py:class:`sklearn.preprocessing.Imputer`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="StandardScaler"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.StandardScaler">[docs]</a><span class="k">class</span> <span class="nc">StandardScaler</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapped :py:class:`sklearn.preprocessing.StandardScaler`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="Pipeline"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Pipeline">[docs]</a><span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">PandasMixin</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapped :py:class:`sklearn.pipeline.Pipeline`</span>
+
+<span class="sd">    Will default to looking for attributes in last transformer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">attr</span><span class="p">)</span></div>
 </pre></div>

@@ -345,7 +345,12 @@
         <span class="n">model</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">model</span>
         <span class="n">columnNames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;names&#39;</span><span class="p">]</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">coef_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;coef_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;coef_&#39;</span><span class="p">):</span>
+            <span class="n">coef_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="k">else</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coef_</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">intercept_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;intercept_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">feature_importances_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;feature_importances_&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
@@ -353,9 +358,10 @@
             <span class="n">columnNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;coefficients&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">intercept_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;intercept_&#39;</span><span class="p">)</span>
-                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">intercept_</span><span class="p">)))</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">coef_</span><span class="p">,</span> <span class="n">intercept_</span><span class="p">)))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coef_</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">feature_importances_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">columnNames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;feature_importances&#39;</span><span class="p">)</span>
             <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feature_importances_</span><span class="p">)</span>

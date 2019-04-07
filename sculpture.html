@@ -35,7 +35,7 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="Quick Start" href="quickstart.html"/>
-        <link rel="next" title="&lt;no title&gt;" href="dataset.html"/>
+        <link rel="next" title="Model Types" href="model_types.html"/>
         <link rel="prev" title="Quick Start" href="quickstart.html"/> 
 
   
@@ -98,6 +98,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#persisting">Persisting</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="model_types.html">Model Types</a></li>
 </ul>
 </li>
 </ul>
@@ -222,7 +223,7 @@ to build evaluate and produce artifacts is specified during instantiation.</p>
 
     <span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span>
                           <span class="n">paramGrid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;model__C&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">))},</span>
-                          <span class="n">gridKwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;scoring&#39;</span><span class="p">:</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+                          <span class="n">searchKwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;scoring&#39;</span><span class="p">:</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
                           <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict_proba&#39;</span><span class="p">,</span>
                           <span class="n">scorer</span><span class="o">=</span><span class="s1">&#39;score_second&#39;</span>
                           <span class="p">)</span>
@@ -695,7 +696,7 @@ user defined flexibility</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dataset.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="model_types.html" class="btn btn-neutral float-right" title="Model Types" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="quickstart.html" class="btn btn-neutral" title="Quick Start" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
