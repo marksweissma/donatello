@@ -12,20 +12,20 @@ from donatello.utils.decorators import decorator, init_time, fallback, coelesce
 from donatello.utils.helpers import find_value, replace_value, nvl, access
 
 
-_base = {'n_splits': 5,
+_BASE = {'n_splits': 5,
          'shuffle': True,
          'random_state': RANDOM_SEED}
 
 
-typeDispatch = {None: KFold,
+TYPEDISPATCH = {None: KFold,
                 'stratify': StratifiedKFold,
                 'group': GroupShuffleSplit,
                 'time': TimeSeriesSplit
                 }
 
 
-kwargDispatch = {None: _base,
-                 'stratify': _base,
+KWARGDISPATCH = {None: _BASE,
+                 'stratify': _BASE,
                  'group': {'n_splits': 5, 'random_state': RANDOM_SEED},
                  'time': {'n_splits': 5}
                  }
@@ -40,14 +40,17 @@ class Fold(Dobject):
         target (str): name of target field if supervised
         primaryKey (str): if dictionary of dataframes, key of dictionary\
             containing primrary df
-        str (splitOver): option to split over unique values instead \
-            of random or startification
+        scoreClay (str): option to set scoring options through dispatch
+        foldClay (str): option to set fodling options through dispatch
+        splitDispatch(dict): Folding Types keyed by clays
+        kwargDispatch(dict): keyword arguments conjugate to folding types
+        dap (str): option add runtime kwargs to folding and split (i.e. groups)
     """
     @init_time
     @coelesce(dap={})
     def __init__(self, target=None, primaryKey=None,
                  scoreClay=None, foldClay=None,
-                 splitDispatch=typeDispatch, kwargDispatch=kwargDispatch,
+                 splitDispatch=TYPEDISPATCH, kwargDispatch=KWARGDISPATCH,
                  dap=None
                  ):
 
@@ -55,7 +58,7 @@ class Fold(Dobject):
         self.primaryKey = primaryKey
         self.scoreClay = scoreClay
         self.foldClay = foldClay
-        self.folder = typeDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
+        self.folder = splitDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
         self.dap = dap
 
     @fallback('target', 'primaryKey', 'dap')
@@ -68,6 +71,7 @@ class Fold(Dobject):
             target (str): str name of target field to separate
             primaryKey (str): key for primary field (if dataset.data \
                 is dict not df)
+            dap (dict): objects dap, fit will use groups key if exists
 
         Returns:
             object: self
@@ -207,8 +211,10 @@ class Dataset(Dobject):
         queries (dict): queries to execute to fetch data if not directly passed
         querier (func): default function to execute queries
         copyRaw (bool): option to have data return copy of raw to preserve fetch
-        type (obj) foldType: type of fold to leverage in iterator
-        foldDeclaration (obj): kwargs for split type to instantiate with in constructor
+        foldClay (str): option to set fodling options through dispatch
+        foldType(type): type of fold object
+        scoreClay (str): option to set scoring options through dispatch
+        dap (dict): dap for Folder
     """
     @init_time
     def __init__(self, raw=None, X=None, y=None,
@@ -241,6 +247,10 @@ class Dataset(Dobject):
 
     @property
     def params(self):
+        """
+        Params of object excluding those that hold the data/information to operate on
+        (raw, data, X, y)
+        """
         spec = inspect.getargspec(self.__init__)
         exclusions = set(['self', 'raw', 'X', 'y', 'data'])
         params = {param: getattr(self, param) for param in spec.args if param not in exclusions}
