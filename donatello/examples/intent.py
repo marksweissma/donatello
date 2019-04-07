@@ -15,7 +15,7 @@ from donatello.components import transformers
 
 def load_model(model=LogisticRegression(C=5)):
 
-    t = transformers.DatasetConductor(reverse=True, passTarget=True)
+    t = transformers.DatasetConductor(invert=True, passTarget=True)
 
     s = transformers.StandardScaler()
 
