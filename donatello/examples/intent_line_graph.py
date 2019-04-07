@@ -39,7 +39,7 @@ def load_model(model=LogisticRegression(C=5)):
         donatello.components.transformer.ModelDAG: execution graph
     """
 
-    graph = transformers.ModelDAG(graphKwargs={'name': 'model_sklearn_breast_cancer'})
+    graph = transformers.ModelDAG(set([]), {}, graphKwargs={'name': 'model_sklearn_breast_cancer'})
 
     n1 = transformers.TransformNode('scale', transformer=transformers.StandardScaler(), enforceTarget=True)
     n2 = transformers.TransformNode('ml', transformer=model)
