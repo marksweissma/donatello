@@ -128,13 +128,13 @@ class DesignConductor(PandasTransformer):
             #. None / '' -> direct key /value look up (i.e. column names to slice with)
             # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.
 
-        reverse (bool): option to select all except those fields isolated\
+        invert (bool): option to select all except those fields isolated\
             by selectValue and selectMethod
     """
-    def __init__(self, selectValue=(), selectMethod=None, reverse=False):
+    def __init__(self, selectValue=(), selectMethod=None, invert=False):
         self.selectValue = selectValue
         self.selectMethod = selectMethod
-        self.reverse = reverse
+        self.invert = invert
 
     @data.package_dataset
     def fit(self, dataset=None, **fitParams):
@@ -144,7 +144,7 @@ class DesignConductor(PandasTransformer):
         else:
             inclusions = self.selectValue
 
-        if self.reverse:
+        if self.invert:
             exclusions = set(inclusions)
             inclusions = [i for i in dataset.designData if i not in exclusions]
 
@@ -168,17 +168,17 @@ class DatasetConductor(BaseTransformer):
 
             #. None / '' -> direct key /value look up (i.e. column names to slice with)
             # 'data_type' -> uses :py:meth:`pandas.DataFrame.select_dtypes` to select by data type.
-        reverse (bool): option to select all except those fields isolated\
+        invert (bool): option to select all except those fields isolated\
             by selectValue and selectMethod
         passTarget (bool): flag to raw dataset's targetData through
         passDesign (bool): flag to raw dataset's designData through
     """
     def __init__(self,
-                 selectValue=(), selectMethod=None, reverse=False,
+                 selectValue=(), selectMethod=None, invert=False,
                  passTarget=True, passDesign=True):
         self.selectValue = selectValue
         self.selectMethod = selectMethod
-        self.reverse = reverse
+        self.invert = invert
         self.passTarget = passTarget
         self.passDesign = passDesign
 
@@ -188,7 +188,7 @@ class DatasetConductor(BaseTransformer):
         else:
             inclusions = self.selectValue
 
-        if self.reverse:
+        if self.invert:
             exclusions = set(inclusions)
             inclusions = [i for i in dataset.designData if i not in exclusions]
 
@@ -405,9 +405,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         _nodes (set): patch for handlin
     """
     def __init__(self, _nodes, _edges, executor='executor',
-                 conductor=DatasetConductor(reverse=True, passTarget=True),
+                 conductor=DatasetConductor(invert=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
-                 # _nodes=set([]), _edges={},
                  graphArgs=tuple(), graphKwargs={}
                  ):
 
