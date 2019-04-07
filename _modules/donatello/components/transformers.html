@@ -533,6 +533,8 @@
 <span class="sd">        do not do this</span>
 
 <span class="sd">    Args:</span>
+<span class="sd">        _nodes (set): nodes objects to intialize with - recommended to use set([]) and buidl with helpers</span>
+<span class="sd">        _edges (dict): edge ids mapped to transformers - recommended to use {} and build helpers</span>
 <span class="sd">        executor (str): name of attribute in each node where transform object is stored</span>
 <span class="sd">        conductor (obj): default edge conduction transformer</span>
 <span class="sd">        timeFormat (str): str format for logging init time</span>
@@ -729,6 +731,9 @@
 <div class="viewcode-block" id="ModelDAG.fit_transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.fit_transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        IN DEV - do not use</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">node</span><span class="p">)</span></div>
 
