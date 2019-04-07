@@ -243,8 +243,6 @@ class ApplyTransformer(DatasetTransformer):
         return output
 
 
-
-
 class AccessTransformer(DatasetTransformer):
     """
     Unified transform only interface. Leverages donatello's
@@ -313,23 +311,19 @@ class TransformNode(Dobject, BaseTransformer):
         name (str): identifier for node in graph
         transformer (obj): supporting fit, transform, and fit_transform calls
         combine (func): function to combine incoming datasets from upstream nodes
-        fitOnly (bool): flag if transform is only to be applied during fitting (i.e SMOTE)
         store (bool): hold information on Node (improves in memory calcs if multiple calls)
         enforceTarget (bool): enforce target in transformed dataset - this\
                 is mainly a patch for scikit-learn wrapped transformers which ignore\
                 y in transform calls preventing it from passing through the transformer
     """
-    def __init__(self, name, transformer=None, combine=concat,
-                 fitOnly=False, store=False, enforceTarget=False):
+    def __init__(self, name, transformer=None, combine=concat, store=False, enforceTarget=False):
 
         self.name = name
         self.transformer = transformer
-        self.fitOnly = fitOnly
         self.combine = combine
         self.store = store
 
         self.information = None
-        self.isFit = False
         self.enforceTarget = enforceTarget
 
     @property
@@ -338,7 +332,6 @@ class TransformNode(Dobject, BaseTransformer):
 
     def reset(self):
         self.information = None
-        self.isFit = False
         self.transformer = clone(self.transformer)
 
     @data.package_dataset
@@ -352,17 +345,14 @@ class TransformNode(Dobject, BaseTransformer):
         payload.update(kwargs)
         self.transformer.fit(**payload)
 
-        self.isFit = True
         return self
 
     @data.package_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None, **kwargs):
-        if not self.information_available and not self.isFit:
+        if not self.information_available:
             information = self._transform(dataset=dataset, **kwargs)
             self.information = information if self.store else None
-        elif not self.isFit:
-            information = self.information
         else:
             information = self._transform(dataset=dataset, **kwargs)
 
@@ -373,11 +363,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     @data.enforce_dataset
     def _transform(self, X=None, y=None, dataset=None, **kwargs):
-        if self.fitOnly and not getattr(self, 'features', None) is not None:
-            output = dataset
-        else:
-            output = self.transformer.transform(dataset=dataset)
-
+        output = self.transformer.transform(dataset=dataset)
         return output
 
     def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
@@ -418,10 +404,10 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         timeFormat (str): str format for logging init time
         _nodes (set): patch for handlin
     """
-    def __init__(self, executor='executor',
+    def __init__(self, _nodes, _edges, executor='executor',
                  conductor=DatasetConductor(reverse=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
-                 _nodes=set([]), _edges={},
+                 # _nodes=set([]), _edges={},
                  graphArgs=tuple(), graphKwargs={}
                  ):
 
@@ -565,6 +551,21 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
+    def predict(self, X=None, y=None, node=None, dataset=None):
+
+        parents = tuple(self.predecessors(node))
+        if parents:
+            upstreams = [self.apply(parent, dataset, 'transform') for parent in parents]
+            datas = [self.edge_exec(parent, node).fit_transform(upstream)
+                     for parent, upstream in zip(parents, upstreams)]
+
+            dataset = self.node_exec(node).combine(datas)
+
+        predictions = self.node_exec(node).predict(dataset.designData)
+        return predictions
+
+    @data.package_dataset
+    @fallback(node='terminal')
     def predict_proba(self, X=None, y=None, node=None, dataset=None):
 
         parents = tuple(self.predecessors(node))
@@ -595,7 +596,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @data.package_dataset
     @fallback(node='terminal')
     def fit_transform(self, X=None, y=None, dataset=None, node=None):
-        self.fit(data=dataset, node=node)
+        self.fit(dataset=dataset, node=node)
         return self.transform(dataset=dataset, node=node)
 
     def apply(self, node, data, method):
