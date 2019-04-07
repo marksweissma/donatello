@@ -399,6 +399,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         do not do this
 
     Args:
+        _nodes (set): nodes objects to intialize with - recommended to use set([]) and buidl with helpers
+        _edges (dict): edge ids mapped to transformers - recommended to use {} and build helpers
         executor (str): name of attribute in each node where transform object is stored
         conductor (obj): default edge conduction transformer
         timeFormat (str): str format for logging init time
@@ -595,6 +597,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @data.package_dataset
     @fallback(node='terminal')
     def fit_transform(self, X=None, y=None, dataset=None, node=None):
+        """
+        IN DEV - do not use
+        """
         self.fit(dataset=dataset, node=node)
         return self.transform(dataset=dataset, node=node)
 
