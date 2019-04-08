@@ -208,6 +208,7 @@ class FeatureWeights(Metric):
         """
 
         names = estimator.features if estimator.features else X.columns.tolist()
+
         model = estimator.model
         columnNames = ['names']
         values = []
