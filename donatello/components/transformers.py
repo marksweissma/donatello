@@ -303,81 +303,6 @@ def concat(datasets, params=None, dataType=data.Dataset):
     return dataset
 
 
-class _TransformNode(Dobject, BaseTransformer):
-    """
-    Node in model execution grap
-
-    Args:
-        name (str): identifier for node in graph
-        transformer (obj): supporting fit, transform, and fit_transform calls
-        combine (func): function to combine incoming datasets from upstream nodes
-        store (bool): hold information on Node (improves in memory calcs if multiple calls)
-        enforceTarget (bool): enforce target in transformed dataset - this\
-                is mainly a patch for scikit-learn wrapped transformers which ignore\
-                y in transform calls preventing it from passing through the transformer
-    """
-    def __init__(self, name, transformer=None, combine=concat, store=False, enforceTarget=False):
-
-        self.name = name
-        self.transformer = transformer
-        self.combine = combine
-        self.store = store
-
-        self.information = None
-        self.enforceTarget = enforceTarget
-
-    @property
-    def information_available(self):
-        return self.information is not None
-
-    def reset(self):
-        self.information = None
-        self.transformer = clone(self.transformer)
-
-    @data.package_dataset
-    @data.extract_fields
-    def fit(self, X=None, y=None, dataset=None, **kwargs):
-        spec = inspect.getargspec(self.transformer.fit)
-        if 'dataset' in spec.args:
-            payload = {'dataset': dataset}
-        else:
-            payload = {'X': dataset.designData}
-            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
-        payload.update(kwargs)
-        self.transformer.fit(**payload)
-
-        return self
-
-    @data.package_dataset
-    @data.extract_features
-    def transform(self, X=None, y=None, dataset=None, **kwargs):
-        try:
-            if not self.information_available:
-                information = self._transform(dataset=dataset, **kwargs)
-                self.information = information if self.store else None
-            else:
-                information = self._transform(dataset=dataset, **kwargs)
-
-            if isinstance(information, data.Dataset) and self.enforceTarget and not information._has_target:
-                information.targetData = dataset.targetData
-        except:
-            import pdb; pdb.set_trace()
-
-        return information
-
-    @data.enforce_dataset
-    def _transform(self, X=None, y=None, dataset=None, **kwargs):
-        output = self.transformer.transform(dataset=dataset)
-        return output
-
-    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
-        self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
-        return self.transform(X=X, dataset=dataset, *args, **kwargs)
-
-    def __getattr__(self, attr):
-        return getattr(self.transformer, attr)
-
-
 class TransformNode(Dobject, BaseTransformer):
     """
     Node in model execution grap
@@ -687,31 +612,6 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             output = [data]
 
         dataset = self.node_exec(node).combine(output)
-
-        spec = inspect.getargspec(getattr(self.node_exec(node), method))
-        if 'dataset' in spec.args:
-            payload = {'dataset': dataset}
-        else:
-            payload = {'X': dataset.designData}
-            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
-        information = access(self.node_exec(node), method=method, methodKwargs=payload)
-
-        return information
-
-
-    def _apply(self, node, data, method):
-        parents = tuple(self.predecessors(node))  #node = onhe
-        if parents:
-            output = [(self.apply(parent,
-                                  access(self.edge_exec(parent, node), [method])(dataset=data),
-                                  method
-                                  )) for
-                       parent in parents]
-        else:
-            output = [data]
-
-        dataset = self.node_exec(node).combine(output)
-
 
         spec = inspect.getargspec(getattr(self.node_exec(node), method))
         if 'dataset' in spec.args:
