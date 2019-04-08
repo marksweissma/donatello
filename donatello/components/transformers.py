@@ -278,7 +278,7 @@ class AccessTransformer(DatasetTransformer):
         return dataset
 
 
-def concat(datasets, params=None):
+def concat(datasets, params=None, dataType=data.Dataset):
     """
     Simple helper to combine design and target data  from propogation through
     :py:class:`ModelDAG`
@@ -294,16 +294,16 @@ def concat(datasets, params=None):
         Xs = [dataset.designData for dataset in datasets if dataset.designData is not None]
         ys = [dataset.targetData for dataset in datasets if dataset.targetData is not None]
 
-        X = pd.concat(Xs, axis=1) if Xs else None
-        y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1)
-        params = nvl(params, datasets[0].params)
-        dataset = data.Dataset(X=X, y=y, **params)
+        X = pd.concat(Xs, axis=1, join='inner') if Xs else None
+        y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1, join='inner')
+        params = nvl(params, getattr(datasets[0], 'params', None))
+        dataset = dataType(X=X, y=y, **params)
     else:
         dataset = None
     return dataset
 
 
-class TransformNode(Dobject, BaseTransformer):
+class _TransformNode(Dobject, BaseTransformer):
     """
     Node in model execution grap
 
@@ -335,6 +335,7 @@ class TransformNode(Dobject, BaseTransformer):
         self.transformer = clone(self.transformer)
 
     @data.package_dataset
+    @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, **kwargs):
         spec = inspect.getargspec(self.transformer.fit)
         if 'dataset' in spec.args:
@@ -350,12 +351,74 @@ class TransformNode(Dobject, BaseTransformer):
     @data.package_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None, **kwargs):
-        if not self.information_available:
-            information = self._transform(dataset=dataset, **kwargs)
-            self.information = information if self.store else None
-        else:
-            information = self._transform(dataset=dataset, **kwargs)
+        try:
+            if not self.information_available:
+                information = self._transform(dataset=dataset, **kwargs)
+                self.information = information if self.store else None
+            else:
+                information = self._transform(dataset=dataset, **kwargs)
 
+            if isinstance(information, data.Dataset) and self.enforceTarget and not information._has_target:
+                information.targetData = dataset.targetData
+        except:
+            import pdb; pdb.set_trace()
+
+        return information
+
+    @data.enforce_dataset
+    def _transform(self, X=None, y=None, dataset=None, **kwargs):
+        output = self.transformer.transform(dataset=dataset)
+        return output
+
+    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, dataset=dataset, *args, **kwargs)
+
+    def __getattr__(self, attr):
+        return getattr(self.transformer, attr)
+
+
+class TransformNode(Dobject, BaseTransformer):
+    """
+    Node in model execution grap
+
+    Args:
+        name (str): identifier for node in graph
+        transformer (obj): supporting fit, transform, and fit_transform calls
+        combine (func): function to combine incoming datasets from upstream nodes
+        store (bool): hold information on Node (improves in memory calcs if multiple calls)
+        enforceTarget (bool): enforce target in transformed dataset - this\
+                is mainly a patch for scikit-learn wrapped transformers which ignore\
+                y in transform calls preventing it from passing through the transformer
+    """
+    def __init__(self, name, transformer=None, combine=concat, enforceTarget=False):
+
+        self.name = name
+        self.transformer = transformer
+        self.combine = combine
+        self.enforceTarget = enforceTarget
+
+    def reset(self):
+        self.transformer = clone(self.transformer)
+
+    @data.package_dataset
+    @data.extract_fields
+    def fit(self, X=None, y=None, dataset=None, **kwargs):
+        spec = inspect.getargspec(self.transformer.fit)
+        if 'dataset' in spec.args:
+            payload = {'dataset': dataset}
+        else:
+            payload = {'X': dataset.designData}
+            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+        payload.update(kwargs)
+        self.transformer.fit(**payload)
+
+        return self
+
+    @data.package_dataset
+    @data.extract_features
+    def transform(self, X=None, y=None, dataset=None, **kwargs):
+        information = self._transform(dataset=dataset, **kwargs)
         if isinstance(information, data.Dataset) and self.enforceTarget and not information._has_target:
             information.targetData = dataset.targetData
 
@@ -368,7 +431,7 @@ class TransformNode(Dobject, BaseTransformer):
 
     def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
         self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
-        return self.transform(X=X, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, y=y, dataset=dataset, *args, **kwargs)
 
     def __getattr__(self, attr):
         return getattr(self.transformer, attr)
@@ -535,14 +598,19 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
-    def fit(self, X=None, y=None, dataset=None, node=None):
-        self.clean()
+    def fit(self, X=None, y=None, dataset=None, node=None, clean=True):
+        if clean:
+            self.clean()
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
             datas = [self.edge_exec(parent, node).fit_transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
+            for parent, upstream in zip(parents, upstreams):
+                print parent
+                print upstream.data.head()
+                print '*'*10
             dataset = self.node_exec(node).combine(datas)
 
         self.node_exec(node).fit(dataset=dataset)
@@ -557,9 +625,15 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, 'transform') for parent in parents]
-            datas = [self.edge_exec(parent, node).fit_transform(upstream)
+            datas = [self.edge_exec(parent, node).transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
+            for parent, upstream in zip(parents, upstreams):
+                print parent
+                print upstream.data.head()
+                print '*'*10
+
+            import pdb; pdb.set_trace()
             dataset = self.node_exec(node).combine(datas)
 
         predictions = self.node_exec(node).predict(dataset.designData)
@@ -572,7 +646,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, 'transform') for parent in parents]
-            datas = [self.edge_exec(parent, node).fit_transform(upstream)
+            datas = [self.edge_exec(parent, node).transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
             dataset = self.node_exec(node).combine(datas)
@@ -591,25 +665,42 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
             dataset = self.node_exec(node).combine(datas)
 
-        transformed = self.node_exec(node).transform(dataset.designData)
+        transformed = self.node_exec(node).transform(dataset=dataset)
         return transformed
 
     @data.package_dataset
     @fallback(node='terminal')
-    def fit_transform(self, X=None, y=None, dataset=None, node=None):
+    def fit_transform(self, X=None, y=None, dataset=None, node=None, clean=True):
         """
-        IN DEV - do not use
         """
-        self.fit(dataset=dataset, node=node)
-        return self.transform(dataset=dataset, node=node)
+        if clean:
+            self.clean()
+        parents = tuple(self.predecessors(node))
+        if parents:
+            upstreams = [self.apply(parent, dataset, 'fit_transform') for parent in parents]
+            datas = [self.edge_exec(parent, node).fit_transform(upstream)
+                     for parent, upstream in zip(parents, upstreams)]
+
+            for parent, upstream in zip(parents, upstreams):
+                print parent
+                print upstream.data.head()
+                print '*'*10
+
+            dataset = self.node_exec(node).combine(datas)
+
+        transformed = self.node_exec(node).fit_transform(dataset=dataset)
+
+        return transformed
 
     def apply(self, node, data, method):
         parents = tuple(self.predecessors(node))
+        print(node)
 
         if parents:
-            output = [(self.node_exec(parent).information if self.node_exec(parent).information_available else
+            # output = [(self.node_exec(parent).information if self.node_exec(parent).information_available else
+            output = [(
                       self.apply(parent,
-                                 access(self.edge_exec(parent, node), [method])(data),
+                                 access(self.edge_exec(parent, node), [method])(dataset=data),
                                  method
                                  )) for
                       parent in parents]
@@ -617,6 +708,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             output = [data]
 
         dataset = self.node_exec(node).combine(output)
+
 
         spec = inspect.getargspec(getattr(self.node_exec(node), method))
         if 'dataset' in spec.args:
@@ -665,9 +757,18 @@ class OneHotEncoder(PandasTransformer):
     @data.enforce_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
-        _X = pd.concat([dataset.designData[:].pop(column).astype('category').cat.set_categories(value)
-                        for column, value in self.taxonomy.items()], axis=1)
-        dataset.designData = pd.concat([dataset.designData, pd.get_dummies(_X, drop_first=self.dropOne)], axis=1)
+        design = dataset.designData.drop(self.taxonomy.keys(), errors='ignore')
+        design = [design] if len(design.columns) > 1 else []
+
+        try:
+            _X = pd.concat([dataset.designData[column].astype('category').cat.set_categories(value)
+                            for column, value in self.taxonomy.items()], axis=1)
+        except Exception as e:
+            # import pdb; pdb.set_trace()
+            raise e
+        X = pd.get_dummies(_X, drop_first=self.dropOne)
+        design.append(X)
+        dataset = dataset.with_params(X=pd.concat(design, axis=1), y=dataset.targetData)
         return dataset
 
 

@@ -279,8 +279,10 @@ class Dataset(Dobject):
             raw = [X] if X is not None else []
             raw.append(y) if y is not None else None
             self.raw = pd.concat(raw, axis=1)
-            self.designData = X
-            self.targetData = y
+            if X is not self.designData:
+                self.designData = X
+            if y is not self.targetData:
+                self.targetData = y
             name = getattr(y, 'name', getattr(self, 'target', None))
             self.target = name
         else:
@@ -339,6 +341,7 @@ class Dataset(Dobject):
     @designData.setter
     def designData(self, value):
         self._designData = value
+        self.link(X=value, y=self.targetData)
 
     @property
     def targetData(self):
@@ -354,6 +357,7 @@ class Dataset(Dobject):
     @targetData.setter
     def targetData(self, value):
         self._targetData = value
+        self.link(X=self.designData, y=value)
 
     @fallback('queries', 'querier', 'force')
     @fit_fold
@@ -420,6 +424,11 @@ class Dataset(Dobject):
     def with_params(self, raw=None, X=None, y=None, **kwargs):
         kwargs.update({i: j for i, j in self.params.items() if i not in kwargs})
         return type(self)(raw=raw, X=X, y=y, **kwargs)
+
+    @property
+    def shape(self):
+        return self.data.shape if hasattr(self.data, 'shape') else len(self.data)\
+                if hasattr(self.data, '__len__') else None
 
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
@@ -532,9 +541,15 @@ def extract_fields(wrapped, instance, args, kwargs):
 @decorator
 def extract_features(wrapped, instance, args, kwargs):
     """
-    Record the column names and/or keys of the incoming dataset
+    Record the column names and/or keys of the outgoing dataset
     after a function call if not already attached to instance
     """
+    dataset = find_value(wrapped, args, kwargs, 'dataset')
+    X = find_value(wrapped, args, kwargs, 'X')
+    initial = dataset.designData if (dataset is not None) else X if (X is not None) else None
+    index = initial.index if hasattr(initial, 'index') else None
+    # index=None
+
     result = wrapped(*args, **kwargs)
     df = result.designData if isinstance(result, Dataset) else result
 
@@ -548,7 +563,7 @@ def extract_features(wrapped, instance, args, kwargs):
 
     else:
         features = getattr(instance, 'features', [])
-    df = df if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features)
+    df = df if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features, index=index)
 
     if postFit:
         instance.featureDtypes = access(df, ['dtypes'], method='to_dict',
