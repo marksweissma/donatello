@@ -86,14 +86,14 @@ class Estimator(Dobject, BaseTransformer):
         """
         Fields passed into model
         """
-        return getattr(self.model, '_fields', [])
+        return getattr(self.model, 'fields', [])
 
     @property
     def features(self):
         """
         Features coming from model
         """
-        return getattr(self.model, '_features', [])
+        return getattr(self.model, 'features', [])
 
 # Fitting
     def grid_search(self, dataset=None, gridSearch=True,
