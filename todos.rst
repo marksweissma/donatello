@@ -1,3 +1,11 @@
+Multiple branches through fit only transformer doesn't work yet-
+    probably either need to move to sample approach (ala imblearn)
+    or use a flag
+
+Fix fit_transform option in DiGraph
+
+QA subsetting over transformations
+
 sklearn parallelization
 
 XGBoost cv + early stopping
