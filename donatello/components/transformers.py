@@ -660,14 +660,12 @@ class OneHotEncoder(PandasTransformer):
     @data.enforce_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
-        design = dataset.designData.drop(self.taxonomy.keys(), errors='ignore')
-        design = [design] if len(design.columns) > 1 else []
+        design = [dataset.designData.drop(self.taxonomy.keys(), errors='ignore')]
 
         _X = pd.concat([dataset.designData[column].astype('category').cat.set_categories(value)
                         for column, value in self.taxonomy.items()], axis=1)
         X = pd.get_dummies(_X, drop_first=self.dropOne)
-        design.append(X)
-        dataset = dataset.with_params(X=pd.concat(design, axis=1), y=dataset.targetData)
+        dataset = dataset.with_params(X=pd.concat(design + X, axis=1), y=dataset.targetData)
         return dataset
 
 
