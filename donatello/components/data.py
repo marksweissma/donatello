@@ -208,8 +208,6 @@ class Dataset(Dobject):
         raw (obj): raw data
         X (obj): option to specify design directly
         y (obj): option to specify target directly
-        queries (dict): queries to execute to fetch data if not directly passed
-        querier (func): default function to execute queries
         copyRaw (bool): option to have data return copy of raw to preserve fetch
         foldClay (str): option to set fodling options through dispatch
         foldType(type): type of fold object
@@ -218,7 +216,7 @@ class Dataset(Dobject):
     """
     @init_time
     def __init__(self, raw=None, X=None, y=None,
-                 queries=None, querier=pd.read_csv, copyRaw=False,
+                 copyRaw=False,
                  foldClay=None, foldType=Fold,
                  scoreClay=None,
                  target=None, primaryKey=None,
@@ -226,8 +224,6 @@ class Dataset(Dobject):
                  ):
 
         self.copyRaw = copyRaw
-        self.queries = queries
-        self.querier = querier
 
         self.foldClay = foldClay
         self.foldType = foldType
@@ -359,32 +355,6 @@ class Dataset(Dobject):
         self._targetData = value
         self.link(X=self.designData, y=value)
 
-    @fallback('queries', 'querier', 'force')
-    @fit_fold
-    def execute_queries(self, queries=None, querier=None, force=False):
-        """
-        Execute data extraction via cascading querying dependencies
-        Attaches return to :py:attr:`Data.raw`, which can be
-        accessed via py:attr:`Data.data`
-
-        Args:
-            queries (dict): payload of queries
-            querier (func): option to specify executor at the execution\
-                level rather than the query level
-        """
-
-        if not queries:
-            self.raw = querier()
-        else:
-            for name, query in queries.items():
-                querier = query.get('querier', querier)
-
-                payload = {i: j for i, j in query.items() if i != 'querier'}
-                if len(queries) == 1:
-                    self.raw = querier(**payload)
-                else:
-                    self.raw[name] = querier(**payload)
-
     def subset(self, subset='train'):
         """
         Create a new `donatello.components.data.Dataset`
@@ -458,10 +428,6 @@ def pull(wrapped, instance, args, kwargs):
         elif X is not None:
             param = dataset.param if dataset else {}
             dataset = Dataset(X=X, y=y, **param)
-
-    if not dataset.hasData and dataset.queries is not None:
-        dataset.execute_queries(dataset.queries)
-        dataset.fold.fit(dataset)
 
     args, kwargs = replace_value(wrapped, args, kwargs, 'dataset', dataset)
     return args, kwargs
