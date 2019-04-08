@@ -607,12 +607,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             datas = [self.edge_exec(parent, node).fit_transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
-            for parent, upstream in zip(parents, upstreams):
-                print parent
-                print upstream.data.head()
-                print '*'*10
             dataset = self.node_exec(node).combine(datas)
 
+        self.features = list(dataset.designData)
         self.node_exec(node).fit(dataset=dataset)
 
         self.isFit = True
@@ -628,12 +625,6 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             datas = [self.edge_exec(parent, node).transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
-            for parent, upstream in zip(parents, upstreams):
-                print parent
-                print upstream.data.head()
-                print '*'*10
-
-            import pdb; pdb.set_trace()
             dataset = self.node_exec(node).combine(datas)
 
         predictions = self.node_exec(node).predict(dataset.designData)
@@ -681,11 +672,6 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             datas = [self.edge_exec(parent, node).fit_transform(upstream)
                      for parent, upstream in zip(parents, upstreams)]
 
-            for parent, upstream in zip(parents, upstreams):
-                print parent
-                print upstream.data.head()
-                print '*'*10
-
             dataset = self.node_exec(node).combine(datas)
 
         transformed = self.node_exec(node).fit_transform(dataset=dataset)
@@ -693,17 +679,34 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         return transformed
 
     def apply(self, node, data, method):
-        parents = tuple(self.predecessors(node))
-        print(node)
-
+        parents = tuple(self.predecessors(node))  # node = ohe
         if parents:
-            # output = [(self.node_exec(parent).information if self.node_exec(parent).information_available else
-            output = [(
-                      self.apply(parent,
-                                 access(self.edge_exec(parent, node), [method])(dataset=data),
-                                 method
-                                 )) for
-                      parent in parents]
+            output = [access(self.edge_exec(parent, node), [method])(dataset=self.apply(parent, data, method))
+                      for parent in parents]
+        else:
+            output = [data]
+
+        dataset = self.node_exec(node).combine(output)
+
+        spec = inspect.getargspec(getattr(self.node_exec(node), method))
+        if 'dataset' in spec.args:
+            payload = {'dataset': dataset}
+        else:
+            payload = {'X': dataset.designData}
+            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+        information = access(self.node_exec(node), method=method, methodKwargs=payload)
+
+        return information
+
+
+    def _apply(self, node, data, method):
+        parents = tuple(self.predecessors(node))  #node = onhe
+        if parents:
+            output = [(self.apply(parent,
+                                  access(self.edge_exec(parent, node), [method])(dataset=data),
+                                  method
+                                  )) for
+                       parent in parents]
         else:
             output = [data]
 
