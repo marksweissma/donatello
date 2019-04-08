@@ -663,12 +663,8 @@ class OneHotEncoder(PandasTransformer):
         design = dataset.designData.drop(self.taxonomy.keys(), errors='ignore')
         design = [design] if len(design.columns) > 1 else []
 
-        try:
-            _X = pd.concat([dataset.designData[column].astype('category').cat.set_categories(value)
-                            for column, value in self.taxonomy.items()], axis=1)
-        except Exception as e:
-            # import pdb; pdb.set_trace()
-            raise e
+        _X = pd.concat([dataset.designData[column].astype('category').cat.set_categories(value)
+                        for column, value in self.taxonomy.items()], axis=1)
         X = pd.get_dummies(_X, drop_first=self.dropOne)
         design.append(X)
         dataset = dataset.with_params(X=pd.concat(design, axis=1), y=dataset.targetData)
