@@ -1,5 +1,6 @@
 import inspect
 import pandas as pd
+from copy import deepcopy
 from uuid import uuid4
 from wrapt import decorator
 
@@ -59,7 +60,7 @@ def coelesce(**defaults):
     def _wrapper(wrapped, instance, args, kwargs):
         for key, default in defaults.items():
             value = find_value(wrapped, args, kwargs, key)
-            args, kwargs = replace_value(wrapped, args, kwargs, key, nvl(value, default))
+            args, kwargs = replace_value(wrapped, args, kwargs, key, nvl(value, deepcopy(default)))
 
         result = wrapped(*args, **kwargs)
         return result
