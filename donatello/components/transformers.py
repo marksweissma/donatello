@@ -74,7 +74,7 @@ class DatasetTransformer(BaseDatasetTransformer):
         return self.transform(X=X, y=y, dataset=dataset, **kwargs)
 
 
-class TargetConductor(BaseTransformer):
+class TargetFlow(BaseTransformer):
     def __init__(self, passTarget):
         self.passTarget = passTarget
 
@@ -94,7 +94,7 @@ def select_data_type(X, **kwargs):
     Returns:
         list: features to include
     """
-    features = X.select_dtypes(**kwargs).columns.tolist()
+    features = list(X.select_dtypes(**kwargs))
     return features
 
 
@@ -114,10 +114,10 @@ def select_regex(X, patterns):
     return features
 
 
-CONDUCTION_REGISTRY = {'data_type': select_data_type, 'regex': select_regex}
+FLOW_REGISTRY = {'data_type': select_data_type, 'regex': select_regex}
 
 
-class DesignConductor(PandasTransformer):
+class DesignFlow(PandasTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
@@ -140,7 +140,7 @@ class DesignConductor(PandasTransformer):
     def fit(self, dataset=None, **fitParams):
 
         if self.selectMethod:
-            inclusions = CONDUCTION_REGISTRY[self.selectMethod](dataset.designData, self.selectValue)
+            inclusions = FLOW_REGISTRY[self.selectMethod](dataset.designData, self.selectValue)
         else:
             inclusions = self.selectValue
 
@@ -155,10 +155,10 @@ class DesignConductor(PandasTransformer):
     @data.enforce_dataset
     def transform(self, dataset=None, **kwargs):
         dataset.designData = dataset.designData.reindex(columns=self.inclusions)
-        return super(DesignConductor, self).transform(dataset)
+        return super(DesignFlow, self).transform(dataset)
 
 
-class DatasetConductor(BaseTransformer):
+class DatasetFlow(BaseTransformer):
     """
     Select subset of columns from keylike-valuelike store
 
@@ -184,7 +184,7 @@ class DatasetConductor(BaseTransformer):
 
     def fit_design(self, dataset, **fitParams):
         if self.selectMethod:
-            inclusions = CONDUCTION_REGISTRY[self.selectMethod](dataset.designData, self.selectValue)
+            inclusions = FLOW_REGISTRY[self.selectMethod](dataset.designData, self.selectValue)
         else:
             inclusions = self.selectValue
 
@@ -390,12 +390,11 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         _nodes (set): nodes objects to intialize with - recommended to use set([]) and buidl with helpers
         _edges (dict): edge ids mapped to transformers - recommended to use {} and build helpers
         executor (str): name of attribute in each node where transform object is stored
-        conductor (obj): default edge conduction transformer
+        flow (obj): default edge flow transformer
         timeFormat (str): str format for logging init time
-        _nodes (set): patch for handlin
     """
     def __init__(self, _nodes, _edges, executor='executor',
-                 conductor=DatasetConductor(invert=True, passTarget=True),
+                 flow=DatasetFlow(invert=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
                  graphArgs=tuple(), graphKwargs={}
                  ):
@@ -409,13 +408,13 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         self.graphKwargs = graphKwargs
         self.executor = executor
 
-        self.conductor = conductor
+        self.flow = flow
 
         self._nodes = _nodes
         self._edges = _edges
 
         [self.add_node_transformer(i) for i in _nodes]
-        [self.add_edge_conductor(i, j, k) for (i, j), k in _edges.items()]
+        [self.add_edge_flow(i, j, k) for (i, j), k in _edges.items()]
 
     def set_params(self, **params):
         """Set the parameters of this estimator.
@@ -470,7 +469,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
                     self.add_node_transformer(value)
                 elif key in set(["_".join([n1, n2]) for n1, n2 in self.edges]):
                     n1, n2 = key.split('_')
-                    self.add_edge_conductor(n1, n2, value)
+                    self.add_edge_flow(n1, n2, value)
                 else:
                     setattr(self, key, value)
                 valid_params[key] = value
@@ -505,7 +504,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             node_from (hashable): node accessor for originating node
             node_to (hashable): node accessor for terminating node
         Returns:
-            obj: by default graph's default conductor
+            obj: by default graph's default flow
         """
         return self.get_edge_data(node_from, node_to)[self.executor]
 
@@ -627,19 +626,19 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         self._nodes.add(node)
         self.add_node(node.name, **{self.executor: node})
 
-    @fallback('conductor')
-    def add_edge_conductor(self, node_from, node_to, conductor=None, **kwargs):
-        conductor = clone(conductor)
-        conductor.set_params(**kwargs)
+    @fallback('flow')
+    def add_edge_flow(self, node_from, node_to, flow=None, **kwargs):
+        flow = clone(flow)
+        flow.set_params(**kwargs)
         self.add_node_transformer(node_from) if not isinstance(node_from, str) else None
         self.add_node_transformer(node_to) if not isinstance(node_to, str) else None
 
         node_from = node_from.name if not isinstance(node_from, str) else node_from
         node_to = node_to.name if not isinstance(node_to, str) else node_to
 
-        self.add_edge(node_from, node_to, **{self.executor: conductor})
+        self.add_edge(node_from, node_to, **{self.executor: flow})
 
-        self._edges.update({(node_from, node_to): conductor})
+        self._edges.update({(node_from, node_to): flow})
 
     def __getattr__(self, attr):
         return getattr(self.node_exec(self.terminal), attr)

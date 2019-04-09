@@ -15,7 +15,7 @@ from donatello.components import transformers
 
 def load_model(model=LogisticRegression(C=5)):
 
-    t = transformers.DatasetConductor(invert=True, passTarget=True)
+    t = transformers.DatasetFlow(invert=True, passTarget=True)
 
     s = transformers.StandardScaler()
 
@@ -25,9 +25,9 @@ def load_model(model=LogisticRegression(C=5)):
 
     g = transformers.ModelDAG(set([]), {}, graphKwargs={'name': 'model_sklearn_breast_cancer'})
 
-    g.add_edge_conductor(n1, n2)
-    g.add_edge_conductor(n1, n3, passDesign=False)
-    g.add_edge_conductor(n2, n3)
+    g.add_edge_flow(n1, n2)
+    g.add_edge_flow(n1, n3, passDesign=False)
+    g.add_edge_flow(n2, n3)
 
     return g
 
