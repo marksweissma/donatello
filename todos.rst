@@ -1,3 +1,7 @@
+Fix isFit
+
+Metric displays
+
 Multiple branches through fit only transformer doesn't work yet-
     probably either need to move to sample approach (ala imblearn)
     or use a flag

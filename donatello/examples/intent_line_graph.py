@@ -44,7 +44,7 @@ def load_model(model=LogisticRegression(C=5)):
     n1 = transformers.TransformNode('scale', transformer=transformers.StandardScaler(), enforceTarget=True)
     n2 = transformers.TransformNode('ml', transformer=model)
 
-    graph.add_edge_conductor(n1, n2)  # defaults to passing desing AND target
+    graph.add_edge_flow(n1, n2)  # defaults to passing desing AND target
 
     return graph
 
