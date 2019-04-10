@@ -59,6 +59,7 @@ class DatasetTransformer(BaseDatasetTransformer):
     """
     Base scikit-learn style transformer
     """
+    @data.package_dataset
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, **kwargs):
         self.fields = list(dataset.designData) if dataset.designData is not None else []
