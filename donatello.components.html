@@ -183,7 +183,7 @@
 <p>Manager for model building and evaluating</p>
 <dl class="class">
 <dt id="donatello.components.core.Sculpture">
-<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_07_19_36</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_10_00_58</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></a></p>
 <p>Instance for model processing. Accessors will fallback to accessing from estimator attributes</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -363,7 +363,7 @@ Packages dataframes and dictionaries of dataframes</p>
 
 <dl class="class">
 <dt id="donatello.components.data.Dataset">
-<em class="property">class </em><code class="descclassname">donatello.components.data.</code><code class="descname">Dataset</code><span class="sig-paren">(</span><em>raw=None</em>, <em>X=None</em>, <em>y=None</em>, <em>queries=None</em>, <em>querier=&lt;function read_csv&gt;</em>, <em>copyRaw=False</em>, <em>foldClay=None</em>, <em>foldType=&lt;class 'donatello.components.data.Fold'&gt;</em>, <em>scoreClay=None</em>, <em>target=None</em>, <em>primaryKey=None</em>, <em>dap=None</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/data.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.data.Dataset" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.data.</code><code class="descname">Dataset</code><span class="sig-paren">(</span><em>raw=None</em>, <em>X=None</em>, <em>y=None</em>, <em>copyRaw=False</em>, <em>foldClay=None</em>, <em>foldType=&lt;class 'donatello.components.data.Fold'&gt;</em>, <em>scoreClay=None</em>, <em>target=None</em>, <em>primaryKey=None</em>, <em>dap=None</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/data.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.data.Dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a></p>
 <p>Maintain and provide access to underlying information and metadata</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -374,8 +374,6 @@ Packages dataframes and dictionaries of dataframes</p>
 <li><strong>raw</strong> (<em>obj</em>) – raw data</li>
 <li><strong>X</strong> (<em>obj</em>) – option to specify design directly</li>
 <li><strong>y</strong> (<em>obj</em>) – option to specify target directly</li>
-<li><strong>queries</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – queries to execute to fetch data if not directly passed</li>
-<li><strong>querier</strong> (<em>func</em>) – default function to execute queries</li>
 <li><strong>copyRaw</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – option to have data return copy of raw to preserve fetch</li>
 <li><strong>foldClay</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – option to set fodling options through dispatch</li>
 <li><strong>foldType</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#type" title="(in Python v3.7)"><em>type</em></a>) – type of fold object</li>
@@ -422,26 +420,6 @@ Packages dataframes and dictionaries of dataframes</p>
 <dt id="donatello.components.data.Dataset.targetData">
 <code class="descname">targetData</code><a class="headerlink" href="#donatello.components.data.Dataset.targetData" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-
-<dl class="method">
-<dt id="donatello.components.data.Dataset.execute_queries">
-<code class="descname">execute_queries</code><span class="sig-paren">(</span><em>queries=None</em>, <em>querier=None</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/data.html#Dataset.execute_queries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.data.Dataset.execute_queries" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute data extraction via cascading querying dependencies
-Attaches return to <code class="xref py py-attr docutils literal notranslate"><span class="pre">Data.raw</span></code>, which can be
-accessed via py:attr:<cite>Data.data</cite></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>queries</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – payload of queries</li>
-<li><strong>querier</strong> (<em>func</em>) – option to specify executor at the execution                level rather than the query level</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.data.Dataset.subset">
@@ -993,12 +971,12 @@ and returns a transformed version of X.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="donatello.components.transformers.TargetConductor">
-<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">TargetConductor</code><span class="sig-paren">(</span><em>passTarget</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TargetConductor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TargetConductor" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.TargetFlow">
+<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">TargetFlow</code><span class="sig-paren">(</span><em>passTarget</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TargetFlow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TargetFlow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
 <dl class="method">
-<dt id="donatello.components.transformers.TargetConductor.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TargetConductor.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TargetConductor.transform" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.TargetFlow.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TargetFlow.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TargetFlow.transform" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1055,8 +1033,8 @@ kwargs are keyword arguments for the method</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="donatello.components.transformers.DesignConductor">
-<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">DesignConductor</code><span class="sig-paren">(</span><em>selectValue=()</em>, <em>selectMethod=None</em>, <em>invert=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DesignConductor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DesignConductor" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DesignFlow">
+<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">DesignFlow</code><span class="sig-paren">(</span><em>selectValue=()</em>, <em>selectMethod=None</em>, <em>invert=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DesignFlow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DesignFlow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#donatello.components.transformers.PandasTransformer" title="donatello.components.transformers.PandasTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.PandasTransformer</span></code></a></p>
 <p>Select subset of columns from keylike-valuelike store</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1076,20 +1054,20 @@ kwargs are keyword arguments for the method</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="donatello.components.transformers.DesignConductor.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DesignConductor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DesignConductor.fit" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DesignFlow.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DesignFlow.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DesignFlow.fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="donatello.components.transformers.DesignConductor.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DesignConductor.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DesignConductor.transform" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DesignFlow.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DesignFlow.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DesignFlow.transform" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="donatello.components.transformers.DatasetConductor">
-<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">DatasetConductor</code><span class="sig-paren">(</span><em>selectValue=()</em>, <em>selectMethod=None</em>, <em>invert=False</em>, <em>passTarget=True</em>, <em>passDesign=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DatasetFlow">
+<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">DatasetFlow</code><span class="sig-paren">(</span><em>selectValue=()</em>, <em>selectMethod=None</em>, <em>invert=False</em>, <em>passTarget=True</em>, <em>passDesign=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetFlow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetFlow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
 <p>Select subset of columns from keylike-valuelike store</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1111,33 +1089,33 @@ kwargs are keyword arguments for the method</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="donatello.components.transformers.DatasetConductor.fit_design">
-<code class="descname">fit_design</code><span class="sig-paren">(</span><em>dataset</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor.fit_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor.fit_design" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DatasetFlow.fit_design">
+<code class="descname">fit_design</code><span class="sig-paren">(</span><em>dataset</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetFlow.fit_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetFlow.fit_design" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="donatello.components.transformers.DatasetConductor.transform_target">
-<code class="descname">transform_target</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor.transform_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor.transform_target" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DatasetFlow.transform_target">
+<code class="descname">transform_target</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetFlow.transform_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetFlow.transform_target" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="donatello.components.transformers.DatasetConductor.transform_design">
-<code class="descname">transform_design</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor.transform_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor.transform_design" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DatasetFlow.transform_design">
+<code class="descname">transform_design</code><span class="sig-paren">(</span><em>dataset</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetFlow.transform_design"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetFlow.transform_design" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="donatello.components.transformers.DatasetConductor.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor.fit" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DatasetFlow.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetFlow.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetFlow.fit" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="donatello.components.transformers.DatasetConductor.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor.transform" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DatasetFlow.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>**fitParams</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetFlow.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetFlow.transform" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="donatello.components.transformers.DatasetConductor.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetConductor.fit_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetConductor.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.DatasetFlow.fit_transform">
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#DatasetFlow.fit_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.DatasetFlow.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -1242,7 +1220,7 @@ seoo <a class="reference internal" href="donatello.utils.html#donatello.utils.he
 
 <dl class="class">
 <dt id="donatello.components.transformers.TransformNode">
-<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">TransformNode</code><span class="sig-paren">(</span><em>name</em>, <em>transformer=None</em>, <em>combine=&lt;function concat&gt;</em>, <em>enforceTarget=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TransformNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TransformNode" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">TransformNode</code><span class="sig-paren">(</span><em>name</em>, <em>transformer=None</em>, <em>combine=&lt;function concat&gt;</em>, <em>enforceTarget=False</em>, <em>fitOnly=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#TransformNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.TransformNode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
 <p>Node in model execution grap</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1305,7 +1283,7 @@ and returns a transformed version of X.</p>
 
 <dl class="class">
 <dt id="donatello.components.transformers.ModelDAG">
-<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">ModelDAG</code><span class="sig-paren">(</span><em>_nodes</em>, <em>_edges</em>, <em>executor='executor'</em>, <em>conductor=DatasetConductor_[no_init_time] created at [no init time]  ---   **sklearn repr**   ---  DatasetConductor(invert=True</em>, <em>passDesign=True</em>, <em>passTarget=True</em>, <em>selectMethod=None</em>, <em>selectValue=())</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em>, <em>graphArgs=()</em>, <em>graphKwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.transformers.</code><code class="descname">ModelDAG</code><span class="sig-paren">(</span><em>_nodes</em>, <em>_edges</em>, <em>executor='executor'</em>, <em>flow=DatasetFlow_[no_init_time] created at [no init time]  ---   **sklearn repr**   ---  DatasetFlow(invert=True</em>, <em>passDesign=True</em>, <em>passTarget=True</em>, <em>selectMethod=None</em>, <em>selectValue=())</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em>, <em>graphArgs=()</em>, <em>graphKwargs={}</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.classes.digraph.DiGraph</span></code>, <a class="reference internal" href="donatello.utils.html#donatello.utils.base.BaseTransformer" title="donatello.utils.base.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.BaseTransformer</span></code></a></p>
 <p>In memory data transformation graph. Nodes are accessed via
 via any <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.DiGraph</span></code> accessor of the node’s name.
@@ -1335,9 +1313,8 @@ do not do this</p>
 <li><strong>_nodes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.7)"><em>set</em></a>) – nodes objects to intialize with - recommended to use set([]) and buidl with helpers</li>
 <li><strong>_edges</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – edge ids mapped to transformers - recommended to use {} and build helpers</li>
 <li><strong>executor</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of attribute in each node where transform object is stored</li>
-<li><strong>conductor</strong> (<em>obj</em>) – default edge conduction transformer</li>
+<li><strong>flow</strong> (<em>obj</em>) – default edge flow transformer</li>
 <li><strong>timeFormat</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – str format for logging init time</li>
-<li><strong>_nodes</strong> – patch for handlin</li>
 </ul>
 </td>
 </tr>
@@ -1347,8 +1324,8 @@ do not do this</p>
 <dt id="donatello.components.transformers.ModelDAG.set_params">
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.set_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
-<p><strong>Ripped from sklearn 0.20.02</strong> enables setting transformer attributers
-accessed via node names and <cite>_</cite> separated edges</p>
+<p><strong>Ripped from sklearn 0.20.02</strong> extended for setting transformer attributes
+of edges and nodes accessed via node names and node name <cite>_</cite> separated edges</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
 <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
@@ -1398,7 +1375,7 @@ node_to (hashable): node accessor for terminating node</dd>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">by default graph’s default conductor</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">by default graph’s default flow</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">obj</td>
 </tr>
@@ -1416,6 +1393,11 @@ node_to (hashable): node accessor for terminating node</dd>
 <code class="descname">terminal</code><a class="headerlink" href="#donatello.components.transformers.ModelDAG.terminal" title="Permalink to this definition">¶</a></dt>
 <dd><p>accessor for terminal node, or list of terminal nodes if not single terminating node</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="donatello.components.transformers.ModelDAG.process">
+<code class="descname">process</code><span class="sig-paren">(</span><em>dataset</em>, <em>node</em>, <em>method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.process" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.fit">
@@ -1453,8 +1435,8 @@ node_to (hashable): node accessor for terminating node</dd>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="donatello.components.transformers.ModelDAG.add_edge_conductor">
-<code class="descname">add_edge_conductor</code><span class="sig-paren">(</span><em>node_from</em>, <em>node_to</em>, <em>conductor=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.add_edge_conductor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.add_edge_conductor" title="Permalink to this definition">¶</a></dt>
+<dt id="donatello.components.transformers.ModelDAG.add_edge_flow">
+<code class="descname">add_edge_flow</code><span class="sig-paren">(</span><em>node_from</em>, <em>node_to</em>, <em>flow=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.add_edge_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.add_edge_flow" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

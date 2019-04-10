@@ -342,8 +342,6 @@
 <span class="sd">        raw (obj): raw data</span>
 <span class="sd">        X (obj): option to specify design directly</span>
 <span class="sd">        y (obj): option to specify target directly</span>
-<span class="sd">        queries (dict): queries to execute to fetch data if not directly passed</span>
-<span class="sd">        querier (func): default function to execute queries</span>
 <span class="sd">        copyRaw (bool): option to have data return copy of raw to preserve fetch</span>
 <span class="sd">        foldClay (str): option to set fodling options through dispatch</span>
 <span class="sd">        foldType(type): type of fold object</span>
@@ -352,7 +350,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@init_time</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">queries</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">querier</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">,</span> <span class="n">copyRaw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">copyRaw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">foldClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">foldType</span><span class="o">=</span><span class="n">Fold</span><span class="p">,</span>
                  <span class="n">scoreClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -360,8 +358,6 @@
                  <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">copyRaw</span> <span class="o">=</span> <span class="n">copyRaw</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">queries</span> <span class="o">=</span> <span class="n">queries</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">querier</span> <span class="o">=</span> <span class="n">querier</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">foldClay</span> <span class="o">=</span> <span class="n">foldClay</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">foldType</span> <span class="o">=</span> <span class="n">foldType</span>
@@ -493,32 +489,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_targetData</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Dataset.execute_queries"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset.execute_queries">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;queries&#39;</span><span class="p">,</span> <span class="s1">&#39;querier&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">)</span>
-    <span class="nd">@fit_fold</span>
-    <span class="k">def</span> <span class="nf">execute_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">querier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Execute data extraction via cascading querying dependencies</span>
-<span class="sd">        Attaches return to :py:attr:`Data.raw`, which can be</span>
-<span class="sd">        accessed via py:attr:`Data.data`</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            queries (dict): payload of queries</span>
-<span class="sd">            querier (func): option to specify executor at the execution\</span>
-<span class="sd">                level rather than the query level</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">queries</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">querier</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">queries</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">querier</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;querier&#39;</span><span class="p">,</span> <span class="n">querier</span><span class="p">)</span>
-
-                <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s1">&#39;querier&#39;</span><span class="p">}</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">querier</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">querier</span><span class="p">(</span><span class="o">**</span><span class="n">payload</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="Dataset.subset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset.subset">[docs]</a>    <span class="k">def</span> <span class="nf">subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new `donatello.components.data.Dataset`</span>
@@ -592,10 +562,6 @@
         <span class="k">elif</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">param</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">param</span> <span class="k">if</span> <span class="n">dataset</span> <span class="k">else</span> <span class="p">{}</span>
             <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">param</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">dataset</span><span class="o">.</span><span class="n">hasData</span> <span class="ow">and</span> <span class="n">dataset</span><span class="o">.</span><span class="n">queries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">dataset</span><span class="o">.</span><span class="n">execute_queries</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">queries</span><span class="p">)</span>
-        <span class="n">dataset</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 
     <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">replace_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span></div>
@@ -682,7 +648,6 @@
     <span class="n">X</span> <span class="o">=</span> <span class="n">find_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">)</span>
     <span class="n">initial</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="p">(</span><span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">X</span> <span class="k">if</span> <span class="p">(</span><span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
     <span class="n">index</span> <span class="o">=</span> <span class="n">initial</span><span class="o">.</span><span class="n">index</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="c1"># index=None</span>
 
     <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Dataset</span><span class="p">)</span> <span class="k">else</span> <span class="n">result</span>
@@ -697,7 +662,7 @@
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">features</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="p">[])</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">features</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">features</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">postFit</span><span class="p">:</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">featureDtypes</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;dtypes&#39;</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;to_dict&#39;</span><span class="p">,</span>

@@ -7,14 +7,17 @@ Install
 
 Donatello is available on pypi
 
+(currently test pypi until release)
+
 .. code:: bash
 
-   pip install donatello
+   pip install -i https://test.pypi.org/simple/ donatello
 
 
-This guide starts with a simple classification problem and explains how to
-use donatello 
+This guide starts with a simple classification problem and provides an introduction to donatello
 
+For learning more about how to build modeling graphs or more advanced & power usage features
+see subsequent sections and notebooks
 
 Overview
 ========

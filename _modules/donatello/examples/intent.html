@@ -149,7 +149,7 @@
 
 <div class="viewcode-block" id="load_model"><a class="viewcode-back" href="../../../donatello.examples.html#donatello.examples.intent.load_model">[docs]</a><span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">5</span><span class="p">)):</span>
 
-    <span class="n">t</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">DatasetConductor</span><span class="p">(</span><span class="n">invert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">DatasetFlow</span><span class="p">(</span><span class="n">invert</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">passTarget</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">s</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">()</span>
 
@@ -159,9 +159,9 @@
 
     <span class="n">g</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{},</span> <span class="n">graphKwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;model_sklearn_breast_cancer&#39;</span><span class="p">})</span>
 
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge_conductor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge_conductor</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n3</span><span class="p">,</span> <span class="n">passDesign</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge_conductor</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n3</span><span class="p">,</span> <span class="n">passDesign</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">g</span></div>
 

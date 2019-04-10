@@ -221,6 +221,109 @@ they have two flaws.</p>
 </ol>
 </div></blockquote>
 <p>Enter donatello’s <a class="reference internal" href="donatello.components.html#donatello.components.transformers.ModelDAG" title="donatello.components.transformers.ModelDAG"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.ModelDAG</span></code></a></p>
+<p>This graph is designed to execute transformations at nodes and has configurable
+transmission or _flow_ along edges. The directed graph is built from a collection
+<code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.Node</span></code> objects which are connected by
+<a class="reference internal" href="donatello.components.html#donatello.components.transformers.DatasetFlow" title="donatello.components.transformers.DatasetFlow"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.DatasetFlow</span></code></a> objects.</p>
+<p>Donatello’s graph requires is designed to pass <code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.data.Dataaset</span></code>
+objects around. Transform Nodes can wrap scikit-learn transformers or udfs through the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.Apply</span></code> &amp; <code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.Access</span></code>
+transformers or by creating new classes with the <a class="reference internal" href="donatello.components.html#donatello.components.transformers.PandasMixin" title="donatello.components.transformers.PandasMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.PandasMixin</span></code></a></p>
+<p>A scikit-learn model can be replaced directly. Using a helper method to build the model
+provides a more digestable form, such as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components.transformers</span> <span class="kn">import</span> <span class="n">ModelDAG</span>
+
+<span class="k">def</span> <span class="nf">load_model</span><span class="p">():</span>
+
+   <span class="c1"># initialize model</span>
+       <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{})</span>
+
+       <span class="c1"># initialize Nodes</span>
+       <span class="n">n1</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+       <span class="n">n2</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ApplyTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+       <span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;ml&#39;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+
+       <span class="c1"># Add nodes to graph by declaring edges</span>
+       <span class="c1"># Edges default to the model&#39;s default Flow (which defaults to donatello&#39;s base Flow)</span>
+       <span class="c1"># The flow can be tuned by passing `**kwargs` if applicable</span>
+       <span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
+       <span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
+       <span class="k">return</span> <span class="n">model</span>
+</pre></div>
+</div>
+<p>Here we’ve built a 3 node line graph.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>Scale the input design data - this Node wraps a scikit-learn transformer,</dt>
+<dd>which will not return the target so we can flip the node’s <code class="docutils literal notranslate"><span class="pre">enforceTarget</span></code>
+parameter and push the dataset object</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>A custom udf function (transform) that will only be applied during the fit process</dt>
+<dd>(for more info see the housing prices notebook - the transform referenced
+is an outlier remover)</dd>
+</dl>
+</li>
+<li>A Linear Regeression to execute predictions</li>
+</ol>
+</div></blockquote>
+<p>Here we’ve built a 3 node line graph.</p>
+<blockquote>
+<div><blockquote>
+<div><ol class="arabic simple">
+<li><dl class="first docutils">
+<dt>Scale the input design data - this Node wraps a scikit-learn transformer,</dt>
+<dd>which will not return the target so we can flip the node’s <code class="docutils literal notranslate"><span class="pre">enforceTarget</span></code>
+parameter and push the dataset object</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>A custom udf function (transform) that will only be applied during the fit process</dt>
+<dd>(for more info see the housing prices notebook - the transform referenced
+is an outlier remover)</dd>
+</dl>
+</li>
+</ol>
+</div></blockquote>
+<ol class="arabic simple">
+<li>A Linear Regeression to execute predictions</li>
+</ol>
+</div></blockquote>
+<p>The are many benefits to using a transformation graph but two of the most pronounced
+are</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>reusability (components of the graph can be excised simply through the networkx api)</li>
+<li>configurability - complex branching and packaging more complex datasets (i.e. dicts of dataframes)</li>
+</ol>
+</div></blockquote>
+<p>Branching Examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components.transformers</span> <span class="kn">import</span> <span class="n">ModelDAG</span>
+
+<span class="k">def</span> <span class="nf">load_model</span><span class="p">():</span>
+
+   <span class="c1"># initialize model</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{})</span>
+    <span class="c1"># intitate branching by selecting numeric fields</span>
+        <span class="n">extractor</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">DatasetFlow</span><span class="p">(</span><span class="n">selectMethod</span><span class="o">=</span><span class="s1">&#39;dtype&#39;</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">],</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">n0</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;select&#39;</span><span class="p">,</span> <span class="n">extractor</span><span class="p">)</span>
+
+
+    <span class="c1"># first branch (one hot encode - we&#39;ll specify the fields to ohe in via Flow)</span>
+    <span class="n">n11</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;ohe&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">dropOne</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+    <span class="c1"># second branch (scale non ohe data, and remove outliers)</span>
+    <span class="n">n21</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">n22</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ApplyTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+    <span class="c1"># terminal node for predicting</span>
+    <span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;ml&#39;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+
+   <span class="k">return</span> <span class="n">model</span>
+</pre></div>
+</div>
 </div>
 </div>
 
