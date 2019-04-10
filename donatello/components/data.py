@@ -514,7 +514,6 @@ def extract_features(wrapped, instance, args, kwargs):
     X = find_value(wrapped, args, kwargs, 'X')
     initial = dataset.designData if (dataset is not None) else X if (X is not None) else None
     index = initial.index if hasattr(initial, 'index') else None
-    # index=None
 
     result = wrapped(*args, **kwargs)
     df = result.designData if isinstance(result, Dataset) else result
@@ -529,7 +528,7 @@ def extract_features(wrapped, instance, args, kwargs):
 
     else:
         features = getattr(instance, 'features', [])
-    df = df if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features, index=index)
+    df = df.reindex(features) if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features, index=index)
 
     if postFit:
         instance.featureDtypes = access(df, ['dtypes'], method='to_dict',
