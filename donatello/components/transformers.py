@@ -533,7 +533,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, method) for parent in parents]
-            datas = [access(self.edge_exec(parent, node), [method], methodKwargs=dict(dataset=upstream))
+            datas = [access(self.edge_exec(parent, node), method=method, methodKwargs=dict(dataset=upstream))
                      for parent, upstream in zip(parents, upstreams)]
 
             dataset = self.node_exec(node).combine(datas)
@@ -594,7 +594,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     def apply(self, node, data, method):
         parents = tuple(self.predecessors(node))
         if parents:
-            output = [access(self.edge_exec(parent, node), [method])(dataset=self.apply(parent, data, method))
+            output = [access(self.edge_exec(parent, node), method=method,
+                             methodKwargs=dict(dataset=self.apply(parent, data, method))
+                             )
                       for parent in parents]
         else:
             output = [data]
@@ -650,12 +652,12 @@ class OneHotEncoder(PandasTransformer):
     @data.enforce_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
-        design = [dataset.designData.drop(self.taxonomy.keys(), errors='ignore')]
+        design = [dataset.designData.drop(self.taxonomy.keys(), errors='ignore', axis=1)]
 
         _X = pd.concat([dataset.designData[column].astype('category').cat.set_categories(value)
                         for column, value in self.taxonomy.items()], axis=1)
         X = pd.get_dummies(_X, drop_first=self.dropOne)
-        dataset = dataset.with_params(X=pd.concat(design + X, axis=1), y=dataset.targetData)
+        dataset = dataset.with_params(X=pd.concat(design + [X], axis=1), y=dataset.targetData)
         return dataset
 
 
