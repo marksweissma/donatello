@@ -24,7 +24,8 @@ class PandasMixin(TransformerMixin, PandasAttrs):
     @data.package_dataset
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
-        return super(PandasMixin, self).fit(X=dataset.designData, y=dataset.targetData, *args, **kwargs)
+        return super(PandasMixin, self).fit(X=dataset.designData,
+                                            y=dataset.targetData, *args, **kwargs)
 
     @data.enforce_dataset
     @data.extract_features
@@ -111,7 +112,8 @@ def select_regex(X, patterns):
     Returns:
         list: features to include
     """
-    features = [i for i in X if any([re.match(j, i) for j in patterns])]
+    features = [column for column in X if
+                any([re.search(pattern, column) for pattern in patterns])]
     return features
 
 
@@ -132,6 +134,7 @@ class DesignFlow(PandasTransformer):
         invert (bool): option to select all except those fields isolated\
             by selectValue and selectMethod
     """
+
     def __init__(self, selectValue=(), selectMethod=None, invert=False):
         self.selectValue = selectValue
         self.selectMethod = selectMethod
@@ -174,6 +177,7 @@ class DatasetFlow(BaseTransformer):
         passTarget (bool): flag to raw dataset's targetData through
         passDesign (bool): flag to raw dataset's designData through
     """
+
     def __init__(self,
                  selectValue=(), selectMethod=None, invert=False,
                  passTarget=True, passDesign=True):
@@ -227,6 +231,7 @@ class ApplyTransformer(DatasetTransformer):
         func (function): function to apply
         fitOnly (bool): only apply during tranform following fit
     """
+
     def __init__(self, func=None, fitOnly=False):
         self.func = func
         self.fitOnly = fitOnly
@@ -257,6 +262,7 @@ class AccessTransformer(DatasetTransformer):
         datasetDap (dict): keyword arguments to apply on dataset via access protocol
         fitOnly (bool): only apply during tranform following fit
     """
+
     def __init__(self, designDap=None, targetDap=None, datasetDap=None, fitOnly=False):
         self.designDap = designDap
         self.targetDap = targetDap
@@ -319,6 +325,7 @@ class TransformNode(Dobject, BaseTransformer):
                 is mainly a patch for scikit-learn wrapped transformers which ignore\
                 y in transform calls preventing it from passing through the transformer
     """
+
     def __init__(self, name, transformer=None, combine=concat, enforceTarget=False, fitOnly=False):
 
         self.name = name
@@ -350,7 +357,8 @@ class TransformNode(Dobject, BaseTransformer):
         if self.fitOnly and not getattr(self, 'features', None):
             return dataset
         information = self._transform(dataset=dataset, **kwargs)
-        if isinstance(information, data.Dataset) and self.enforceTarget and not information._has_target:
+        if isinstance(information,
+                      data.Dataset) and self.enforceTarget and not information._has_target:
             information.targetData = dataset.targetData
 
         return information
@@ -399,6 +407,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         flow (obj): default edge flow transformer
         timeFormat (str): str format for logging init time
     """
+
     def __init__(self, _nodes, _edges, executor='executor',
                  flow=DatasetFlow(invert=True, passTarget=True),
                  timeFormat="%Y_%m_%d_%H_%M",
@@ -682,5 +691,6 @@ class Pipeline(PandasMixin, Pipeline):
 
     Will default to looking for attributes in last transformer
     """
+
     def __getattr__(self, attr):
         return getattr(self.steps[-1][1], attr)

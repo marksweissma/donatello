@@ -29,10 +29,10 @@ def score_invert(model, X):
 
 
 SCORE_REGISTRY = {
-        'no_op': no_op,
-        'score_second': score_second,
-        'score_invert': score_invert
-        }
+    'no_op': no_op,
+    'score_second': score_second,
+    'score_invert': score_invert
+}
 
 
 class Estimator(Dobject, BaseTransformer):
@@ -107,9 +107,10 @@ class Estimator(Dobject, BaseTransformer):
                                            param_grid=paramGrid,
                                            **searchKwargs)
 
-            groups = access(dataset.designData, **dataset.dap['groups']) if 'groups' in dataset.dap else None
+            groups = access(dataset.designData,
+                            **dataset.dap['groups']) if 'groups' in dataset.dap else None
             self.gridSearch.fit(X=dataset.designData, y=dataset.targetData,
-                    groups=groups, gridSearch=False)
+                                groups=groups, gridSearch=False)
             self.set_params(**self.gridSearch.best_params_)
 
     @data.package_dataset

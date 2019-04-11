@@ -133,7 +133,8 @@ class Fold(Dobject):
         df = dataset.data[primaryKey] if primaryKey else dataset.data
 
         def _wrap_split(key, data, train, test):
-            _trainMask, _testMask = self._build_masks(data, self.dataMap.get(key, None), train=train, test=test)
+            _trainMask, _testMask = self._build_masks(
+                data, self.dataMap.get(key, None), train=train, test=test)
             _designTrain[key], _designTest[key] = self._split(data, _trainMask, testMask)
             return _designTrain[key], _designTest[key]
 
@@ -195,7 +196,7 @@ def fit_fold(wrapped, instance, args, kwargs):
                  'targetTrain', 'targetTest')
         folded = next(instance.fold.fold(instance))
         [setattr(instance, attr, value) for attr, value in zip(attrs, folded) if value is not None]
-    except:
+    except BaseException:
         pass
     return result
 
@@ -371,7 +372,7 @@ class Dataset(Dobject):
         if isinstance(subset, basestring):
             subset = subset.capitalize()
             attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
-            X, y = tuple(getattr(self,  attr) for attr in attrs)
+            X, y = tuple(getattr(self, attr) for attr in attrs)
         else:
             X = access(self.designData, **subset)
             y = access(self.targetData, **subset)
@@ -398,7 +399,7 @@ class Dataset(Dobject):
     @property
     def shape(self):
         return self.data.shape if hasattr(self.data, 'shape') else len(self.data)\
-                if hasattr(self.data, '__len__') else None
+            if hasattr(self.data, '__len__') else None
 
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
@@ -422,7 +423,7 @@ def pull(wrapped, instance, args, kwargs):
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
         elif X is not None and hasattr(instance, 'dataset')\
-            and instance.dataset is not None:
+                and instance.dataset is not None:
             dataset = Dataset(X=X, y=y, **instance.dataset.param)
 
         elif X is not None:
@@ -457,8 +458,8 @@ def enforce_dataset(wrapped, instance, args, kwargs):
 
     if isinstance(result, pd.np.ndarray):
         features = result.columns.tolist() if hasattr(result, 'columns')\
-                else list(instance.get_feature_names()) if hasattr(instance, 'get_feature_names')\
-                else instance.fields
+            else list(instance.get_feature_names()) if hasattr(instance, 'get_feature_names')\
+            else instance.fields
         result = pd.DataFrame(result, columns=features, index=dataset.designData.index)
 
     if not isinstance(result, Dataset):
@@ -498,7 +499,8 @@ def extract_fields(wrapped, instance, args, kwargs):
     df = dataset.designData if (dataset is not None) else X if (X is not None) else None
 
     if df is not None:
-        instance.fields = list(nvl(*[access(df, [attr], errors='ignore', slicers=()) for attr in ['columns', 'keys']]))
+        instance.fields = list(
+            nvl(*[access(df, [attr], errors='ignore', slicers=()) for attr in ['columns', 'keys']]))
         instance.fieldDtypes = access(df, ['dtypes'], method='to_dict', errors='ignore', slicers=())
 
     return result
@@ -522,13 +524,15 @@ def extract_features(wrapped, instance, args, kwargs):
     if postFit and df is not None:
         features = df.columns.tolist() if hasattr(df, 'columns')\
             else list(instance.get_feature_names()) if (hasattr(instance, 'get_feature_names')
-                    and instance.get_feature_names()) else instance.fields
+                                                        and instance.get_feature_names()) else instance.fields
 
         instance.features = features
 
     else:
         features = getattr(instance, 'features', [])
-    df = df.reindex(features) if isinstance(df, pd.DataFrame) else pd.DataFrame(df, columns=features, index=index)
+    df = df.reindex(features) if isinstance(
+        df, pd.DataFrame) else pd.DataFrame(
+        df, columns=features, index=index)
 
     if postFit:
         instance.featureDtypes = access(df, ['dtypes'], method='to_dict',

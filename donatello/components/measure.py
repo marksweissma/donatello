@@ -64,7 +64,12 @@ class Measure(Dobject):
         return scored
 
     def _evaluate(self, estimator, scored, metrics, X):
-        measurements = {metric.name: metric(estimator, scored.truth, scored.predicted, X) for metric in metrics}
+        measurements = {
+            metric.name: metric(
+                estimator,
+                scored.truth,
+                scored.predicted,
+                X) for metric in metrics}
         return measurements
 
     def score_evaluate(self, estimator=None, X=None, y=None, metrics=None):
@@ -124,10 +129,10 @@ class Measure(Dobject):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
             [_append_in_place(outputs, name, df) for name, df in _outputs.items()]
 
-        measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]\
-                                                     .groupby(metric.key)\
-                                                     .agg(metric.agg),
-                                                     metric.sort))
+        measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]
+                                                                      .groupby(metric.key)
+                                                                      .agg(metric.agg),
+                                                                      metric.sort))
                         for metric in metrics}
 
         return measurements
@@ -138,7 +143,11 @@ class Measure(Dobject):
         Build cross validated scoring report
         """
         estimators, scored = self.fit_score_folds(estimator=estimator, dataset=dataset)
-        measurements = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=dataset.designData, metrics=metrics)
+        measurements = self.evaluate_scored_folds(
+            estimators=estimators,
+            scored=scored,
+            X=dataset.designData,
+            metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'measurements': measurements}
 
     def build_holdout(self, estimator=None, metrics=None, X=None, y=None):
@@ -148,7 +157,8 @@ class Measure(Dobject):
         scored = self._score(estimator, X, y)
         scored['fold'] = 0
         estimators = {0: estimator}
-        measurements = self.evaluate_scored_folds(estimators=estimators, scored=scored, X=X, metrics=metrics)
+        measurements = self.evaluate_scored_folds(
+            estimators=estimators, scored=scored, X=X, metrics=metrics)
         return {'estimators': estimators, 'scored': scored, 'measurements': measurements}
 
 
@@ -195,7 +205,7 @@ class FeatureWeights(Metric):
                  callback=pass_through, agg=['mean', 'std'], sort=None):
 
         super(FeatureWeights, self).__init__(name=name, key=key,
-            callback=callback, agg=agg, sort=sort)
+                                             callback=callback, agg=agg, sort=sort)
 
     def evaluate(self, estimator, truth, predicted, X):
         """
@@ -214,7 +224,8 @@ class FeatureWeights(Metric):
         values = []
 
         if hasattr(model, 'coef_'):
-            coef_ = model.coef_[0] if (len(model.coef_.shape) == 2 and model.coef_.shape[0] == 1) else model.coef_
+            coef_ = model.coef_[0] if (len(model.coef_.shape) ==
+                                       2 and model.coef_.shape[0] == 1) else model.coef_
         else:
             coef_ = None
 
@@ -270,7 +281,8 @@ class ThresholdRates(Metric):
         df['specificity'] = df.true_negative / (df.true_negative + df.false_positive)
         df['false_omission_rate'] = df.false_negative / (df.false_negative + df.true_negative)
         df['negative_predictive_value'] = df.true_negative / (df.true_negative + df.false_negative)
-        df['f1'] = 2 * df.true_positive / (2 * df.true_positive + df.false_positive + df.false_negative)
+        df['f1'] = 2 * df.true_positive / \
+            (2 * df.true_positive + df.false_positive + df.false_negative)
 
         df['fall_out'] = 1 - df.specificity
         df['false_discovery_rate'] = 1 - df.precision

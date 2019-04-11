@@ -68,7 +68,7 @@ def load_metrics(metrics=None, featureName='coefficients'):
 
 
 def load_logit():
-    estimator = {'model':  load_model(),
+    estimator = {'model': load_model(),
                  'paramGrid': {'model__n3__C': list(pd.np.logspace(-2, 0, 5))},
                  'searchKwargs': {'scoring': 'roc_auc', 'cv': 3},
                  'method': 'predict_proba',
@@ -99,7 +99,8 @@ def load_isolation_forest(group=True, asDf=False):
     return estimator
 
 
-def load_declaration(load_estimator, group=True, asDf=False, metrics=None, featureName='coefficients'):
+def load_declaration(load_estimator, group=True, asDf=False,
+                     metrics=None, featureName='coefficients'):
     data = load_data(asDf, group)
     estimator = load_estimator()
 
@@ -124,7 +125,11 @@ def load_dm(model='logit', group=True, asDf=False):
     if model == 'logit':
         declaration = load_declaration(load_logit, group, asDf)
     elif model == 'rf':
-        declaration = load_declaration(load_random_forest, group, asDf, featureName='feature_importances')
+        declaration = load_declaration(
+            load_random_forest,
+            group,
+            asDf,
+            featureName='feature_importances')
     elif model == 'if':
         metrics = ['roc_auc_score', 'average_percision_score', 'threshold_rates']
         declaration = load_declaration(load_isolation_forest, metrics=metrics)

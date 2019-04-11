@@ -93,10 +93,10 @@ def fallback(*defaults, **replacements):
 # fix this, should check - default - execute
 @decorator
 def name(wrapped, instance, args, kwargs):
-        result = wrapped(*args, **kwargs)
-        _name = getattr(instance, '_name', instance.__class__.__name__)
-        instance._name = _name
-        return result
+    result = wrapped(*args, **kwargs)
+    _name = getattr(instance, '_name', instance.__class__.__name__)
+    instance._name = _name
+    return result
 
 
 @coelesce(existing={})

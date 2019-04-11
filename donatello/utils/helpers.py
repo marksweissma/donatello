@@ -137,7 +137,8 @@ def access(obj=None, attrPath=None,
     """
 
     if not attrPath or not attrPath[0]:
-        obj = obj if not method else getattr(obj, method)(*nvl(methodArgs, ()), **nvl(methodKwargs, {}))
+        obj = obj if not method else getattr(obj, method)(
+            *nvl(methodArgs, ()), **nvl(methodKwargs, {}))
         value = obj if not cb else cb(obj, *nvl(cbArgs, ()), **nvl(cbKwargs, {}))
 
     else:

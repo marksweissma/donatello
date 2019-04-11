@@ -20,12 +20,12 @@ class Dobject(object):
 
     @property
     def name(self):
-        name = getattr(self, '_name',  self.__class__.__name__)
+        name = getattr(self, '_name', self.__class__.__name__)
         return name
 
     @name.setter
     def name(self, value):
-        self._name = nvl(value,  self.__class__.__name__)
+        self._name = nvl(value, self.__class__.__name__)
 
     @property
     def foldClay(self):
@@ -132,6 +132,7 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
     """
     Base scikit-learn style transformer
     """
+
     def fit(self, X=None, y=None, **kwargs):
         return self
 
@@ -161,6 +162,7 @@ class BaseDatasetTransformer(BaseTransformer):
     """
     Base scikit-learn style transformer
     """
+
     def fit(self, X=None, y=None, dataset=None, **kwargs):
         return self
 
