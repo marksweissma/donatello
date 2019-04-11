@@ -19,9 +19,9 @@ def load_model(model=LogisticRegression(C=5)):
 
     s = transformers.StandardScaler()
 
-    n1 = transformers.TransformNode('n1', transformer=t)
-    n2 = transformers.TransformNode('n2', transformer=s)
-    n3 = transformers.TransformNode('n3', transformer=model)
+    n1 = transformers.Node('n1', transformer=t)
+    n2 = transformers.Node('n2', transformer=s)
+    n3 = transformers.Node('n3', transformer=model)
 
     g = transformers.ModelDAG(set([]), {}, graphKwargs={'name': 'model_sklearn_breast_cancer'})
 

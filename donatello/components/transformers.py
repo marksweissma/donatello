@@ -312,7 +312,7 @@ def concat(datasets, params=None, dataType=data.Dataset):
     return dataset
 
 
-class TransformNode(Dobject, BaseTransformer):
+class Node(Dobject, BaseTransformer):
     """
     Node in model execution grap
 
@@ -506,8 +506,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
         Arg:
             node (hashable): node accessor
+
         Returns:
-            obj: (by default a TransformNode)
+            obj: (by default a Node)
         """
         return self.nodes[node][self.executor]
 
@@ -518,6 +519,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         Arg:
             node_from (hashable): node accessor for originating node
             node_to (hashable): node accessor for terminating node
+
         Returns:
             obj: by default graph's default flow
         """
