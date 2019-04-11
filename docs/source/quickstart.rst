@@ -30,11 +30,3 @@ Donatello has thre main components
 
 These components leverage other components and the supporting utilties which
 can be altered or redefined as needed.
-
-
-.. toctree::
-   :maxdepth: 4
-   :caption: Contents:
-
-   sculpture
-   model_types

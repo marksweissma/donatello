@@ -11,6 +11,8 @@ Welcome to donatello's documentation!
    :caption: Contents:
 
    quickstart
+   sculpture
+   model_types
    donatello
 
 

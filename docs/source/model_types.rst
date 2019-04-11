@@ -1,8 +1,12 @@
 Model Types
 ===========
 
+The previous example demonstrates building a model without transforming data or engineering features.
 
-The above example shows an example with out transforming data or engineering features.
+The  :py:class:`sklearn.pipeline.Pipeline` is a great place to start for feature engineering.
+Donatello supports scikit-learn with a light wrapper to capture the metadata neccesary for
+the model to uphold it's contracts.
+
 
 Pipeline
 --------
@@ -14,7 +18,6 @@ to standard operating procedure in scikit-learn
 
 
 .. code:: python
-   :emphasize-lines: 1, 9,10
 
     from donatello.components.transformers import Pipeline
 
@@ -49,14 +52,14 @@ While scikit-learn pipelines (and feature unions) are a great place to start, in
 they have two flaws.
 
     #. No y or row based transforms. the imblearn has attempted to combat part of this but the nature
-           of the metal of scikit-learn's Pipeline prevents this support
+       of the metal of scikit-learn's Pipeline prevents this support
     #. Flexibility and composition - creating complex transforms which require different subsets\
-           of different columns, while possible I've felt painful to set up and even more to edit
+       of different columns, while possible I've felt painful to set up and even more to edit
 
 Enter donatello's :py:class:`donatello.components.transformers.ModelDAG`
 
 This graph is designed to execute transformations at nodes and has configurable
-transmission or _flow_ along edges. The directed graph is built from a collection
+transmission or *flow* along edges. The directed graph is built from a collection
 :py:class:`donatello.components.transformers.Node` objects which are connected by 
 :py:class:`donatello.components.transformers.DatasetFlow` objects.
 
@@ -94,12 +97,11 @@ provides a more digestable form, such as:
 Here we've built a 3 node line graph.
 
     #. Scale the input design data - this Node wraps a scikit-learn transformer,
-           which will not return the target so we can flip the node's ``enforceTarget``
-           parameter and push the dataset object 
+       which will not return the target so we can flip the node's ``enforceTarget``
+       parameter and push the dataset object 
     #. A custom udf function (transform) that will only be applied during the fit process
-           (for more info see the housing prices notebook - the transform referenced 
-           is an outlier remover)
-            
+       (for more info see the housing prices notebook - the transform referenced 
+       is an outlier remover)
     #. A Linear Regeression to execute predictions
 
 
@@ -124,6 +126,15 @@ are
 
 Branching Examples:
 
+This example shows a graph which 
+
+    #. selects the numeric fields from a single table
+    #. sends one field (zipcode) to a OneHotEncoder 
+    #. send the remaining fields through
+    #. sends the scaled fields through a outlier remover (during fit only, pass through during predict)
+    #. recombines the sub tables and feeds them to a linear regression
+
+
 .. code:: python
 
    from donatello.components.transformers import ModelDAG
@@ -133,9 +144,9 @@ Branching Examples:
       # initialize model
        model = transformers.ModelDAG(set([]), {})
        # intitate branching by selecting numeric fields
-	   extractor = transformers.DatasetFlow(selectMethod='dtype', selectValue=[pd.np.number], invert=False)
+       extractor = transformers.DatasetFlow(selectMethod='dtype', selectValue=[pd.np.number], invert=False)
        n0 = transformers.TransformNode('select', extractor)
-                                        
+
  
        # first branch (one hot encode - we'll specify the fields to ohe in via Flow)
        n11 = transformers.TransformNode('ohe', transformers.OneHotEncoder(dropOne=True))
@@ -145,7 +156,16 @@ Branching Examples:
        n22 = transformers.TransformNode('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
        
        # terminal node for predicting
-       n3 = transformers.TransformNode('ml', LinearRegression())
+       n3 = transformers.Transextractor formNode('ml', LinearRegression())
+
+       # send zipcode data only to OHE and don't pass target through first branch
+       model.add_edge_flow(n0, n11, passTarget=False, selectValue=['zipcode'], invert=False)
+       # send output of ohe to Linear Regression 
+       model.add_edge_flow(n11, n3)
+       
+       # send all other design data and the target through second branch
+       model.add_edge_flow(n0, n21, selectValue=['zipcode'], invert=True)
+       model.add_edge_flow(n21, n22)
+       model.add_edge_flow(n22, n3)
 
       return model
-
