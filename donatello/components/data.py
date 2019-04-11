@@ -522,9 +522,8 @@ def extract_features(wrapped, instance, args, kwargs):
 
     postFit = not getattr(instance, 'features', None)
     if postFit and df is not None:
-        features = df.columns.tolist() if hasattr(df, 'columns')\
-            else list(instance.get_feature_names()) if (hasattr(instance, 'get_feature_names')
-                                                        and instance.get_feature_names()) else instance.fields
+        features = df.columns.tolist() if hasattr(df, 'columns') else list(instance.get_feature_names()) if (
+            hasattr(instance, 'get_feature_names') and instance.get_feature_names()) else instance.fields
 
         instance.features = features
 

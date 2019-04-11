@@ -36,8 +36,8 @@ def _unwrap_multiple(df, definitionSort):
     if not current:
         output = df
     else:
-        output = Bunch(**{key: _option_sort(df.xs(key, level=current, axis=1).astype(float), definitionSort)
-                          for key in set(df.columns.get_level_values(current))})
+        output = Bunch(**{key: _option_sort(df.xs(key, level=current, axis=1).astype(float),
+                                            definitionSort) for key in set(df.columns.get_level_values(current))})
     return output
 
 

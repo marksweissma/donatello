@@ -543,8 +543,12 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, method) for parent in parents]
-            datas = [access(self.edge_exec(parent, node), method=method, methodKwargs=dict(dataset=upstream))
-                     for parent, upstream in zip(parents, upstreams)]
+            datas = [
+                access(
+                    self.edge_exec(
+                        parent, node), method=method, methodKwargs=dict(
+                        dataset=upstream)) for parent, upstream in zip(
+                    parents, upstreams)]
 
             dataset = self.node_exec(node).combine(datas)
         return dataset
