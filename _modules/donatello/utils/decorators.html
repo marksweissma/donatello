@@ -86,6 +86,8 @@
                 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_types.html">Model Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
 </ul>
 
@@ -227,10 +229,10 @@
 <span class="c1"># fix this, should check - default - execute</span>
 <div class="viewcode-block" id="name"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.decorators.name">[docs]</a><span class="nd">@decorator</span>
 <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;_name&#39;</span><span class="p">,</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="n">instance</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">_name</span>
-        <span class="k">return</span> <span class="n">result</span></div>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;_name&#39;</span><span class="p">,</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">instance</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">_name</span>
+    <span class="k">return</span> <span class="n">result</span></div>
 
 
 <div class="viewcode-block" id="mem_cache"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.decorators.mem_cache">[docs]</a><span class="nd">@coelesce</span><span class="p">(</span><span class="n">existing</span><span class="o">=</span><span class="p">{})</span>

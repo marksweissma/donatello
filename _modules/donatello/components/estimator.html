@@ -86,6 +86,8 @@
                 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_types.html">Model Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
 </ul>
 
@@ -163,10 +165,10 @@
 
 
 <span class="n">SCORE_REGISTRY</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;no_op&#39;</span><span class="p">:</span> <span class="n">no_op</span><span class="p">,</span>
-        <span class="s1">&#39;score_second&#39;</span><span class="p">:</span> <span class="n">score_second</span><span class="p">,</span>
-        <span class="s1">&#39;score_invert&#39;</span><span class="p">:</span> <span class="n">score_invert</span>
-        <span class="p">}</span>
+    <span class="s1">&#39;no_op&#39;</span><span class="p">:</span> <span class="n">no_op</span><span class="p">,</span>
+    <span class="s1">&#39;score_second&#39;</span><span class="p">:</span> <span class="n">score_second</span><span class="p">,</span>
+    <span class="s1">&#39;score_invert&#39;</span><span class="p">:</span> <span class="n">score_invert</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="Estimator"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator">[docs]</a><span class="k">class</span> <span class="nc">Estimator</span><span class="p">(</span><span class="n">Dobject</span><span class="p">,</span> <span class="n">BaseTransformer</span><span class="p">):</span>
@@ -241,9 +243,10 @@
                                            <span class="n">param_grid</span><span class="o">=</span><span class="n">paramGrid</span><span class="p">,</span>
                                            <span class="o">**</span><span class="n">searchKwargs</span><span class="p">)</span>
 
-            <span class="n">groups</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="o">**</span><span class="n">dataset</span><span class="o">.</span><span class="n">dap</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span>
+                            <span class="o">**</span><span class="n">dataset</span><span class="o">.</span><span class="n">dap</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gridSearch</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="p">,</span>
-                    <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                                <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span> <span class="n">gridSearch</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">gridSearch</span><span class="o">.</span><span class="n">best_params_</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Estimator.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.estimator.Estimator.fit">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>

@@ -86,6 +86,8 @@
                 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_types.html">Model Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
 </ul>
 
@@ -153,9 +155,9 @@
 
     <span class="n">s</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">()</span>
 
-    <span class="n">n1</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;n1&#39;</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
-    <span class="n">n2</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;n2&#39;</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
-    <span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;n3&#39;</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;n1&#39;</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">n2</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;n2&#39;</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;n3&#39;</span><span class="p">,</span> <span class="n">transformer</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 
     <span class="n">g</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{},</span> <span class="n">graphKwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;model_sklearn_breast_cancer&#39;</span><span class="p">})</span>
 
@@ -202,7 +204,7 @@
 
 
 <div class="viewcode-block" id="load_logit"><a class="viewcode-back" href="../../../donatello.examples.html#donatello.examples.intent.load_logit">[docs]</a><span class="k">def</span> <span class="nf">load_logit</span><span class="p">():</span>
-    <span class="n">estimator</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;model&#39;</span><span class="p">:</span>  <span class="n">load_model</span><span class="p">(),</span>
+    <span class="n">estimator</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="n">load_model</span><span class="p">(),</span>
                  <span class="s1">&#39;paramGrid&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;model__n3__C&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">))},</span>
                  <span class="s1">&#39;searchKwargs&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;scoring&#39;</span><span class="p">:</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
                  <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;predict_proba&#39;</span><span class="p">,</span>
@@ -233,7 +235,8 @@
     <span class="k">return</span> <span class="n">estimator</span></div>
 
 
-<div class="viewcode-block" id="load_declaration"><a class="viewcode-back" href="../../../donatello.examples.html#donatello.examples.intent.load_declaration">[docs]</a><span class="k">def</span> <span class="nf">load_declaration</span><span class="p">(</span><span class="n">load_estimator</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">asDf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">featureName</span><span class="o">=</span><span class="s1">&#39;coefficients&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="load_declaration"><a class="viewcode-back" href="../../../donatello.examples.html#donatello.examples.intent.load_declaration">[docs]</a><span class="k">def</span> <span class="nf">load_declaration</span><span class="p">(</span><span class="n">load_estimator</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">asDf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                     <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">featureName</span><span class="o">=</span><span class="s1">&#39;coefficients&#39;</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">asDf</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span>
     <span class="n">estimator</span> <span class="o">=</span> <span class="n">load_estimator</span><span class="p">()</span>
 
@@ -258,7 +261,11 @@
     <span class="k">if</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;logit&#39;</span><span class="p">:</span>
         <span class="n">declaration</span> <span class="o">=</span> <span class="n">load_declaration</span><span class="p">(</span><span class="n">load_logit</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">asDf</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;rf&#39;</span><span class="p">:</span>
-        <span class="n">declaration</span> <span class="o">=</span> <span class="n">load_declaration</span><span class="p">(</span><span class="n">load_random_forest</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">asDf</span><span class="p">,</span> <span class="n">featureName</span><span class="o">=</span><span class="s1">&#39;feature_importances&#39;</span><span class="p">)</span>
+        <span class="n">declaration</span> <span class="o">=</span> <span class="n">load_declaration</span><span class="p">(</span>
+            <span class="n">load_random_forest</span><span class="p">,</span>
+            <span class="n">group</span><span class="p">,</span>
+            <span class="n">asDf</span><span class="p">,</span>
+            <span class="n">featureName</span><span class="o">=</span><span class="s1">&#39;feature_importances&#39;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">model</span> <span class="o">==</span> <span class="s1">&#39;if&#39;</span><span class="p">:</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;roc_auc_score&#39;</span><span class="p">,</span> <span class="s1">&#39;average_percision_score&#39;</span><span class="p">,</span> <span class="s1">&#39;threshold_rates&#39;</span><span class="p">]</span>
         <span class="n">declaration</span> <span class="o">=</span> <span class="n">load_declaration</span><span class="p">(</span><span class="n">load_isolation_forest</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>

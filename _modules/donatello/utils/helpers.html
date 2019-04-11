@@ -86,6 +86,8 @@
                 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model_types.html">Model Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
 </ul>
 
@@ -271,7 +273,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">attrPath</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">attrPath</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span><span class="o">*</span><span class="n">nvl</span><span class="p">(</span><span class="n">methodArgs</span><span class="p">,</span> <span class="p">()),</span> <span class="o">**</span><span class="n">nvl</span><span class="p">(</span><span class="n">methodKwargs</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">method</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span>
+            <span class="o">*</span><span class="n">nvl</span><span class="p">(</span><span class="n">methodArgs</span><span class="p">,</span> <span class="p">()),</span> <span class="o">**</span><span class="n">nvl</span><span class="p">(</span><span class="n">methodKwargs</span><span class="p">,</span> <span class="p">{}))</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">obj</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">cb</span> <span class="k">else</span> <span class="n">cb</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">*</span><span class="n">nvl</span><span class="p">(</span><span class="n">cbArgs</span><span class="p">,</span> <span class="p">()),</span> <span class="o">**</span><span class="n">nvl</span><span class="p">(</span><span class="n">cbKwargs</span><span class="p">,</span> <span class="p">{}))</span>
 
     <span class="k">else</span><span class="p">:</span>

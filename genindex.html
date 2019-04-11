@@ -86,6 +86,8 @@
                 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_types.html">Model Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
 </ul>
 
@@ -345,13 +347,13 @@
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.ModelDAG.fit">(donatello.components.transformers.ModelDAG method)</a>
 </li>
+        <li><a href="donatello.components.html#donatello.components.transformers.Node.fit">(donatello.components.transformers.Node method)</a>
+</li>
         <li><a href="donatello.components.html#donatello.components.transformers.OneHotEncoder.fit">(donatello.components.transformers.OneHotEncoder method)</a>
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.PandasMixin.fit">(donatello.components.transformers.PandasMixin method)</a>
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.PandasTransformer.fit">(donatello.components.transformers.PandasTransformer method)</a>
-</li>
-        <li><a href="donatello.components.html#donatello.components.transformers.TransformNode.fit">(donatello.components.transformers.TransformNode method)</a>
 </li>
         <li><a href="donatello.utils.html#donatello.utils.base.BaseDatasetTransformer.fit">(donatello.utils.base.BaseDatasetTransformer method)</a>
 </li>
@@ -373,11 +375,11 @@
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.ModelDAG.fit_transform">(donatello.components.transformers.ModelDAG method)</a>
 </li>
+        <li><a href="donatello.components.html#donatello.components.transformers.Node.fit_transform">(donatello.components.transformers.Node method)</a>
+</li>
         <li><a href="donatello.components.html#donatello.components.transformers.PandasMixin.fit_transform">(donatello.components.transformers.PandasMixin method)</a>
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.PandasTransformer.fit_transform">(donatello.components.transformers.PandasTransformer method)</a>
-</li>
-        <li><a href="donatello.components.html#donatello.components.transformers.TransformNode.fit_transform">(donatello.components.transformers.TransformNode method)</a>
 </li>
         <li><a href="donatello.utils.html#donatello.utils.base.BaseDatasetTransformer.fit_transform">(donatello.utils.base.BaseDatasetTransformer method)</a>
 </li>
@@ -548,9 +550,11 @@
       </ul></li>
       <li><a href="donatello.utils.html#donatello.utils.decorators.name">name() (in module donatello.utils.decorators)</a>
 </li>
+      <li><a href="donatello.components.html#donatello.components.estimator.no_op">no_op() (in module donatello.components.estimator)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="donatello.components.html#donatello.components.estimator.no_op">no_op() (in module donatello.components.estimator)</a>
+      <li><a href="donatello.components.html#donatello.components.transformers.Node">Node (class in donatello.components.transformers)</a>
 </li>
       <li><a href="donatello.components.html#donatello.components.transformers.ModelDAG.node_exec">node_exec() (donatello.components.transformers.ModelDAG method)</a>
 </li>
@@ -618,7 +622,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="donatello.utils.html#donatello.utils.helpers.replace_value">replace_value() (in module donatello.utils.helpers)</a>
 </li>
-      <li><a href="donatello.components.html#donatello.components.transformers.TransformNode.reset">reset() (donatello.components.transformers.TransformNode method)</a>
+      <li><a href="donatello.components.html#donatello.components.transformers.Node.reset">reset() (donatello.components.transformers.Node method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -695,6 +699,8 @@
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.ModelDAG.transform">(donatello.components.transformers.ModelDAG method)</a>
 </li>
+        <li><a href="donatello.components.html#donatello.components.transformers.Node.transform">(donatello.components.transformers.Node method)</a>
+</li>
         <li><a href="donatello.components.html#donatello.components.transformers.OneHotEncoder.transform">(donatello.components.transformers.OneHotEncoder method)</a>
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.PandasMixin.transform">(donatello.components.transformers.PandasMixin method)</a>
@@ -702,8 +708,6 @@
         <li><a href="donatello.components.html#donatello.components.transformers.PandasTransformer.transform">(donatello.components.transformers.PandasTransformer method)</a>
 </li>
         <li><a href="donatello.components.html#donatello.components.transformers.TargetFlow.transform">(donatello.components.transformers.TargetFlow method)</a>
-</li>
-        <li><a href="donatello.components.html#donatello.components.transformers.TransformNode.transform">(donatello.components.transformers.TransformNode method)</a>
 </li>
         <li><a href="donatello.utils.html#donatello.utils.base.BaseDatasetTransformer.transform">(donatello.utils.base.BaseDatasetTransformer method)</a>
 </li>
@@ -717,8 +721,6 @@
       <li><a href="donatello.components.html#donatello.components.transformers.DatasetFlow.transform_target">transform_target() (donatello.components.transformers.DatasetFlow method)</a>
 </li>
       <li><a href="donatello.utils.html#donatello.utils.base.PandasAttrs.transformedDtypes">transformedDtypes (donatello.utils.base.PandasAttrs attribute)</a>
-</li>
-      <li><a href="donatello.components.html#donatello.components.transformers.TransformNode">TransformNode (class in donatello.components.transformers)</a>
 </li>
   </ul></td>
 </tr></table>
