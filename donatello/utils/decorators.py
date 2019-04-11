@@ -30,8 +30,8 @@ def pandas_series(wrapped, instance, args, kwargs):
     name = kwargs.pop('name', '')
     yhat = wrapped(*args, **kwargs)
 
-    name = nvl(name, instance.name)
-    index = X[index] if index in X else X.index
+    name = nvl(name, instance.name if instance is not None else '')
+    index = X[index] if index in X else getattr(X, 'index', None)
     result = pd.Series(yhat, index=index, name=name)
     return result
 
