@@ -52,15 +52,15 @@ def test_fallback():
             self.b = 2
 
         @decorators.fallback('a', c='b')
-        def f(self, a=None, c=None):
+        def f(self, _,  a=None, c=None):
             return a, c
 
     o = O()
 
-    a1, c1 = o.f()
-    a2, c2 = o.f(a='a')
-    a3, c3 = o.f(c='a')
-    a4, c4 = o.f('a')
+    a1, c1 = o.f(1, )
+    a2, c2 = o.f(1, a='a')
+    a3, c3 = o.f(1, c='a')
+    a4, c4 = o.f(1, 'a')
 
     assert a1 is o.a and c1 is o.b
     assert a2 == 'a' and c2 is o.b
