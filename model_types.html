@@ -89,8 +89,12 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sculpture.html">Sculpture</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Model Types</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pipeline">Pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#modeldag">ModelDAG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pipeline">Pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#modeldag">ModelDAG</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#line-graph">Line Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#branching-example">Branching Example</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
@@ -195,9 +199,8 @@ to standard operating procedure in scikit-learn</p>
     <span class="k">return</span> <span class="n">scuplture</span>
 </pre></div>
 </div>
-</div>
 <div class="section" id="modeldag">
-<h2>ModelDAG<a class="headerlink" href="#modeldag" title="Permalink to this headline">¶</a></h2>
+<h3>ModelDAG<a class="headerlink" href="#modeldag" title="Permalink to this headline">¶</a></h3>
 <p>While scikit-learn pipelines (and feature unions) are a great place to start, in my experience
 they have two flaws.</p>
 <blockquote>
@@ -212,12 +215,17 @@ of the metal of scikit-learn’s Pipeline prevents this support</li>
 transmission or <em>flow</em> along edges. The directed graph is built from a collection
 <a class="reference internal" href="donatello.components.html#donatello.components.transformers.Node" title="donatello.components.transformers.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.Node</span></code></a> objects which are connected by
 <a class="reference internal" href="donatello.components.html#donatello.components.transformers.DatasetFlow" title="donatello.components.transformers.DatasetFlow"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.DatasetFlow</span></code></a> objects.</p>
-<p>Donatello’s graph requires is designed to pass <code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.data.Dataaset</span></code>
-objects around. Transform Nodes can wrap scikit-learn transformers or udfs through the
+<p>Donatello’s graph is designed to pass <a class="reference internal" href="donatello.components.html#donatello.components.data.Dataset" title="donatello.components.data.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.data.Dataset</span></code></a>
+objects around. Nodes can wrap scikit-learn transformers or udfs through the
 <code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.Apply</span></code> &amp; <code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.Access</span></code>
 transformers or by creating new classes with the <a class="reference internal" href="donatello.components.html#donatello.components.transformers.PandasMixin" title="donatello.components.transformers.PandasMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.PandasMixin</span></code></a></p>
 <p>A scikit-learn model can be replaced directly. Using a helper method to build the model
-provides a more digestable form, such as:</p>
+provides a more digestable form. This next example is the same structure as building a standard
+scikit-learn pipeline</p>
+</div>
+</div>
+<div class="section" id="line-graph">
+<h2>Line Graph<a class="headerlink" href="#line-graph" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components.transformers</span> <span class="kn">import</span> <span class="n">ModelDAG</span>
 
 <span class="k">def</span> <span class="nf">load_model</span><span class="p">():</span>
@@ -250,37 +258,17 @@ is an outlier remover)</li>
 <li>A Linear Regeression to execute predictions</li>
 </ol>
 </div></blockquote>
-<p>Here we’ve built a 3 node line graph.</p>
-<blockquote>
-<div><blockquote>
-<div><ol class="arabic simple">
-<li><dl class="first docutils">
-<dt>Scale the input design data - this Node wraps a scikit-learn transformer,</dt>
-<dd>which will not return the target so we can flip the node’s <code class="docutils literal notranslate"><span class="pre">enforceTarget</span></code>
-parameter and push the dataset object</dd>
-</dl>
-</li>
-<li><dl class="first docutils">
-<dt>A custom udf function (transform) that will only be applied during the fit process</dt>
-<dd>(for more info see the housing prices notebook - the transform referenced
-is an outlier remover)</dd>
-</dl>
-</li>
-</ol>
-</div></blockquote>
-<ol class="arabic simple">
-<li>A Linear Regeression to execute predictions</li>
-</ol>
-</div></blockquote>
 <p>The are many benefits to using a transformation graph but two of the most pronounced
 are</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li>reusability (components of the graph can be excised simply through the networkx api)</li>
-<li>configurability - complex branching and packaging more complex datasets (i.e. dicts of dataframes)</li>
+<li>configurability - complex <strong>branching</strong> and packaging more complex datasets (i.e. dicts of dataframes)</li>
 </ol>
 </div></blockquote>
-<p>Branching Examples:</p>
+</div>
+<div class="section" id="branching-example">
+<h2>Branching Example<a class="headerlink" href="#branching-example" title="Permalink to this headline">¶</a></h2>
 <p>This example shows a graph which</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -295,7 +283,7 @@ are</p>
 
 <span class="k">def</span> <span class="nf">load_model</span><span class="p">():</span>
 
-   <span class="c1"># initialize model</span>
+    <span class="c1"># initialize model</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{})</span>
     <span class="c1"># intitate branching by selecting numeric fields</span>
     <span class="n">extractor</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">DatasetFlow</span><span class="p">(</span><span class="n">selectMethod</span><span class="o">=</span><span class="s1">&#39;dtype&#39;</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">],</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
@@ -322,7 +310,7 @@ are</p>
     <span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n21</span><span class="p">,</span> <span class="n">n22</span><span class="p">)</span>
     <span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n22</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
 
-   <span class="k">return</span> <span class="n">model</span>
+    <span class="k">return</span> <span class="n">model</span>
 </pre></div>
 </div>
 </div>

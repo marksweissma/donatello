@@ -35,7 +35,7 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="donatello package" href="donatello.html"/>
-        <link rel="next" title="donatello.examples package" href="donatello.examples.html"/>
+        <link rel="next" title="donatello.utils package" href="donatello.utils.html"/>
         <link rel="prev" title="donatello package" href="donatello.html"/> 
 
   
@@ -103,7 +103,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.components">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="donatello.examples.html">donatello.examples package</a></li>
 <li class="toctree-l3"><a class="reference internal" href="donatello.utils.html">donatello.utils package</a></li>
 </ul>
 </li>
@@ -185,7 +184,7 @@
 <p>Manager for model building and evaluating</p>
 <dl class="class">
 <dt id="donatello.components.core.Sculpture">
-<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_11_00_00</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_14_22_04</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></a></p>
 <p>Instance for model processing. Accessors will fallback to accessing from estimator attributes</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -775,7 +774,7 @@ Packages dataframes and dictionaries of dataframes</p>
 
 <dl class="class">
 <dt id="donatello.components.measure.Metric">
-<em class="property">class </em><code class="descclassname">donatello.components.measure.</code><code class="descname">Metric</code><span class="sig-paren">(</span><em>scorer=None, columns=None, name='', key=None, scoreClay=None, callback=&lt;function pass_through&gt;, agg=['mean', 'std'], sort=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/measure.html#Metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.measure.Metric" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.measure.</code><code class="descname">Metric</code><span class="sig-paren">(</span><em>scorer=None</em>, <em>columns=None</em>, <em>name=''</em>, <em>key=None</em>, <em>scoreClay=None</em>, <em>callback=&lt;function pass_through&gt;</em>, <em>agg=None</em>, <em>sort=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/measure.html#Metric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.measure.Metric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a></p>
 <dl class="attribute">
 <dt id="donatello.components.measure.Metric.key">
@@ -790,6 +789,11 @@ Packages dataframes and dictionaries of dataframes</p>
 <dl class="method">
 <dt id="donatello.components.measure.Metric.evaluate">
 <code class="descname">evaluate</code><span class="sig-paren">(</span><em>estimator</em>, <em>truth</em>, <em>predicted</em>, <em>X</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/measure.html#Metric.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.measure.Metric.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="donatello.components.measure.Metric.display">
+<code class="descname">display</code><span class="sig-paren">(</span><em>bunch</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/measure.html#Metric.display"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.measure.Metric.display" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1494,7 +1498,7 @@ node_to (hashable): node accessor for terminating node</dd>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="donatello.examples.html" class="btn btn-neutral float-right" title="donatello.examples package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="donatello.utils.html" class="btn btn-neutral float-right" title="donatello.utils package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="donatello.html" class="btn btn-neutral" title="donatello package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

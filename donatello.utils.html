@@ -35,7 +35,7 @@
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="donatello package" href="donatello.html"/>
-        <link rel="prev" title="donatello.examples package" href="donatello.examples.html"/> 
+        <link rel="prev" title="donatello.components package" href="donatello.components.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -92,7 +92,6 @@
 <li class="toctree-l1 current"><a class="reference internal" href="donatello.html">donatello package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="donatello.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="donatello.components.html">donatello.components package</a></li>
-<li class="toctree-l3"><a class="reference internal" href="donatello.examples.html">donatello.examples package</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">donatello.utils package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.utils.base">donatello.utils.base module</a></li>
@@ -404,44 +403,6 @@ and returns a transformed version of X.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="donatello.utils.helpers.has_nested_attribute">
-<code class="descclassname">donatello.utils.helpers.</code><code class="descname">has_nested_attribute</code><span class="sig-paren">(</span><em>obj</em>, <em>attrPath</em>, <em>separator='_'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#has_nested_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.has_nested_attribute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check whether nested attribute exists via string name</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Object to traverse.</li>
-<li><strong>attrPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to attribute location split by separator,            use empty string “” to return obj</li>
-<li><strong>separator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – separator for nesting levels in string representation</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="donatello.utils.helpers.get_nested_attribute">
-<code class="descclassname">donatello.utils.helpers.</code><code class="descname">get_nested_attribute</code><span class="sig-paren">(</span><em>obj</em>, <em>attrPath</em>, <em>separator='_'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#get_nested_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.get_nested_attribute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get nested attribute via string name. passing empty string returns obj</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – Object to traverse.</li>
-<li><strong>attrPath</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path to attribute location split by separator,            use empty string “” to return obj</li>
-<li><strong>separator</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – separator for nesting levels in string representation</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="donatello.utils.helpers.reformat_aggs">
 <code class="descclassname">donatello.utils.helpers.</code><code class="descname">reformat_aggs</code><span class="sig-paren">(</span><em>d</em>, <em>idx=0</em>, <em>sortValues=None</em>, <em>indexName=None</em>, <em>filterNulls=0.95</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#reformat_aggs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.reformat_aggs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -503,6 +464,11 @@ and returns a transformed version of X.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="donatello.utils.helpers.package_dap">
+<code class="descclassname">donatello.utils.helpers.</code><code class="descname">package_dap</code><span class="sig-paren">(</span><em>dap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#package_dap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.package_dap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="donatello.utils.helpers.persist">
 <code class="descclassname">donatello.utils.helpers.</code><code class="descname">persist</code><span class="sig-paren">(</span><em>obj=None</em>, <em>dap=''</em>, <em>root='.'</em>, <em>name=''</em>, <em>extension='pkl'</em>, <em>*writeArgs</em>, <em>**writeKwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/utils/helpers.html#persist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.utils.helpers.persist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write an object (or attribute) to persist.</p>
@@ -540,7 +506,7 @@ and returns a transformed version of X.</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="donatello.examples.html" class="btn btn-neutral" title="donatello.examples package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="donatello.components.html" class="btn btn-neutral" title="donatello.components package" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

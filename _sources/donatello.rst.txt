@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
 
     donatello.components
-    donatello.examples
     donatello.utils
 
 Module contents
