@@ -1,3 +1,4 @@
+===========
 Model Types
 ===========
 
@@ -46,7 +47,7 @@ to standard operating procedure in scikit-learn
 
 
 ModelDAG
---------
+========
 
 While scikit-learn pipelines (and feature unions) are a great place to start, in my experience
 they have two flaws.
@@ -63,14 +64,18 @@ transmission or *flow* along edges. The directed graph is built from a collectio
 :py:class:`donatello.components.transformers.Node` objects which are connected by 
 :py:class:`donatello.components.transformers.DatasetFlow` objects.
 
-Donatello's graph requires is designed to pass :py:class:`donatello.components.data.Dataaset`
-objects around. Transform Nodes can wrap scikit-learn transformers or udfs through the 
+Donatello's graph is designed to pass :py:class:`donatello.components.data.Dataset`
+objects around. Nodes can wrap scikit-learn transformers or udfs through the 
 :py:class:`donatello.components.transformers.Apply` & :py:class:`donatello.components.transformers.Access`
 transformers or by creating new classes with the :py:class:`donatello.components.transformers.PandasMixin`
 
 
 A scikit-learn model can be replaced directly. Using a helper method to build the model
-provides a more digestable form, such as:
+provides a more digestable form. This next example is the same structure as building a standard
+scikit-learn pipeline
+
+Line Graph
+----------
 
 .. code:: python
 
@@ -105,26 +110,15 @@ Here we've built a 3 node line graph.
     #. A Linear Regeression to execute predictions
 
 
-Here we've built a 3 node line graph.
-
-    #. Scale the input design data - this Node wraps a scikit-learn transformer,
-           which will not return the target so we can flip the node's ``enforceTarget``
-           parameter and push the dataset object 
-    #. A custom udf function (transform) that will only be applied during the fit process
-           (for more info see the housing prices notebook - the transform referenced 
-           is an outlier remover)
-            
-   #. A Linear Regeression to execute predictions
-
-
 The are many benefits to using a transformation graph but two of the most pronounced
 are 
 
     #. reusability (components of the graph can be excised simply through the networkx api)
-    #. configurability - complex branching and packaging more complex datasets (i.e. dicts of dataframes)
+    #. configurability - complex **branching** and packaging more complex datasets (i.e. dicts of dataframes)
 
 
-Branching Examples:
+Branching Example
+-----------------
 
 This example shows a graph which 
 
@@ -141,7 +135,7 @@ This example shows a graph which
 
    def load_model():
 
-      # initialize model
+       # initialize model
        model = transformers.ModelDAG(set([]), {})
        # intitate branching by selecting numeric fields
        extractor = transformers.DatasetFlow(selectMethod='dtype', selectValue=[pd.np.number], invert=False)
@@ -168,4 +162,4 @@ This example shows a graph which
        model.add_edge_flow(n21, n22)
        model.add_edge_flow(n22, n3)
 
-      return model
+       return model
