@@ -7,6 +7,7 @@ from sklearn import clone
 from sklearn.utils import Bunch
 from sklearn.metrics import confusion_matrix
 
+from donatello.utils.helpers import view_sk_metric
 from donatello.utils.decorators import init_time, coelesce, name
 from donatello.utils.base import Dobject
 from donatello.components.data import package_dataset
@@ -165,9 +166,9 @@ class Measure(Dobject):
 class Metric(Dobject):
     @init_time
     @name
-    @coelesce(columns=['score'])
+    @coelesce(columns=['score'], agg=['mean', 'std'])
     def __init__(self, scorer=None, columns=None, name='', key=None, scoreClay=None,
-                 callback=pass_through, agg=['mean', 'std'], sort=None):
+                 callback=pass_through, agg=None, sort=None):
         self.columns = columns
         self.scorer = scorer
         _name = getattr(scorer, '__name__', self.__class__.__name__)
@@ -195,6 +196,9 @@ class Metric(Dobject):
         if not hasattr(self, '_key'):
             df['_'] = range(len(df))
         return df
+
+    def display(self, bunch, *args, **kwargs):
+        view_sk_metric(bunch)
 
     def __call__(self, *args, **kwargs):
         return self.evaluate(*args, **kwargs)
