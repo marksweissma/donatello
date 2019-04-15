@@ -33,6 +33,13 @@ class O(object):
     def o(self):
         return O()
 
+    def v(self, on=True):
+        return 'w' if on else 'u'
+
+
+def cb(value, flip=False):
+    return value + 1 if not flip else -1 * (value + 1)
+
 
 @pytest.fixture
 def o():
@@ -74,4 +81,13 @@ def test_get(o):
 def test_access(o):
     assert helpers.access(o, []) is o
     assert helpers.access(o, ['']) is o
+    assert helpers.access(o, '') is o
     assert helpers.access(o, ['a']) == 1
+
+    assert helpers.access(o, method='v') == 'w'
+    assert helpers.access(o, method='v', methodArgs=(False,)) == 'u'
+    assert helpers.access(o, method='v', methodKwargs=dict(on=False)) == 'u'
+
+    assert helpers.access(o, ['a'], cb=cb) == 2
+    assert helpers.access(o, ['a'], cb=cb, cbArgs=(True,)) == -2
+    assert helpers.access(o, ['a'], cb=cb, cbKwargs=dict(flip=True)) == -2

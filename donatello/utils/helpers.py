@@ -137,18 +137,28 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
     return args, kwargs
 
 
+def package_dap(dap):
+    if isinstance(dap, dict):
+        pass
+    elif isinstance(dap, basestring):
+        dap = {'attrPath': [dap]}
+    elif isinstance(dap, list):
+        dap = {'attrPath': dap}
+    return dap
+
+
 def persist(obj=None, dap="", root='.', name='', extension='pkl', *writeArgs, **writeKwargs):
     """
     Write an object (or attribute) to persist.
     """
-
-    dap = {'attrPath': [dap]} if isinstance(dap, basestring) else dap
+    dap = package_dap(dap)
     obj = access(obj, **dap)
     name = name if name else ".".join([getattr(obj, 'name', obj.__class__.__name__), extension])
     local = os.path.join(root, name)
     joblib.dump(obj, local, *writeArgs, **writeKwargs)
 
 
+# move
 def view_sk_metric(bunch):
     """
     Unnest a sklearn metric (or other single value only returning metric)
