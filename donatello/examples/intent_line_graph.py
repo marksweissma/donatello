@@ -52,7 +52,7 @@ def load_model(model=LogisticRegression(C=5)):
     return graph
 
 
-def load_scuplture():
+def load_sculpture():
     """
     Helper to load sculpture
     """
@@ -70,6 +70,6 @@ def load_scuplture():
     metrics = [Metric(roc_auc_score), Metric(average_precision_score),
                FeatureWeights(sort='coefficients'), ThresholdRates()]
 
-    scuplture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
+    sculpture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
 
-    return scuplture
+    return sculpture

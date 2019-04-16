@@ -22,7 +22,7 @@ to standard operating procedure in scikit-learn
 
     from donatello.components.transformers import Pipeline
 
-    def load_scuplture():
+    def load_sculpture():
         """
         Helper to load sculpture
         """
@@ -41,9 +41,9 @@ to standard operating procedure in scikit-learn
         metrics = [Metric(roc_auc_score), Metric(average_precision_score),
                    FeatureWeights(sort='coefficients'), ThresholdRates()]
 
-        scuplture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
+        sculpture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
 
-        return scuplture
+        return sculpture
 
 
 ModelDAG

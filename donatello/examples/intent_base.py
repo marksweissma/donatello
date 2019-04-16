@@ -48,7 +48,7 @@ def load_data(asDf, group):
     return dataset
 
 
-def load_scuplture(asDf, group):
+def load_sculpture(asDf, group):
     """
     Helper to load sculpture
     """
@@ -64,9 +64,9 @@ def load_scuplture(asDf, group):
     metrics = [Metric(roc_auc_score), Metric(average_precision_score),
                FeatureWeights(sort='coefficients'), ThresholdRates()]
 
-    scuplture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
+    sculpture = Sculpture(dataset=dataset, estimator=estimator, metrics=metrics)
 
-    return scuplture
+    return sculpture
 
 
 def load_metrics(metrics=None, featureName='coefficients'):
