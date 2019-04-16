@@ -163,7 +163,7 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="load_scuplture"><a class="viewcode-back" href="../../../donatello.examples.html#donatello.examples.intent_simple.load_scuplture">[docs]</a><span class="k">def</span> <span class="nf">load_scuplture</span><span class="p">():</span>
+<div class="viewcode-block" id="load_sculpture"><a class="viewcode-back" href="../../../donatello.examples.html#donatello.examples.intent_simple.load_sculpture">[docs]</a><span class="k">def</span> <span class="nf">load_sculpture</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper to load sculpture</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -179,9 +179,9 @@
     <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">Metric</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">),</span> <span class="n">Metric</span><span class="p">(</span><span class="n">average_precision_score</span><span class="p">),</span>
                <span class="n">FeatureWeights</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="s1">&#39;coefficients&#39;</span><span class="p">),</span> <span class="n">ThresholdRates</span><span class="p">()]</span>
 
-    <span class="n">scuplture</span> <span class="o">=</span> <span class="n">Sculpture</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+    <span class="n">sculpture</span> <span class="o">=</span> <span class="n">Sculpture</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">scuplture</span></div>
+    <span class="k">return</span> <span class="n">sculpture</span></div>
 </pre></div>
 
            </div>

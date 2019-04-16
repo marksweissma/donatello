@@ -175,7 +175,7 @@ Logit in the last section with a pipeline that scales is identical (save the imp
 to standard operating procedure in scikit-learn</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components.transformers</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 
-<span class="k">def</span> <span class="nf">load_scuplture</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">load_sculpture</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper to load sculpture</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -194,9 +194,9 @@ to standard operating procedure in scikit-learn</p>
     <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">Metric</span><span class="p">(</span><span class="n">roc_auc_score</span><span class="p">),</span> <span class="n">Metric</span><span class="p">(</span><span class="n">average_precision_score</span><span class="p">),</span>
                <span class="n">FeatureWeights</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="s1">&#39;coefficients&#39;</span><span class="p">),</span> <span class="n">ThresholdRates</span><span class="p">()]</span>
 
-    <span class="n">scuplture</span> <span class="o">=</span> <span class="n">Sculpture</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+    <span class="n">sculpture</span> <span class="o">=</span> <span class="n">Sculpture</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">scuplture</span>
+    <span class="k">return</span> <span class="n">sculpture</span>
 </pre></div>
 </div>
 <div class="section" id="modeldag">

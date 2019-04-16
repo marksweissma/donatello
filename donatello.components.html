@@ -97,7 +97,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.components.core">donatello.components.core module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.components.data">donatello.components.data module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.components.estimator">donatello.components.estimator module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#module-donatello.components.fold">donatello.components.fold module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#donatello-components-fold-module">donatello.components.fold module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.components.measure">donatello.components.measure module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.components.transformers">donatello.components.transformers module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#module-donatello.components">Module contents</a></li>
@@ -184,7 +184,7 @@
 <p>Manager for model building and evaluating</p>
 <dl class="class">
 <dt id="donatello.components.core.Sculpture">
-<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_15_22_35</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_16_09_09</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></a></p>
 <p>Instance for model processing. Accessors will fallback to accessing from estimator attributes</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -596,83 +596,8 @@ executing skSearch, dataset.designData must be flat (not dict)</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-donatello.components.fold">
-<span id="donatello-components-fold-module"></span><h2>donatello.components.fold module<a class="headerlink" href="#module-donatello.components.fold" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="donatello.components.fold.Fold">
-<em class="property">class </em><code class="descclassname">donatello.components.fold.</code><code class="descname">Fold</code><span class="sig-paren">(</span><em>target=None</em>, <em>primaryKey=None</em>, <em>scoreClay=None</em>, <em>foldClay=None</em>, <em>splitDispatch={None: &lt;class 'sklearn.model_selection._split.KFold'&gt;</em>, <em>'group': &lt;class 'sklearn.model_selection._split.GroupShuffleSplit'&gt;</em>, <em>'stratify': &lt;class 'sklearn.model_selection._split.StratifiedKFold'&gt;</em>, <em>'time': &lt;class 'sklearn.model_selection._split.TimeSeriesSplit'&gt;}</em>, <em>kwargDispatch={None: {'n_splits': 5</em>, <em>'random_state': 22</em>, <em>'shuffle': True}</em>, <em>'group': {'n_splits': 5</em>, <em>'random_state': 22}</em>, <em>'stratify': {'n_splits': 5</em>, <em>'random_state': 22</em>, <em>'shuffle': True}</em>, <em>'time': {'n_splits': 5}}</em>, <em>dap=None</em><span class="sig-paren">)</span><a class="headerlink" href="#donatello.components.fold.Fold" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a></p>
-<p>Object to split data into training and testing/validation groups.
-Packages dataframes and dictionaries of dataframes</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of target field if supervised</li>
-<li><strong>primaryKey</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – if dictionary of dataframes, key of dictionary            containing primrary df</li>
-<li><strong>str</strong> (<em>splitOver</em>) – option to split over unique values instead             of random or startification</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="donatello.components.fold.Fold.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>target=None</em>, <em>primaryKey=None</em>, <em>dap=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#donatello.components.fold.Fold.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>fit fold  =&gt; finds and store values for each set</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dataset</strong> (<em>donatello.components.dataset</em>) – dataset to fit on</li>
-<li><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – str name of target field to separate</li>
-<li><strong>primaryKey</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – key for primary field (if dataset.data                 is dict not df)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">self</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)">object</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="donatello.components.fold.Fold.fold">
-<code class="descname">fold</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>target=None</em>, <em>primaryKey=None</em><span class="sig-paren">)</span><a class="headerlink" href="#donatello.components.fold.Fold.fold" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split data data into design/target train/test/data</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dataset</strong> (<em>donatello.components.dataset</em>) – dataset to fit on</li>
-<li><strong>target</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – str name of target field to separate</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">paylod of train/test/data &lt;&gt; design/target subsets</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="donatello.components.fold.Fold.split">
-<code class="descname">split</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>groups=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#donatello.components.fold.Fold.split" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="donatello-components-fold-module">
+<h2>donatello.components.fold module<a class="headerlink" href="#donatello-components-fold-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-donatello.components.measure">
 <span id="donatello-components-measure-module"></span><h2>donatello.components.measure module<a class="headerlink" href="#module-donatello.components.measure" title="Permalink to this headline">¶</a></h2>
