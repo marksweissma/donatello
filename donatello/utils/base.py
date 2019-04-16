@@ -111,15 +111,15 @@ class PandasAttrs(Dobject):
         self._features = value
 
     @property
-    def transformedDtypes(self):
-        return getattr(self, '_transformedDtypes', {})
+    def featureDtypes(self):
+        return getattr(self, '_featureDtypes', {})
 
-    @transformedDtypes.setter
-    def transformedDtypes(self, value):
+    @featureDtypes.setter
+    def featureDtypes(self, value):
         """
         Transformed data types
         """
-        self._transformedDtypes = value
+        self._featureDtypes = value
 
     def get_fields(self):
         return self.fields
