@@ -79,7 +79,7 @@ Line Graph
 
 .. code:: python
 
-   from donatello.components.transformers import ModelDAG
+   from donatello.components import transformers
 
    def load_model():
 
@@ -87,9 +87,9 @@ Line Graph
 	  model = transformers.ModelDAG(set([]), {})
 	 
 	  # initialize Nodes
-	  n1 = transformers.TransformNode('scale', transformers.StandardScaler(), enforceTarget=True)
-	  n2 = transformers.TransformNode('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
-	  n3 = transformers.TransformNode('ml', LinearRegression())
+	  n1 = transformers.Node('scale', transformers.StandardScaler(), enforceTarget=True)
+	  n2 = transformers.Node('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
+	  n3 = transformers.Node('ml', LinearRegression())
 
 	  # Add nodes to graph by declaring edges
 	  # Edges default to the model's default Flow (which defaults to donatello's base Flow)
@@ -131,7 +131,7 @@ This example shows a graph which
 
 .. code:: python
 
-   from donatello.components.transformers import ModelDAG
+   from donatello.components import transformers
 
    def load_model():
 
@@ -139,15 +139,15 @@ This example shows a graph which
        model = transformers.ModelDAG(set([]), {})
        # intitate branching by selecting numeric fields
        extractor = transformers.DatasetFlow(selectMethod='dtype', selectValue=[pd.np.number], invert=False)
-       n0 = transformers.TransformNode('select', extractor)
+       n0 = transformers.Node('select', extractor)
 
  
        # first branch (one hot encode - we'll specify the fields to ohe in via Flow)
-       n11 = transformers.TransformNode('ohe', transformers.OneHotEncoder(dropOne=True))
+       n11 = transformers.Node('ohe', transformers.OneHotEncoder(dropOne=True))
        
        # second branch (scale non ohe data, and remove outliers)
-       n21 = transformers.TransformNode('scale', transformers.StandardScaler(), enforceTarget=True)
-       n22 = transformers.TransformNode('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
+       n21 = transformers.Node('scale', transformers.StandardScaler(), enforceTarget=True)
+       n22 = transformers.Node('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
        
        # terminal node for predicting
        n3 = transformers.Transextractor formNode('ml', LinearRegression())

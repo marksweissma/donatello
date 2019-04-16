@@ -226,7 +226,7 @@ scikit-learn pipeline</p>
 </div>
 <div class="section" id="line-graph">
 <h2>Line Graph<a class="headerlink" href="#line-graph" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components.transformers</span> <span class="kn">import</span> <span class="n">ModelDAG</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components</span> <span class="kn">import</span> <span class="n">transformers</span>
 
 <span class="k">def</span> <span class="nf">load_model</span><span class="p">():</span>
 
@@ -234,9 +234,9 @@ scikit-learn pipeline</p>
        <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{})</span>
 
        <span class="c1"># initialize Nodes</span>
-       <span class="n">n1</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-       <span class="n">n2</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ApplyTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-       <span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;ml&#39;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+       <span class="n">n1</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+       <span class="n">n2</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ApplyTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+       <span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;ml&#39;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
 
        <span class="c1"># Add nodes to graph by declaring edges</span>
        <span class="c1"># Edges default to the model&#39;s default Flow (which defaults to donatello&#39;s base Flow)</span>
@@ -279,7 +279,7 @@ are</p>
 <li>recombines the sub tables and feeds them to a linear regression</li>
 </ol>
 </div></blockquote>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components.transformers</span> <span class="kn">import</span> <span class="n">ModelDAG</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components</span> <span class="kn">import</span> <span class="n">transformers</span>
 
 <span class="k">def</span> <span class="nf">load_model</span><span class="p">():</span>
 
@@ -287,15 +287,15 @@ are</p>
     <span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{})</span>
     <span class="c1"># intitate branching by selecting numeric fields</span>
     <span class="n">extractor</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">DatasetFlow</span><span class="p">(</span><span class="n">selectMethod</span><span class="o">=</span><span class="s1">&#39;dtype&#39;</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">],</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-    <span class="n">n0</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;select&#39;</span><span class="p">,</span> <span class="n">extractor</span><span class="p">)</span>
+    <span class="n">n0</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;select&#39;</span><span class="p">,</span> <span class="n">extractor</span><span class="p">)</span>
 
 
     <span class="c1"># first branch (one hot encode - we&#39;ll specify the fields to ohe in via Flow)</span>
-    <span class="n">n11</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;ohe&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">dropOne</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="n">n11</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;ohe&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">dropOne</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 
     <span class="c1"># second branch (scale non ohe data, and remove outliers)</span>
-    <span class="n">n21</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-    <span class="n">n22</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">TransformNode</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ApplyTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="n">n21</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">n22</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ApplyTransformer</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 
     <span class="c1"># terminal node for predicting</span>
     <span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Transextractor</span> <span class="n">formNode</span><span class="p">(</span><span class="s1">&#39;ml&#39;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
