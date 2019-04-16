@@ -1,6 +1,11 @@
 Note donatello is not officially released, there is a test wheel on `test.pypi.org`
 if you want to take a look. The core is intact and basic examples are all turn key
 
+The test wheel is only python 2 compatible. Python 3 compatibility (and tests) are in the works.
+Donatello will be py2/3 compatible upon official release to pypi. 
+
+For now:
+
 `pip install -i https://test.pypi.org/simple/ donatello`
 
 
