@@ -247,15 +247,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_features</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">transformedDtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_transformedDtypes&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">def</span> <span class="nf">featureDtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_featureDtypes&#39;</span><span class="p">,</span> <span class="p">{})</span>
 
-    <span class="nd">@transformedDtypes</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">transformedDtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="nd">@featureDtypes</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">featureDtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Transformed data types</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_transformedDtypes</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_featureDtypes</span> <span class="o">=</span> <span class="n">value</span>
 
 <div class="viewcode-block" id="PandasAttrs.get_fields"><a class="viewcode-back" href="../../../donatello.utils.html#donatello.utils.base.PandasAttrs.get_fields">[docs]</a>    <span class="k">def</span> <span class="nf">get_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span></div>
