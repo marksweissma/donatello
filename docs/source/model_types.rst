@@ -150,7 +150,7 @@ This example shows a graph which
        n22 = transformers.Node('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
        
        # terminal node for predicting
-       n3 = transformers.Transextractor formNode('ml', LinearRegression())
+       n3 = transformers.Node('ml', LinearRegression())
 
        # send zipcode data only to OHE and don't pass target through first branch
        model.add_edge_flow(n0, n11, passTarget=False, selectValue=['zipcode'], invert=False)
