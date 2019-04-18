@@ -542,6 +542,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         return terminal
 
     def process(self, dataset, node, method):
+        """
+        Evalute method through nodes that accept dataset inputs
+        """
         parents = tuple(self.predecessors(node))
         if parents:
             upstreams = [self.apply(parent, dataset, method) for parent in parents]
@@ -559,6 +562,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @fallback(node='terminal')
     def fit(self, X=None, y=None, dataset=None, node=None, clean=True):
         """
+        Fit graph to data
         """
         if clean:
             self.clean()
@@ -575,6 +579,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @fallback(node='terminal')
     def predict(self, X=None, y=None, node=None, dataset=None):
         """
+        Transform data and predict at termination of subcomponent
         """
         dataset = self.process(dataset, node, 'transform')
         predictions = self.node_exec(node).predict(dataset.designData)
@@ -584,6 +589,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @fallback(node='terminal')
     def predict_proba(self, X=None, y=None, node=None, dataset=None):
         """
+        Transform data and predict_proba at termination of subcomponent
         """
         dataset = self.process(dataset, node, 'transform')
         probas = self.node_exec(node).predict_proba(dataset.designData)
@@ -592,6 +598,9 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @data.package_dataset
     @fallback(node='terminal')
     def transform(self, X=None, y=None, dataset=None, node=None):
+        """
+        Transform data given through node given a fit subcomponent
+        """
         dataset = self.process(dataset, node, 'transform')
         transformed = self.node_exec(node).transform(dataset=dataset)
         return transformed
@@ -600,6 +609,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
     @fallback(node='terminal')
     def fit_transform(self, X=None, y=None, dataset=None, node=None, clean=True):
         """
+        Fit model to data and return the transform at the given node
         """
         if clean:
             self.clean()
@@ -608,6 +618,17 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         return transformed
 
     def apply(self, node, data, method):
+        """
+        Apply a method through the graph terminating at a node
+
+        Args:
+            node (str): name of terminal node
+            data (data.Dataset): data to process
+            method (str): string name of method to call through nodes
+
+        Returns:
+            data.Dataset: transformed data
+        """
         parents = tuple(self.predecessors(node))
         if parents:
             output = [access(self.edge_exec(parent, node), method=method,
@@ -630,11 +651,28 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         return information
 
     def add_node_transformer(self, node):
+        """
+        Add a node object to the graph referenceable by it's name
+
+        Args:
+            node (obj): node to add to the graph
+        """
         self._nodes.add(node)
         self.add_node(node.name, **{self.executor: node})
 
     @fallback('flow')
     def add_edge_flow(self, node_from, node_to, flow=None, **kwargs):
+        """
+        Add an edge to execution graph
+
+        Args:
+            node_from (str | obj): reference the source node by adding the node object\
+                    or the name of the existing object in the graph
+            node_to (str | obj): reference the sink node by adding the node object\
+                    or the name of the existing object in the graph
+            flow (obj): defaults to self's default - transformer for the edge
+            **kwargs: params to set of the flow obj
+        """
         flow = clone(flow)
         flow.set_params(**kwargs)
 
