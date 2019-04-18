@@ -47,7 +47,7 @@ to standard operating procedure in scikit-learn
 
 
 ModelDAG
-========
+--------
 
 While scikit-learn pipelines (and feature unions) are a great place to start, in my experience
 they have two flaws.

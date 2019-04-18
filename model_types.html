@@ -89,10 +89,8 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sculpture.html">Sculpture</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Model Types</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pipeline">Pipeline</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#modeldag">ModelDAG</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#pipeline">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modeldag">ModelDAG</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#line-graph">Line Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#branching-example">Branching Example</a></li>
 </ul>
@@ -199,8 +197,9 @@ to standard operating procedure in scikit-learn</p>
     <span class="k">return</span> <span class="n">sculpture</span>
 </pre></div>
 </div>
+</div>
 <div class="section" id="modeldag">
-<h3>ModelDAG<a class="headerlink" href="#modeldag" title="Permalink to this headline">¶</a></h3>
+<h2>ModelDAG<a class="headerlink" href="#modeldag" title="Permalink to this headline">¶</a></h2>
 <p>While scikit-learn pipelines (and feature unions) are a great place to start, in my experience
 they have two flaws.</p>
 <blockquote>
@@ -222,7 +221,6 @@ transformers or by creating new classes with the <a class="reference internal" h
 <p>A scikit-learn model can be replaced directly. Using a helper method to build the model
 provides a more digestable form. This next example is the same structure as building a standard
 scikit-learn pipeline</p>
-</div>
 </div>
 <div class="section" id="line-graph">
 <h2>Line Graph<a class="headerlink" href="#line-graph" title="Permalink to this headline">¶</a></h2>
