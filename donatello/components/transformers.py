@@ -504,7 +504,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         """
         Return object accessed by node name
 
-        Arg:
+        Args:
             node (hashable): node accessor
 
         Returns:
@@ -516,7 +516,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         """
         Return object accessed by edge
 
-        Arg:
+        Args:
             node_from (hashable): node accessor for originating node
             node_to (hashable): node accessor for terminating node
 
