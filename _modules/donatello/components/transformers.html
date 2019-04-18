@@ -678,6 +678,9 @@
         <span class="k">return</span> <span class="n">terminal</span>
 
 <div class="viewcode-block" id="ModelDAG.process"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evalute method through nodes that accept dataset inputs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
             <span class="n">upstreams</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span> <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">parents</span><span class="p">]</span>
@@ -695,6 +698,7 @@
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit graph to data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
@@ -711,6 +715,7 @@
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform data and predict at termination of subcomponent</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">)</span>
         <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">)</span>
@@ -720,6 +725,7 @@
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform data and predict_proba at termination of subcomponent</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">)</span>
         <span class="n">probas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">)</span>
@@ -728,6 +734,9 @@
 <div class="viewcode-block" id="ModelDAG.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transform data given through node given a fit subcomponent</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">)</span>
         <span class="n">transformed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node_exec</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">transformed</span></div>
@@ -736,6 +745,7 @@
     <span class="nd">@fallback</span><span class="p">(</span><span class="n">node</span><span class="o">=</span><span class="s1">&#39;terminal&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clean</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit model to data and return the transform at the given node</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">clean</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
@@ -744,6 +754,17 @@
         <span class="k">return</span> <span class="n">transformed</span></div>
 
 <div class="viewcode-block" id="ModelDAG.apply"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply a method through the graph terminating at a node</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (str): name of terminal node</span>
+<span class="sd">            data (data.Dataset): data to process</span>
+<span class="sd">            method (str): string name of method to call through nodes</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            data.Dataset: transformed data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parents</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predecessors</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">parents</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_exec</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">node</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
@@ -766,11 +787,28 @@
         <span class="k">return</span> <span class="n">information</span></div>
 
 <div class="viewcode-block" id="ModelDAG.add_node_transformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.add_node_transformer">[docs]</a>    <span class="k">def</span> <span class="nf">add_node_transformer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a node object to the graph referenceable by it&#39;s name</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node (obj): node to add to the graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="p">:</span> <span class="n">node</span><span class="p">})</span></div>
 
 <div class="viewcode-block" id="ModelDAG.add_edge_flow"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ModelDAG.add_edge_flow">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;flow&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">add_edge_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_from</span><span class="p">,</span> <span class="n">node_to</span><span class="p">,</span> <span class="n">flow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an edge to execution graph</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node_from (str | obj): reference the source node by adding the node object\</span>
+<span class="sd">                    or the name of the existing object in the graph</span>
+<span class="sd">            node_to (str | obj): reference the sink node by adding the node object\</span>
+<span class="sd">                    or the name of the existing object in the graph</span>
+<span class="sd">            flow (obj): defaults to self&#39;s default - transformer for the edge</span>
+<span class="sd">            **kwargs: params to set of the flow obj</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flow</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
         <span class="n">flow</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 

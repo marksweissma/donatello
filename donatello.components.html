@@ -184,7 +184,7 @@
 <p>Manager for model building and evaluating</p>
 <dl class="class">
 <dt id="donatello.components.core.Sculpture">
-<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_17_17_50</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_17_23_40</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></a></p>
 <p>Instance for model processing. Accessors will fallback to accessing from estimator attributes</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1328,47 +1328,97 @@ node_to (hashable): node accessor for terminating node</dd>
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.process">
 <code class="descname">process</code><span class="sig-paren">(</span><em>dataset</em>, <em>node</em>, <em>method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.process" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Evalute method through nodes that accept dataset inputs</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em>, <em>node=None</em>, <em>clean=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Fit graph to data</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>node=None</em>, <em>dataset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.predict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transform data and predict at termination of subcomponent</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>node=None</em>, <em>dataset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.predict_proba"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transform data and predict_proba at termination of subcomponent</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.transform">
 <code class="descname">transform</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em>, <em>node=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.transform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Transform data given through node given a fit subcomponent</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.fit_transform">
 <code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>dataset=None</em>, <em>node=None</em>, <em>clean=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.fit_transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.fit_transform" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Fit model to data and return the transform at the given node</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.apply">
 <code class="descname">apply</code><span class="sig-paren">(</span><em>node</em>, <em>data</em>, <em>method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.apply" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Apply a method through the graph terminating at a node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>node</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of terminal node</li>
+<li><strong>data</strong> (<a class="reference internal" href="#donatello.components.data.Dataset" title="donatello.components.data.Dataset"><em>data.Dataset</em></a>) – data to process</li>
+<li><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – string name of method to call through nodes</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">transformed data</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#donatello.components.data.Dataset" title="donatello.components.data.Dataset">data.Dataset</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.add_node_transformer">
 <code class="descname">add_node_transformer</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.add_node_transformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.add_node_transformer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Add a node object to the graph referenceable by it’s name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>obj</em>) – node to add to the graph</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="donatello.components.transformers.ModelDAG.add_edge_flow">
 <code class="descname">add_edge_flow</code><span class="sig-paren">(</span><em>node_from</em>, <em>node_to</em>, <em>flow=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.add_edge_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.add_edge_flow" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Add an edge to execution graph</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>node_from</strong> (<em>str | obj</em>) – reference the source node by adding the node object                    or the name of the existing object in the graph</li>
+<li><strong>node_to</strong> (<em>str | obj</em>) – reference the sink node by adding the node object                    or the name of the existing object in the graph</li>
+<li><strong>flow</strong> (<em>obj</em>) – defaults to self’s default - transformer for the edge</li>
+<li><strong>**kwargs</strong> – params to set of the flow obj</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
