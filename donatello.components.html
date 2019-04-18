@@ -184,7 +184,7 @@
 <p>Manager for model building and evaluating</p>
 <dl class="class">
 <dt id="donatello.components.core.Sculpture">
-<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_17_23_40</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">donatello.components.core.</code><code class="descname">Sculpture</code><span class="sig-paren">(</span><em>dataset=None</em>, <em>estimator=None</em>, <em>validation=True</em>, <em>holdout=False</em>, <em>entire=False</em>, <em>measure=Measure_2019_04_17_23_42</em>, <em>persist=&lt;function persist&gt;</em>, <em>metrics=None</em>, <em>storeReferences=True</em>, <em>writeAttrs=(''</em>, <em>'estimator')</em>, <em>timeFormat='%Y_%m_%d_%H_%M'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/core.html#Sculpture"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.core.Sculpture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="donatello.utils.html#donatello.utils.base.Dobject" title="donatello.utils.base.Dobject"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.utils.base.Dobject</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.base.BaseEstimator</span></code></a></p>
 <p>Instance for model processing. Accessors will fallback to accessing from estimator attributes</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1277,17 +1277,15 @@ component of a nested object.</p>
 <dt id="donatello.components.transformers.ModelDAG.node_exec">
 <code class="descname">node_exec</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.node_exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.node_exec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return object accessed by node name</p>
-<dl class="docutils">
-<dt>Arg:</dt>
-<dd>node (hashable): node accessor</dd>
-</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">(by default a Node)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> (<em>hashable</em>) – node accessor</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">obj</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(by default a Node)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">obj</td>
 </tr>
 </tbody>
 </table>
@@ -1297,18 +1295,21 @@ component of a nested object.</p>
 <dt id="donatello.components.transformers.ModelDAG.edge_exec">
 <code class="descname">edge_exec</code><span class="sig-paren">(</span><em>node_from</em>, <em>node_to</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/donatello/components/transformers.html#ModelDAG.edge_exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#donatello.components.transformers.ModelDAG.edge_exec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return object accessed by edge</p>
-<dl class="docutils">
-<dt>Arg:</dt>
-<dd>node_from (hashable): node accessor for originating node
-node_to (hashable): node accessor for terminating node</dd>
-</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">by default graph’s default flow</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>node_from</strong> (<em>hashable</em>) – node accessor for originating node</li>
+<li><strong>node_to</strong> (<em>hashable</em>) – node accessor for terminating node</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">obj</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">by default graph’s default flow</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">obj</p>
+</td>
 </tr>
 </tbody>
 </table>
