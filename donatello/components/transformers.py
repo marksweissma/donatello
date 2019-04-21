@@ -223,7 +223,7 @@ class DatasetFlow(BaseTransformer):
         return self.transform(dataset=dataset, *args, **kwargs)
 
 
-class ApplyTransformer(DatasetTransformer):
+class Apply(DatasetTransformer):
     """
     Apply a function during transform step on a dataset
 
@@ -250,7 +250,7 @@ class ApplyTransformer(DatasetTransformer):
         return output
 
 
-class AccessTransformer(DatasetTransformer):
+class Access(DatasetTransformer):
     """
     Unified transform only interface. Leverages donatello's
     data access protoal to apply transform. For more info
@@ -504,7 +504,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         """
         Return object accessed by node name
 
-        Arg:
+        Args:
             node (hashable): node accessor
 
         Returns:
@@ -516,7 +516,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         """
         Return object accessed by edge
 
-        Arg:
+        Args:
             node_from (hashable): node accessor for originating node
             node_to (hashable): node accessor for terminating node
 
