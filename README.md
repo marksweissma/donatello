@@ -11,7 +11,7 @@ For now:
 `pip install -i https://test.pypi.org/simple/ donatello`
 
 
-For walk through see notebooks, for interactice runnable examples see `donatello/examples`
+For walk through see notebooks, for interactive runnable examples in `donatello/examples` see simple, pipeline or line_graph intents.
 
 Docs via [github pages](https://marksweissma.github.io/donatello/)
 
