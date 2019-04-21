@@ -40,4 +40,4 @@ Questions, comments, feature requests please reach out!
 
 Author Note:
 This project was incepted as a way to learn about decorators (before starting I had never written one). While I've
-learned a lot through that process, some of the technical debt in this project is still an artifact of that motivation that lack of experience.
+learned a lot through that process, some of the technical debt in this project is still an artifact of that motivation and that lack of experience.
