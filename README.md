@@ -36,3 +36,8 @@ Components:
   4. The `Measure` objects are responsbile for evaluating models on unseen data, via `Metric` *functors* through cross validaiton and hold out scoring.
 
 Questions, comments, feature requests please reach out!
+
+
+Author Note:
+This project was incepted as a way to learn about decorators (before starting I had never written one). While I've
+learned a lot through that process, some of the technical debt in this project is still an artifact of that motivation that lack of experience.
