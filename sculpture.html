@@ -90,10 +90,8 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sculpture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#intent">Intent</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#dataset">Dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#estimator">Estimator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dataset">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#estimator">Estimator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#declaration">Declaration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fitting">Fitting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#evaluating">Evaluating</a></li>
@@ -238,9 +236,8 @@ to build evaluate and produce artifacts is specified during instantiation.</p>
 </pre></div>
 </div>
 </div>
-</div>
 <div class="section" id="dataset">
-<h1>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline">¶</a></h1>
+<h2>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline">¶</a></h2>
 <p>The dataset can be specifed through</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -251,7 +248,7 @@ to build evaluate and produce artifacts is specified during instantiation.</p>
 </div></blockquote>
 </div>
 <div class="section" id="estimator">
-<h1>Estimator<a class="headerlink" href="#estimator" title="Permalink to this headline">¶</a></h1>
+<h2>Estimator<a class="headerlink" href="#estimator" title="Permalink to this headline">¶</a></h2>
 <p>The estimator object requires a <code class="docutils literal notranslate"><span class="pre">model</span></code>, and a reference to the <code class="docutils literal notranslate"><span class="pre">method</span></code> of the model to call. Optionally
 a callback to transform the raw output can be supplied through the <code class="docutils literal notranslate"><span class="pre">scorer</span></code>. To enable hyperparameter tuning
 a parameter grid and search arguments can be supplied. Currently donatello only supports grid searching through
@@ -259,6 +256,7 @@ the scikit-learn API, which prevents searching over input datasets which are col
 functionality is built out it can be hacked around via <a class="reference internal" href="donatello.components.html#donatello.components.transformers.ModelDAG" title="donatello.components.transformers.ModelDAG"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.ModelDAG</span></code></a>
 and embedding a <code class="docutils literal notranslate"><span class="pre">Sculpture</span></code> as a node downstream of a node that combines the data. The <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> will manage
 the indexing to prevent leakage.</p>
+</div>
 <div class="section" id="declaration">
 <h2>Declaration<a class="headerlink" href="#declaration" title="Permalink to this headline">¶</a></h2>
 <p>Sculptures are declaratively defined modeling objects enabling
