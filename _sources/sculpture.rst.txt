@@ -131,7 +131,7 @@ Per scikit-learn Transformer pattern, fitting returns the object itslef
     grid searching
     grid searching
 
-    Building Over Cross Validation
+    Building Over Holdout
     grid searching
 
     Sculpture_2019_03_24_13_02
