@@ -223,7 +223,7 @@ class DatasetFlow(BaseTransformer):
         return self.transform(dataset=dataset, *args, **kwargs)
 
 
-class ApplyTransformer(DatasetTransformer):
+class Apply(DatasetTransformer):
     """
     Apply a function during transform step on a dataset
 
@@ -250,7 +250,7 @@ class ApplyTransformer(DatasetTransformer):
         return output
 
 
-class AccessTransformer(DatasetTransformer):
+class Access(DatasetTransformer):
     """
     Unified transform only interface. Leverages donatello's
     data access protoal to apply transform. For more info
