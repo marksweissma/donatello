@@ -238,11 +238,11 @@ and feature_importances from ensemble method
 
 
 The Threshold Rates Metric helps parameterize the binary confusion matrix
-by sampling scores from the held out data and evaluting the 
+by sampling scores from the held out data and evaluting the rate
 
 .. code:: python
 
-    sculpture.measurements.crossValidation.ThresholdRates.mean[['precision', 'recall']].loc[::5]
+    sculpture.measurements.crossValidation.ThresholdRates.mean.loc[::5]
 
 .. include:: tables/threshold_rates.rst
 

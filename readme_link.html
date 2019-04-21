@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quick Start &mdash; donatello 0.0.1 documentation</title>
+  <title>Readme File &mdash; donatello 0.0.1 documentation</title>
   
 
   
@@ -34,8 +34,8 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="Sculpture" href="sculpture.html"/>
-        <link rel="prev" title="Readme File" href="readme_link.html"/> 
+        <link rel="next" title="Quick Start" href="quickstart.html"/>
+        <link rel="prev" title="Welcome to donatello’s documentation!" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -86,12 +86,8 @@
             
                 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Readme File</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Readme File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sculpture.html">Sculpture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_types.html">Model Types</a></li>
 <li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
@@ -125,11 +121,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Quick Start</li>
+    <li>Readme File</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/readme_link.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -158,32 +154,36 @@
     margin-right: 4px;  /* make room for the exclamation icon */
 }
 </style>
-<div class="section" id="quick-start">
-<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="install">
-<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h2>
-<p>Donatello is available on pypi</p>
-<p>(currently test pypi until release)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -i https://test.pypi.org/simple/ donatello
+<div class="section" id="readme-file">
+<h1>Readme File<a class="headerlink" href="#readme-file" title="Permalink to this headline">¶</a></h1>
+<p>(.rst not .md)</p>
+<p>Note donatello is not officially released, there is a test wheel on <code class="docutils literal notranslate"><span class="pre">test.pypi.org</span></code>
+if you want to take a look. The core is intact and basic examples are all turn key</p>
+<p>The test wheel is only python 2 compatible. Python 3 compatibility (and tests) are in the works.
+Donatello will be py2/3 compatible upon official release to pypi.</p>
+<p>For now:</p>
+<p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-i</span> <span class="pre">https://test.pypi.org/simple/</span> <span class="pre">donatello</span></code></p>
+<p>For walk through see notebooks, for interactice runnable examples see <code class="docutils literal notranslate"><span class="pre">donatello/examples</span></code></p>
+<p>Docs via <a class="reference external" href="https://marksweissma.github.io/donatello/">github pages</a></p>
+<p>Donatello is a modeling framework designed to improve iteration speed of developemnt while bringing traceability and reproducibility
+without adding overhead to data scientist’s development time</p>
+<p>Donatello is comprised of <code class="docutils literal notranslate"><span class="pre">components</span></code> supported by a set of <code class="docutils literal notranslate"><span class="pre">utilities</span></code>.
+Components are the core, and utilities help manage the codebase and generic non-sevice oriented functionality.
+The <code class="docutils literal notranslate"><span class="pre">transformers</span></code> components support robust bindings between <code class="docutils literal notranslate"><span class="pre">pandas</span></code> and <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> for a range of applications from helping understand feature importances to enabling the DataFrame functionality that <code class="docutils literal notranslate"><span class="pre">numpy</span></code> does not support (well).</p>
+<p>Supported model types:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>#. Donatello comes with a DAG executor for building, managing, sharing, and reusing transformations, while supporting composibility throughout objects.
+#. Scikit-learn model objects (fit, predict/predict_proba) directly.
+#. Donatello has a light wrapper around scikit-learn&#39;s Pipeline to support the required metadata
 </pre></div>
 </div>
-<p>This guide starts with a simple classification problem and provides an introduction to donatello</p>
-<p>For learning more about how to build modeling graphs or more advanced &amp; power usage features
-see subsequent sections and notebooks</p>
-</div>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
-<p>Donatello has thre main components</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li><a class="reference internal" href="donatello.components.html#donatello.components.core.Sculpture" title="donatello.components.core.Sculpture"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.core.Sculpture</span></code></a></li>
-<li><a class="reference internal" href="donatello.components.html#donatello.components.data.Dataset" title="donatello.components.data.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.data.Dataset</span></code></a></li>
-<li><a class="reference internal" href="donatello.components.html#donatello.components.estimator.Estimator" title="donatello.components.estimator.Estimator"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.estimator.Estimator</span></code></a></li>
+<p>Components:</p>
+<ol class="arabic simple">
+<li>The <code class="docutils literal notranslate"><span class="pre">Scuplpture</span></code> object coordinates data access, fitting, cross validating, measuring, and persisting.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">Estimator</span></code> objects encapsulate the transformation process for the expected requirements to serve and the fitting/predicting/scoring of ML algorithims.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">Data</span></code> objects are responsible for subsetting, storing, and giving data access.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">Measure</span></code> objects are responsbile for evaluating models on unseen data, via <code class="docutils literal notranslate"><span class="pre">Metric</span></code> <em>functors</em> through cross validaiton and hold out scoring.</li>
 </ol>
-</div></blockquote>
-<p>These components leverage other components and the supporting utilties which
-can be altered or redefined as needed.</p>
-</div>
+<p>Questions, comments, feature requests please reach out!</p>
 </div>
 
 
@@ -193,10 +193,10 @@ can be altered or redefined as needed.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sculpture.html" class="btn btn-neutral float-right" title="Sculpture" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="readme_link.html" class="btn btn-neutral" title="Readme File" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Welcome to donatello’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

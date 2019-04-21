@@ -85,6 +85,7 @@
             
                 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme_link.html">Readme File</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../sculpture.html">Sculpture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_types.html">Model Types</a></li>
@@ -359,7 +360,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="ApplyTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ApplyTransformer">[docs]</a><span class="k">class</span> <span class="nc">ApplyTransformer</span><span class="p">(</span><span class="n">DatasetTransformer</span><span class="p">):</span>
+<div class="viewcode-block" id="Apply"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Apply">[docs]</a><span class="k">class</span> <span class="nc">Apply</span><span class="p">(</span><span class="n">DatasetTransformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply a function during transform step on a dataset</span>
 
@@ -372,7 +373,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="o">=</span> <span class="n">fitOnly</span>
 
-<div class="viewcode-block" id="ApplyTransformer.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.ApplyTransformer.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+<div class="viewcode-block" id="Apply.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Apply.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -386,7 +387,7 @@
         <span class="k">return</span> <span class="n">output</span></div></div>
 
 
-<div class="viewcode-block" id="AccessTransformer"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.AccessTransformer">[docs]</a><span class="k">class</span> <span class="nc">AccessTransformer</span><span class="p">(</span><span class="n">DatasetTransformer</span><span class="p">):</span>
+<div class="viewcode-block" id="Access"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Access">[docs]</a><span class="k">class</span> <span class="nc">Access</span><span class="p">(</span><span class="n">DatasetTransformer</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Unified transform only interface. Leverages donatello&#39;s</span>
 <span class="sd">    data access protoal to apply transform. For more info</span>
@@ -405,7 +406,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">datasetDap</span> <span class="o">=</span> <span class="n">datasetDap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fitOnly</span> <span class="o">=</span> <span class="n">fitOnly</span>
 
-<div class="viewcode-block" id="AccessTransformer.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.AccessTransformer.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
+<div class="viewcode-block" id="Access.transform"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.transformers.Access.transform">[docs]</a>    <span class="nd">@data</span><span class="o">.</span><span class="n">package_dataset</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">extract_features</span>
     <span class="nd">@data</span><span class="o">.</span><span class="n">enforce_dataset</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
