@@ -102,7 +102,7 @@ def select_data_type(X, **kwargs):
 
 def select_regex(X, patterns):
     """
-    Select columns from X through matching any :py:func:`re.match`
+    Select columns from X through matching any :py:func:`re.search`
     pattern in patterns
     kwargs are keyword arguments for the method
 

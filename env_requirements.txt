@@ -1,4 +1,5 @@
 -r package_requirements.txt
 ipython
 pytest
+m2r
 ipdb

@@ -10,6 +10,7 @@ Welcome to donatello's documentation!
    :maxdepth: 6
    :caption: Contents:
 
+   readme_link
    quickstart
    sculpture
    model_types
