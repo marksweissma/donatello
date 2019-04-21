@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>&lt;no title&gt; &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../model_types.html">Model Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tables/threshold_rates.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="6%" />
+<col width="5%" />
+<col width="7%" />
+<col width="11%" />
+<col width="14%" />
+<col width="4%" />
+<col width="5%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">level</th>
+<th class="head">true_negative</th>
+<th class="head">false_positive</th>
+<th class="head">false_negative</th>
+<th class="head">true_positive</th>
+<th class="head">precision</th>
+<th class="head">recall</th>
+<th class="head">specificity</th>
+<th class="head">false_omission_rate</th>
+<th class="head">negative_predictive_value</th>
+<th class="head">f1</th>
+<th class="head">fall_out</th>
+<th class="head">false_discovery_rate</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.62653e-49</td>
+<td>0.0021978</td>
+<td>0.369231</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.629792</td>
+<td>1</td>
+<td>0.00487805</td>
+<td>0</td>
+<td>1</td>
+<td>0.772104</td>
+<td>0.995122</td>
+<td>0.370208</td>
+</tr>
+<tr class="row-odd"><td>3.44249e-11</td>
+<td>0.0505495</td>
+<td>0.320879</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.661888</td>
+<td>1</td>
+<td>0.131573</td>
+<td>0</td>
+<td>1</td>
+<td>0.795977</td>
+<td>0.868427</td>
+<td>0.338112</td>
+</tr>
+<tr class="row-even"><td>1.57928e-08</td>
+<td>0.101099</td>
+<td>0.27033</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.69928</td>
+<td>1</td>
+<td>0.272972</td>
+<td>0</td>
+<td>1</td>
+<td>0.822214</td>
+<td>0.727028</td>
+<td>0.30072</td>
+</tr>
+<tr class="row-odd"><td>5.87704e-06</td>
+<td>0.151648</td>
+<td>0.21978</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.741465</td>
+<td>1</td>
+<td>0.411062</td>
+<td>0</td>
+<td>1</td>
+<td>0.850511</td>
+<td>0.588938</td>
+<td>0.258535</td>
+</tr>
+<tr class="row-even"><td>0.000442699</td>
+<td>0.2</td>
+<td>0.171429</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.786078</td>
+<td>1</td>
+<td>0.54011</td>
+<td>0</td>
+<td>1</td>
+<td>0.879376</td>
+<td>0.45989</td>
+<td>0.213922</td>
+</tr>
+<tr class="row-odd"><td>0.00382399</td>
+<td>0.250549</td>
+<td>0.120879</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.839318</td>
+<td>1</td>
+<td>0.675824</td>
+<td>0</td>
+<td>1</td>
+<td>0.911851</td>
+<td>0.324176</td>
+<td>0.160682</td>
+</tr>
+<tr class="row-even"><td>0.0975063</td>
+<td>0.296703</td>
+<td>0.0747253</td>
+<td>0.0043956</td>
+<td>0.624176</td>
+<td>0.895883</td>
+<td>0.993331</td>
+<td>0.794825</td>
+<td>0.01625</td>
+<td>0.98375</td>
+<td>0.941301</td>
+<td>0.205175</td>
+<td>0.104117</td>
+</tr>
+<tr class="row-odd"><td>0.401456</td>
+<td>0.331868</td>
+<td>0.0395604</td>
+<td>0.0175824</td>
+<td>0.610989</td>
+<td>0.942478</td>
+<td>0.971273</td>
+<td>0.88973</td>
+<td>0.0481622</td>
+<td>0.951838</td>
+<td>0.955813</td>
+<td>0.11027</td>
+<td>0.0575218</td>
+</tr>
+<tr class="row-even"><td>0.819738</td>
+<td>0.362637</td>
+<td>0.00879121</td>
+<td>0.0373626</td>
+<td>0.591209</td>
+<td>0.985902</td>
+<td>0.93964</td>
+<td>0.975319</td>
+<td>0.0918333</td>
+<td>0.908167</td>
+<td>0.961882</td>
+<td>0.0246814</td>
+<td>0.0140977</td>
+</tr>
+<tr class="row-odd"><td>0.904527</td>
+<td>0.367033</td>
+<td>0.0043956</td>
+<td>0.0835165</td>
+<td>0.545055</td>
+<td>0.99259</td>
+<td>0.864397</td>
+<td>0.987868</td>
+<td>0.180897</td>
+<td>0.819103</td>
+<td>0.922718</td>
+<td>0.0121324</td>
+<td>0.00740995</td>
+</tr>
+<tr class="row-even"><td>0.946996</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.131868</td>
+<td>0.496703</td>
+<td>0.996154</td>
+<td>0.786247</td>
+<td>0.994118</td>
+<td>0.257418</td>
+<td>0.742582</td>
+<td>0.875994</td>
+<td>0.00588235</td>
+<td>0.00384615</td>
+</tr>
+<tr class="row-odd"><td>0.978512</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.18022</td>
+<td>0.448352</td>
+<td>0.996</td>
+<td>0.709326</td>
+<td>0.994118</td>
+<td>0.320038</td>
+<td>0.679962</td>
+<td>0.823386</td>
+<td>0.00588235</td>
+<td>0.004</td>
+</tr>
+<tr class="row-even"><td>0.984869</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.230769</td>
+<td>0.397802</td>
+<td>0.995652</td>
+<td>0.630941</td>
+<td>0.994118</td>
+<td>0.378845</td>
+<td>0.621155</td>
+<td>0.766867</td>
+<td>0.00588235</td>
+<td>0.00434783</td>
+</tr>
+<tr class="row-odd"><td>0.991128</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.281319</td>
+<td>0.347253</td>
+<td>0.994872</td>
+<td>0.5517</td>
+<td>0.994118</td>
+<td>0.430561</td>
+<td>0.569439</td>
+<td>0.706024</td>
+<td>0.00588235</td>
+<td>0.00512821</td>
+</tr>
+<tr class="row-even"><td>0.994368</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.327473</td>
+<td>0.301099</td>
+<td>1</td>
+<td>0.477692</td>
+<td>1</td>
+<td>0.469047</td>
+<td>0.530953</td>
+<td>0.644864</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>0.99614</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.378022</td>
+<td>0.250549</td>
+<td>1</td>
+<td>0.397381</td>
+<td>1</td>
+<td>0.505334</td>
+<td>0.494666</td>
+<td>0.567743</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>0.998057</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.428571</td>
+<td>0.2</td>
+<td>1</td>
+<td>0.317077</td>
+<td>1</td>
+<td>0.536313</td>
+<td>0.463687</td>
+<td>0.479749</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>0.998623</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.476923</td>
+<td>0.151648</td>
+<td>1</td>
+<td>0.241591</td>
+<td>1</td>
+<td>0.562464</td>
+<td>0.437536</td>
+<td>0.388608</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>0.999328</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.527473</td>
+<td>0.101099</td>
+<td>1</td>
+<td>0.161605</td>
+<td>1</td>
+<td>0.586663</td>
+<td>0.413337</td>
+<td>0.277306</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>0.999644</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.578022</td>
+<td>0.0505495</td>
+<td>1</td>
+<td>0.0808181</td>
+<td>1</td>
+<td>0.608754</td>
+<td>0.391246</td>
+<td>0.148987</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>0.999998</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0</td>
+<td>nan</td>
+<td>0</td>
+<td>1</td>
+<td>0.628571</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0</td>
+<td>nan</td>
+</tr>
+</tbody>
+</table>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

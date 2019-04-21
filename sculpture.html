@@ -335,336 +335,471 @@ into a flat table</p>
 <span class="n">helpers</span><span class="o">.</span><span class="n">view_sk_metric</span><span class="p">(</span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">average_precision_score</span><span class="p">)</span>
 </pre></div>
 </div>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>mean</th>
-      <td>0.994795</td>
-    </tr>
-    <tr>
-      <th>std</th>
-      <td>0.003311</td>
-    </tr>
-  </tbody>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">agg</th>
+<th class="head">score</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>mean</td>
+<td>0.994795</td>
+</tr>
+<tr class="row-odd"><td>std</td>
+<td>0.00331069</td>
+</tr>
+</tbody>
 </table>
-</div><p>The feature weights metric is a short cut to pulling coefficients for glms
+<p>The feature weights metric is a short cut to pulling coefficients for glms
 and feature_importances from ensemble method</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">feature_weights</span><span class="o">.</span><span class="n">mean</span>
 </pre></div>
 </div>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>coefficients</th>
-    </tr>
-    <tr>
-      <th>names</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>worst concavity</th>
-      <td>-1.266728</td>
-    </tr>
-    <tr>
-      <th>worst compactness</th>
-      <td>-0.841691</td>
-    </tr>
-    <tr>
-      <th>mean concavity</th>
-      <td>-0.465869</td>
-    </tr>
-    <tr>
-      <th>worst concave points</th>
-      <td>-0.459076</td>
-    </tr>
-    <tr>
-      <th>worst texture</th>
-      <td>-0.372945</td>
-    </tr>
-    <tr>
-      <th>worst symmetry</th>
-      <td>-0.287106</td>
-    </tr>
-    <tr>
-      <th>mean compactness</th>
-      <td>-0.275708</td>
-    </tr>
-    <tr>
-      <th>mean concave points</th>
-      <td>-0.226367</td>
-    </tr>
-    <tr>
-      <th>worst smoothness</th>
-      <td>-0.201951</td>
-    </tr>
-    <tr>
-      <th>worst perimeter</th>
-      <td>-0.176177</td>
-    </tr>
-    <tr>
-      <th>mean symmetry</th>
-      <td>-0.108250</td>
-    </tr>
-    <tr>
-      <th>area error</th>
-      <td>-0.096981</td>
-    </tr>
-    <tr>
-      <th>mean smoothness</th>
-      <td>-0.094524</td>
-    </tr>
-    <tr>
-      <th>worst fractal dimension</th>
-      <td>-0.081174</td>
-    </tr>
-    <tr>
-      <th>concavity error</th>
-      <td>-0.070118</td>
-    </tr>
-    <tr>
-      <th>concave points error</th>
-      <td>-0.029708</td>
-    </tr>
-    <tr>
-      <th>worst area</th>
-      <td>-0.021795</td>
-    </tr>
-    <tr>
-      <th>smoothness error</th>
-      <td>-0.013807</td>
-    </tr>
-    <tr>
-      <th>compactness error</th>
-      <td>-0.011120</td>
-    </tr>
-    <tr>
-      <th>mean fractal dimension</th>
-      <td>-0.009681</td>
-    </tr>
-    <tr>
-      <th>mean area</th>
-      <td>-0.009288</td>
-    </tr>
-    <tr>
-      <th>symmetry error</th>
-      <td>-0.003870</td>
-    </tr>
-    <tr>
-      <th>fractal dimension error</th>
-      <td>0.001776</td>
-    </tr>
-    <tr>
-      <th>radius error</th>
-      <td>0.044685</td>
-    </tr>
-    <tr>
-      <th>mean perimeter</th>
-      <td>0.078273</td>
-    </tr>
-    <tr>
-      <th>mean texture</th>
-      <td>0.138544</td>
-    </tr>
-    <tr>
-      <th>perimeter error</th>
-      <td>0.269350</td>
-    </tr>
-    <tr>
-      <th>intercept_</th>
-      <td>0.326572</td>
-    </tr>
-    <tr>
-      <th>texture error</th>
-      <td>1.225060</td>
-    </tr>
-    <tr>
-      <th>worst radius</th>
-      <td>1.362734</td>
-    </tr>
-    <tr>
-      <th>mean radius</th>
-      <td>1.558584</td>
-    </tr>
-  </tbody>
+<table border="1" class="docutils">
+<colgroup>
+<col width="62%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">feature</th>
+<th class="head">coefficients</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>worst concavity</td>
+<td>-1.27781</td>
+</tr>
+<tr class="row-odd"><td>worst compactness</td>
+<td>-0.838895</td>
+</tr>
+<tr class="row-even"><td>mean concavity</td>
+<td>-0.46892</td>
+</tr>
+<tr class="row-odd"><td>worst concave points</td>
+<td>-0.468785</td>
+</tr>
+<tr class="row-even"><td>worst texture</td>
+<td>-0.370863</td>
+</tr>
+<tr class="row-odd"><td>worst symmetry</td>
+<td>-0.296714</td>
+</tr>
+<tr class="row-even"><td>mean compactness</td>
+<td>-0.275822</td>
+</tr>
+<tr class="row-odd"><td>mean concave points</td>
+<td>-0.230538</td>
+</tr>
+<tr class="row-even"><td>worst smoothness</td>
+<td>-0.207517</td>
+</tr>
+<tr class="row-odd"><td>worst perimeter</td>
+<td>-0.171264</td>
+</tr>
+<tr class="row-even"><td>mean symmetry</td>
+<td>-0.114836</td>
+</tr>
+<tr class="row-odd"><td>mean smoothness</td>
+<td>-0.097519</td>
+</tr>
+<tr class="row-even"><td>area error</td>
+<td>-0.0964616</td>
+</tr>
+<tr class="row-odd"><td>worst fractal dimension</td>
+<td>-0.0806453</td>
+</tr>
+<tr class="row-even"><td>concavity error</td>
+<td>-0.0680082</td>
+</tr>
+<tr class="row-odd"><td>concave points error</td>
+<td>-0.030189</td>
+</tr>
+<tr class="row-even"><td>worst area</td>
+<td>-0.0219932</td>
+</tr>
+<tr class="row-odd"><td>smoothness error</td>
+<td>-0.0140891</td>
+</tr>
+<tr class="row-even"><td>mean fractal dimension</td>
+<td>-0.00934911</td>
+</tr>
+<tr class="row-odd"><td>mean area</td>
+<td>-0.00889501</td>
+</tr>
+<tr class="row-even"><td>compactness error</td>
+<td>-0.0071659</td>
+</tr>
+<tr class="row-odd"><td>symmetry error</td>
+<td>-0.00352578</td>
+</tr>
+<tr class="row-even"><td>fractal dimension error</td>
+<td>0.00262233</td>
+</tr>
+<tr class="row-odd"><td>radius error</td>
+<td>0.0444126</td>
+</tr>
+<tr class="row-even"><td>mean perimeter</td>
+<td>0.0730669</td>
+</tr>
+<tr class="row-odd"><td>mean texture</td>
+<td>0.135231</td>
+</tr>
+<tr class="row-even"><td>perimeter error</td>
+<td>0.264993</td>
+</tr>
+<tr class="row-odd"><td><a href="#id1"><span class="problematic" id="id2">intercept_</span></a></td>
+<td>0.331861</td>
+</tr>
+<tr class="row-even"><td>texture error</td>
+<td>1.24116</td>
+</tr>
+<tr class="row-odd"><td>worst radius</td>
+<td>1.3571</td>
+</tr>
+<tr class="row-even"><td>mean radius</td>
+<td>1.55504</td>
+</tr>
+</tbody>
 </table>
-</div><p>The Threshold Rates Metric helps parameterize the binary confusion matrix
+<p>The Threshold Rates Metric helps parameterize the binary confusion matrix
 by sampling scores from the held out data and evaluting the</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">ThresholdRates</span><span class="o">.</span><span class="n">mean</span><span class="p">[[</span><span class="s1">&#39;precision&#39;</span><span class="p">,</span> <span class="s1">&#39;recall&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">loc</span><span class="p">[::</span><span class="mi">5</span><span class="p">]</span>
 </pre></div>
 </div>
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>precision</th>
-      <th>recall</th>
-    </tr>
-    <tr>
-      <th>points</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>1.612093e-49</th>
-      <td>0.629792</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>2.911910e-11</th>
-      <td>0.661888</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>1.498740e-08</th>
-      <td>0.699280</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>5.683305e-06</th>
-      <td>0.741465</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>4.253043e-04</th>
-      <td>0.786078</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>3.806747e-03</th>
-      <td>0.839318</td>
-      <td>1.000000</td>
-    </tr>
-    <tr>
-      <th>9.748648e-02</th>
-      <td>0.895883</td>
-      <td>0.993331</td>
-    </tr>
-    <tr>
-      <th>4.145121e-01</th>
-      <td>0.942478</td>
-      <td>0.971273</td>
-    </tr>
-    <tr>
-      <th>8.199383e-01</th>
-      <td>0.985902</td>
-      <td>0.939640</td>
-    </tr>
-    <tr>
-      <th>9.046890e-01</th>
-      <td>0.992590</td>
-      <td>0.864397</td>
-    </tr>
-    <tr>
-      <th>9.464445e-01</th>
-      <td>0.996154</td>
-      <td>0.786247</td>
-    </tr>
-    <tr>
-      <th>9.787446e-01</th>
-      <td>0.996000</td>
-      <td>0.709326</td>
-    </tr>
-    <tr>
-      <th>9.851476e-01</th>
-      <td>0.995652</td>
-      <td>0.630941</td>
-    </tr>
-    <tr>
-      <th>9.912757e-01</th>
-      <td>0.994872</td>
-      <td>0.551700</td>
-    </tr>
-    <tr>
-      <th>9.944655e-01</th>
-      <td>1.000000</td>
-      <td>0.477573</td>
-    </tr>
-    <tr>
-      <th>9.961186e-01</th>
-      <td>1.000000</td>
-      <td>0.397381</td>
-    </tr>
-    <tr>
-      <th>9.981246e-01</th>
-      <td>1.000000</td>
-      <td>0.317077</td>
-    </tr>
-    <tr>
-      <th>9.987119e-01</th>
-      <td>1.000000</td>
-      <td>0.241480</td>
-    </tr>
-    <tr>
-      <th>9.993354e-01</th>
-      <td>1.000000</td>
-      <td>0.161605</td>
-    </tr>
-    <tr>
-      <th>9.996519e-01</th>
-      <td>1.000000</td>
-      <td>0.080097</td>
-    </tr>
-    <tr>
-      <th>9.999980e-01</th>
-      <td>NaN</td>
-      <td>0.000000</td>
-    </tr>
-  </tbody>
+<table border="1" class="docutils">
+<colgroup>
+<col width="6%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="6%" />
+<col width="5%" />
+<col width="7%" />
+<col width="11%" />
+<col width="14%" />
+<col width="4%" />
+<col width="5%" />
+<col width="11%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">level</th>
+<th class="head">true_negative</th>
+<th class="head">false_positive</th>
+<th class="head">false_negative</th>
+<th class="head">true_positive</th>
+<th class="head">precision</th>
+<th class="head">recall</th>
+<th class="head">specificity</th>
+<th class="head">false_omission_rate</th>
+<th class="head">negative_predictive_value</th>
+<th class="head">f1</th>
+<th class="head">fall_out</th>
+<th class="head">false_discovery_rate</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>1.62653e-49</td>
+<td>0.0021978</td>
+<td>0.369231</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.629792</td>
+<td>1</td>
+<td>0.00487805</td>
+<td>0</td>
+<td>1</td>
+<td>0.772104</td>
+<td>0.995122</td>
+<td>0.370208</td>
+</tr>
+<tr class="row-odd"><td>3.44249e-11</td>
+<td>0.0505495</td>
+<td>0.320879</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.661888</td>
+<td>1</td>
+<td>0.131573</td>
+<td>0</td>
+<td>1</td>
+<td>0.795977</td>
+<td>0.868427</td>
+<td>0.338112</td>
+</tr>
+<tr class="row-even"><td>1.57928e-08</td>
+<td>0.101099</td>
+<td>0.27033</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.69928</td>
+<td>1</td>
+<td>0.272972</td>
+<td>0</td>
+<td>1</td>
+<td>0.822214</td>
+<td>0.727028</td>
+<td>0.30072</td>
+</tr>
+<tr class="row-odd"><td>5.87704e-06</td>
+<td>0.151648</td>
+<td>0.21978</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.741465</td>
+<td>1</td>
+<td>0.411062</td>
+<td>0</td>
+<td>1</td>
+<td>0.850511</td>
+<td>0.588938</td>
+<td>0.258535</td>
+</tr>
+<tr class="row-even"><td>0.000442699</td>
+<td>0.2</td>
+<td>0.171429</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.786078</td>
+<td>1</td>
+<td>0.54011</td>
+<td>0</td>
+<td>1</td>
+<td>0.879376</td>
+<td>0.45989</td>
+<td>0.213922</td>
+</tr>
+<tr class="row-odd"><td>0.00382399</td>
+<td>0.250549</td>
+<td>0.120879</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0.839318</td>
+<td>1</td>
+<td>0.675824</td>
+<td>0</td>
+<td>1</td>
+<td>0.911851</td>
+<td>0.324176</td>
+<td>0.160682</td>
+</tr>
+<tr class="row-even"><td>0.0975063</td>
+<td>0.296703</td>
+<td>0.0747253</td>
+<td>0.0043956</td>
+<td>0.624176</td>
+<td>0.895883</td>
+<td>0.993331</td>
+<td>0.794825</td>
+<td>0.01625</td>
+<td>0.98375</td>
+<td>0.941301</td>
+<td>0.205175</td>
+<td>0.104117</td>
+</tr>
+<tr class="row-odd"><td>0.401456</td>
+<td>0.331868</td>
+<td>0.0395604</td>
+<td>0.0175824</td>
+<td>0.610989</td>
+<td>0.942478</td>
+<td>0.971273</td>
+<td>0.88973</td>
+<td>0.0481622</td>
+<td>0.951838</td>
+<td>0.955813</td>
+<td>0.11027</td>
+<td>0.0575218</td>
+</tr>
+<tr class="row-even"><td>0.819738</td>
+<td>0.362637</td>
+<td>0.00879121</td>
+<td>0.0373626</td>
+<td>0.591209</td>
+<td>0.985902</td>
+<td>0.93964</td>
+<td>0.975319</td>
+<td>0.0918333</td>
+<td>0.908167</td>
+<td>0.961882</td>
+<td>0.0246814</td>
+<td>0.0140977</td>
+</tr>
+<tr class="row-odd"><td>0.904527</td>
+<td>0.367033</td>
+<td>0.0043956</td>
+<td>0.0835165</td>
+<td>0.545055</td>
+<td>0.99259</td>
+<td>0.864397</td>
+<td>0.987868</td>
+<td>0.180897</td>
+<td>0.819103</td>
+<td>0.922718</td>
+<td>0.0121324</td>
+<td>0.00740995</td>
+</tr>
+<tr class="row-even"><td>0.946996</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.131868</td>
+<td>0.496703</td>
+<td>0.996154</td>
+<td>0.786247</td>
+<td>0.994118</td>
+<td>0.257418</td>
+<td>0.742582</td>
+<td>0.875994</td>
+<td>0.00588235</td>
+<td>0.00384615</td>
+</tr>
+<tr class="row-odd"><td>0.978512</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.18022</td>
+<td>0.448352</td>
+<td>0.996</td>
+<td>0.709326</td>
+<td>0.994118</td>
+<td>0.320038</td>
+<td>0.679962</td>
+<td>0.823386</td>
+<td>0.00588235</td>
+<td>0.004</td>
+</tr>
+<tr class="row-even"><td>0.984869</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.230769</td>
+<td>0.397802</td>
+<td>0.995652</td>
+<td>0.630941</td>
+<td>0.994118</td>
+<td>0.378845</td>
+<td>0.621155</td>
+<td>0.766867</td>
+<td>0.00588235</td>
+<td>0.00434783</td>
+</tr>
+<tr class="row-odd"><td>0.991128</td>
+<td>0.369231</td>
+<td>0.0021978</td>
+<td>0.281319</td>
+<td>0.347253</td>
+<td>0.994872</td>
+<td>0.5517</td>
+<td>0.994118</td>
+<td>0.430561</td>
+<td>0.569439</td>
+<td>0.706024</td>
+<td>0.00588235</td>
+<td>0.00512821</td>
+</tr>
+<tr class="row-even"><td>0.994368</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.327473</td>
+<td>0.301099</td>
+<td>1</td>
+<td>0.477692</td>
+<td>1</td>
+<td>0.469047</td>
+<td>0.530953</td>
+<td>0.644864</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>0.99614</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.378022</td>
+<td>0.250549</td>
+<td>1</td>
+<td>0.397381</td>
+<td>1</td>
+<td>0.505334</td>
+<td>0.494666</td>
+<td>0.567743</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>0.998057</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.428571</td>
+<td>0.2</td>
+<td>1</td>
+<td>0.317077</td>
+<td>1</td>
+<td>0.536313</td>
+<td>0.463687</td>
+<td>0.479749</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>0.998623</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.476923</td>
+<td>0.151648</td>
+<td>1</td>
+<td>0.241591</td>
+<td>1</td>
+<td>0.562464</td>
+<td>0.437536</td>
+<td>0.388608</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>0.999328</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.527473</td>
+<td>0.101099</td>
+<td>1</td>
+<td>0.161605</td>
+<td>1</td>
+<td>0.586663</td>
+<td>0.413337</td>
+<td>0.277306</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>0.999644</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.578022</td>
+<td>0.0505495</td>
+<td>1</td>
+<td>0.0808181</td>
+<td>1</td>
+<td>0.608754</td>
+<td>0.391246</td>
+<td>0.148987</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>0.999998</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0.628571</td>
+<td>0</td>
+<td>nan</td>
+<td>0</td>
+<td>1</td>
+<td>0.628571</td>
+<td>0.371429</td>
+<td>0</td>
+<td>0</td>
+<td>nan</td>
+</tr>
+</tbody>
 </table>
-</div></div>
+</div>
 <div class="section" id="persisting">
 <h2>Persisting<a class="headerlink" href="#persisting" title="Permalink to this headline">¶</a></h2>
 <p>Donatello produces artifacts to enable traceability and distribution.
