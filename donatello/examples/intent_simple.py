@@ -18,20 +18,22 @@ def load_sklearn_bc_dataset():
     Helper to load sklearn dataset into a pandas dataframe
 
     Returns:
-        pd.DataFrame: X and y combined
+        tuple(pd.DataFrame, pd.Series): X and y
     """
     dataset = load_breast_cancer()
-    df = pd.DataFrame(data=pd.np.c_[dataset['data'], dataset['target']],
-                      columns=(dataset['feature_names'].tolist() + ['is_malignant'])
-                      )
-    return df
+    X = pd.DataFrame(data=pd.np.c_[dataset['data'], ],
+                     columns=(dataset['feature_names'].tolist())
+                     )
+    y = pd.Series(dataset['target'], name='is_malignant')
+    return X, y
 
 
 def load_sculpture():
     """
     Helper to load sculpture
     """
-    dataset = Dataset(raw=load_sklearn_bc_dataset(), target='is_malignant')
+    X, y = load_sklearn_bc_dataset()
+    dataset = Dataset(X=X, y=y)
 
     estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': list(pd.np.logspace(-2, 0, 5))},
