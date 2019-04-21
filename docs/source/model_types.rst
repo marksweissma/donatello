@@ -47,7 +47,7 @@ to standard operating procedure in scikit-learn
 
 
 ModelDAG
-========
+--------
 
 While scikit-learn pipelines (and feature unions) are a great place to start, in my experience
 they have two flaws.
@@ -88,7 +88,7 @@ Line Graph
 	 
 	  # initialize Nodes
 	  n1 = transformers.Node('scale', transformers.StandardScaler(), enforceTarget=True)
-	  n2 = transformers.Node('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
+	  n2 = transformers.Node('rm_outliers', transformers.Apply(func=transform, fitOnly=True))
 	  n3 = transformers.Node('ml', LinearRegression())
 
 	  # Add nodes to graph by declaring edges
@@ -147,7 +147,7 @@ This example shows a graph which
        
        # second branch (scale non ohe data, and remove outliers)
        n21 = transformers.Node('scale', transformers.StandardScaler(), enforceTarget=True)
-       n22 = transformers.Node('rm_outliers', transformers.ApplyTransformer(func=transform, fitOnly=True))
+       n22 = transformers.Node('rm_outliers', transformers.Apply(func=transform, fitOnly=True))
        
        # terminal node for predicting
        n3 = transformers.Node('ml', LinearRegression())
