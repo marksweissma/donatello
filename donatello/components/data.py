@@ -47,11 +47,11 @@ class Fold(Dobject):
         dap (str): option add runtime kwargs to folding and split (i.e. groups)
     """
     @init_time
-    @coelesce(dap={})
+    @coelesce(dap={}, dataMap={})
     def __init__(self, target=None, primaryKey=None,
                  scoreClay=None, foldClay=None,
                  splitDispatch=TYPEDISPATCH, kwargDispatch=KWARGDISPATCH,
-                 dap=None
+                 dap=None, dataMap=None
                  ):
 
         self.target = target
@@ -60,6 +60,7 @@ class Fold(Dobject):
         self.foldClay = foldClay
         self.folder = splitDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
         self.dap = dap
+        self.dataMap = dataMap 
 
     @fallback('target', 'primaryKey', 'dap')
     def fit(self, dataset=None, target=None, primaryKey=None, dap=None, **kwargs):
@@ -113,7 +114,6 @@ class Fold(Dobject):
     def split(self, X, y=None, groups=None, **kwargs):
         kwargs.update({key: access(X, **value) for key, value in self.dap.items()}
                       if self.dap else {})
-        # [kwargs.update({i: j}) for i, j in zip(['X', 'y', 'groups'], [X, y, groups]) if j is not None]
         [kwargs.update({i: j}) for i, j in zip(['X', 'y', 'groups'], [X, y, groups])]
 
         return self.folder.split(**kwargs)
@@ -135,8 +135,10 @@ class Fold(Dobject):
         def _wrap_split(key, data, train, test):
             _trainMask, _testMask = self._build_masks(
                 data, self.dataMap.get(key, None), train=train, test=test)
-            _designTrain[key], _designTest[key] = self._split(data, _trainMask, testMask)
-            return _designTrain[key], _designTest[key]
+
+            train, test = self._split(data, _trainMask, _testMask)
+
+            return train, test
 
         self.fit(dataset) if not hasattr(self, 'ids') else None
 
@@ -146,16 +148,13 @@ class Fold(Dobject):
 
             designTrain, designTest = self._split(df, trainMask, testMask, target)
 
-            _designTrain = {self.primaryKey: designTrain}
-            _designTest = {self.primaryKey: designTest}
-
             if isinstance(dataset.data, dict):
-                for key, data in self.data.items():
-                    if key != self.primaryKey:
-                        _designTrain[key], _designTest[key] = _wrap_split(key, data, train, test)
-
-            designTrain = _designTrain if None not in _designTrain else _designTrain[None]
-            designTest = _designTest if None not in _designTest else _designTest[None]
+                designTrain = {self.primaryKey: designTrain}
+                designTest = {self.primaryKey: designTest}
+                for name, data in dataset.data.items():
+                    if name != self.primaryKey:
+                        key = self.dataMap.get(name, None)
+                        designTrain[name], designTest[name] = _wrap_split(key, data, train, test)
 
             if target and target in df:
                 targetTrain, targetTest = self._split(df[target], trainMask, testMask)
