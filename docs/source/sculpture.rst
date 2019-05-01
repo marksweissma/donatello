@@ -26,7 +26,7 @@ Intent
 .. literalinclude::  ../../donatello/examples/intent_simple.py
 
 Dataset
-=======
+-------
 
 The dataset can be specifed through 
 
@@ -36,7 +36,7 @@ The dataset can be specifed through
 
 
 Estimator
-=========
+---------
 
 The estimator object requires a ``model``, and a reference to the ``method`` of the model to call. Optionally
 a callback to transform the raw output can be supplied through the ``scorer``. To enable hyperparameter tuning
@@ -131,7 +131,7 @@ Per scikit-learn Transformer pattern, fitting returns the object itslef
     grid searching
     grid searching
 
-    Building Over Cross Validation
+    Building Over Holdout
     grid searching
 
     Sculpture_2019_03_24_13_02
