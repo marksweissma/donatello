@@ -1,5 +1,3 @@
-(.rst not .md)
-
 Note donatello is not officially released, there is a test wheel on `test.pypi.org`
 if you want to take a look. The core is intact and basic examples are all turn key
 
@@ -11,7 +9,7 @@ For now:
 `pip install -i https://test.pypi.org/simple/ donatello`
 
 
-For walk through see notebooks, for interactive runnable examples in `donatello/examples` see simple, pipeline or line_graph intents.
+For walk through see `notebooks`, for interactive runnable examples in `donatello/examples` see simple, pipeline or line_graph intents.
 
 Docs via [github pages](https://marksweissma.github.io/donatello/)
 
@@ -24,9 +22,9 @@ The `transformers` components support robust bindings between `pandas` and `scik
 
 Supported model types:
 
-    #. Donatello comes with a DAG executor for building, managing, sharing, and reusing transformations, while supporting composibility throughout objects.
-    #. Scikit-learn model objects (fit, predict/predict_proba) directly. 
-    #. Donatello has a light wrapper around scikit-learn's Pipeline to support the required metadata
+    1. Donatello comes with a DAG executor for building, managing, sharing, and reusing transformations, while supporting composibility throughout objects.
+    2. Scikit-learn model objects (fit, predict/predict_proba) directly. 
+    3. Donatello has a light wrapper around scikit-learn's Pipeline to support the required metadata
   
 Components:
   
