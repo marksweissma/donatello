@@ -10,7 +10,7 @@ from donatello.components.data import package_dataset, subset_dataset
 from donatello.components.measure import Measure
 
 from donatello.utils.helpers import now_string, persist
-from donatello.utils.decorators import fallback, coelesce
+from donatello.utils.decorators import fallback
 from donatello.utils.base import Dobject
 
 
@@ -34,7 +34,7 @@ class Sculpture(Dobject, BaseEstimator):
     def __init__(self,
                  dataset=None,
                  estimator=None,
-                 validation=True, holdout=False, entire=False,
+                 validation='search', holdout=True, entire=False,
                  measure=Measure(), persist=persist, metrics=None,
                  storeReferences=True, writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
@@ -98,7 +98,7 @@ class Sculpture(Dobject, BaseEstimator):
         self.estimator = estimator
 
     @fallback('estimator')
-    def build_entire(self, dataset, estimator=None, setParams=True, **fitParams):
+    def build_entire(self, dataset, estimator=None, **fitParams):
         """
         Build model over entire data set
         """
@@ -120,17 +120,27 @@ class Sculpture(Dobject, BaseEstimator):
         Build models, tune hyperparameters, and evaluate
         """
 
-        self.build_cross_validation(dataset, **fitParams) if validation else None
-        self.build_holdout(dataset, **fitParams) if holdout else None
-        self.build_entire(dataset, **fitParams) if entire else None
+        if validation:
+            self.build_cross_validation(dataset,
+                    gridSearch=(validation=='search'),
+                    **fitParams)
+
+        if holdout:
+            self.build_holdout(dataset,
+                    gridSearch=(holdout=='search'),
+                    **fitParams)
+
+        if entire:
+            self.build_entire(dataset,
+                    gridSearch=(entire=='search'),
+                    **fitParams)
 
         self.write(writeAttrs=writeAttrs)
 
         return self
 
     @fallback('writeAttrs')
-    @coelesce(writeAttrs=[])
-    def write(self, writeAttrs=None):
+    def write(self, writeAttrs=()):
         """
         Write objects
         """
