@@ -140,7 +140,8 @@ class Fold(Dobject):
 
             return train, test
 
-        self.fit(dataset) if not hasattr(self, 'ids') else None
+        # self.fit(dataset) if not hasattr(self, 'ids') else None
+        self.fit(dataset)
 
         for train, test in self.ids:
             over = self.dap['groups']['attrPath'][0] if 'groups' in self.dap else 'index'
@@ -161,7 +162,7 @@ class Fold(Dobject):
             else:
                 targetTrain, targetTest = None, None
 
-            results = [designTrain, designTest, targetTrain, targetTest]
+            results = (designTrain, designTest, targetTrain, targetTest)
 
             yield results
         raise StopIteration
@@ -228,11 +229,11 @@ class Dataset(Dobject):
         self.foldClay = foldClay
         self.foldType = foldType
 
-        self.target = target
+        self.target = target if target else getattr(y, 'name', None)
         self.primaryKey = primaryKey
         self.force = force
 
-        self.fold = foldType(foldClay=foldClay, target=target, primaryKey=primaryKey, dap=dap)
+        self.fold = foldType(foldClay=foldClay, target=self.target, primaryKey=primaryKey, dap=dap)
 
         if any([i is not None for i in [raw, X, y]]):
             self.link(raw, X, y)
@@ -284,7 +285,7 @@ class Dataset(Dobject):
         else:
             self.raw = raw
 
-        if has_data(raw) or has_data(X):
+        if has_data(self.raw):
             self._fit_fold()
 
     def _fit_fold(self):
