@@ -34,7 +34,7 @@ class Sculpture(Dobject, BaseEstimator):
     def __init__(self,
                  dataset=None,
                  estimator=None,
-                 validation='search', holdout=True, entire=False,
+                 validation='search', holdout='search', entire=False,
                  measure=Measure(), persist=persist, metrics=None,
                  storeReferences=True, writeAttrs=('', 'estimator'),
                  timeFormat="%Y_%m_%d_%H_%M"):
@@ -88,7 +88,7 @@ class Sculpture(Dobject, BaseEstimator):
         """
         print('Holdout')
         estimator = clone(estimator).set_params(**estimator.get_params())
-        estimator.fit(dataset=dataset.subset('train'), gridSearch=True, **fitParams)
+        estimator.fit(dataset=dataset.subset('train'), **fitParams)
 
         payload = {'estimator': estimator, 'metrics': metrics,
                    'X': dataset.designTest, 'y': dataset.targetTest}
