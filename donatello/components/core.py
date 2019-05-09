@@ -75,7 +75,7 @@ class Sculpture(Dobject, BaseEstimator):
         Build cross validated measurements over training data of models
         """
         print('Cross Validation')
-        estimator = clone(estimator)
+        estimator = clone(estimator).set_params(**estimator.get_params())
         payload = {'estimator': estimator, 'metrics': metrics, 'dataset': dataset}
         self.measureCrossValidation = self.measure.buildCV(**payload)
         self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
@@ -87,7 +87,7 @@ class Sculpture(Dobject, BaseEstimator):
         Build model over training data and score
         """
         print('Holdout')
-        estimator = clone(estimator)
+        estimator = clone(estimator).set_params(**estimator.get_params())
         estimator.fit(dataset=dataset.subset('train'), gridSearch=True, **fitParams)
 
         payload = {'estimator': estimator, 'metrics': metrics,
@@ -95,15 +95,16 @@ class Sculpture(Dobject, BaseEstimator):
         self.measureHoldout = self.measure.build_holdout(**payload)
         self.measurements.holdout = Bunch(**self.measureHoldout['measurements'])
         self._references['holdout'] = deepcopy(estimator) if self.storeReferences else None
+        self.estimator = estimator
 
     @fallback('estimator')
-    def build_entire(self, dataset, estimator=None, **fitParams):
+    def build_entire(self, dataset, estimator=None, setParams=True, **fitParams):
         """
         Build model over entire data set
         """
         print('Entire Dataset')
-        estimator = clone(estimator)
-        estimator.fit(dataset=dataset, gridSearch=True, **fitParams)
+        estimator = clone(estimator).set_params(**estimator.get_params())
+        estimator.fit(dataset=dataset, **fitParams)
 
         if self.storeReferences:
             self._references['entire'] = deepcopy(estimator)
