@@ -300,13 +300,19 @@ def concat(datasets, params=None, dataType=data.Dataset):
         data.Dataset: combined dataset
     """
     if datasets:
-        Xs = [dataset.designData for dataset in datasets if dataset.designData is not None]
-        ys = [dataset.targetData for dataset in datasets if dataset.targetData is not None]
+        if not any([isinstance(i.designData, dict) for i in datasets]):
+            Xs = [dataset.designData for dataset in datasets if dataset.designData is not None]
+            X = pd.concat(Xs, axis=1, join='inner') if Xs else None
 
-        X = pd.concat(Xs, axis=1, join='inner') if Xs else None
-        y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1, join='inner')
-        params = nvl(params, getattr(datasets[0], 'params', None))
-        dataset = dataType(X=X, y=y, **params)
+            ys = [dataset.targetData for dataset in datasets if dataset.targetData is not None]
+            y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1, join='inner')
+            params = nvl(params, getattr(datasets[0], 'params', {}))
+            dataset = dataType(X=X, y=y, **params)
+        elif len(datasets) == 1:
+            dataset = datasets[0]
+        else:
+            raise Exception('datasets contains dicts and has len > 1, auto concat \
+                            is not deterministic, provide a deterministic concat')
     else:
         dataset = None
     return dataset

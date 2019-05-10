@@ -60,7 +60,7 @@ class Fold(Dobject):
         self.foldClay = foldClay
         self.folder = splitDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
         self.dap = dap
-        self.dataMap = dataMap 
+        self.dataMap = dataMap
 
     @fallback('target', 'primaryKey', 'dap')
     def fit(self, dataset=None, target=None, primaryKey=None, dap=None, **kwargs):
@@ -216,12 +216,13 @@ class Dataset(Dobject):
         dap (dict): dap for Folder
     """
     @init_time
+    @coelesce(dataMap={})
     def __init__(self, raw=None, X=None, y=None,
                  copyRaw=False,
                  foldClay=None, foldType=Fold,
                  scoreClay=None,
                  target=None, primaryKey=None,
-                 dap=None, force=False
+                 dap=None, dataMap=None
                  ):
 
         self.copyRaw = copyRaw
@@ -231,9 +232,10 @@ class Dataset(Dobject):
 
         self.target = target if target else getattr(y, 'name', None)
         self.primaryKey = primaryKey
-        self.force = force
+        self.dataMap = dataMap
 
-        self.fold = foldType(foldClay=foldClay, target=self.target, primaryKey=primaryKey, dap=dap)
+        self.fold = foldType(foldClay=foldClay, target=self.target, primaryKey=primaryKey, dap=dap,
+                             dataMap=dataMap)
 
         if any([i is not None for i in [raw, X, y]]):
             self.link(raw, X, y)
@@ -271,17 +273,31 @@ class Dataset(Dobject):
     def hasData(self):
         return has_data(self.data)
 
+    def _link_df(self, X, y):
+        raw = [X] if X is not None else []
+        raw.append(y) if y is not None else None
+        self.raw = pd.concat(raw, axis=1)
+
+    def _link_dfs(self, X, y):
+        XDf = X[self.primaryKey]
+        primary = [XDf]
+        primary.append(y) if y is not None else None
+        primary = pd.concat(primary, axis=1)
+        X[self.primaryKey] = primary
+        self.raw = X
+
     def link(self, raw=None, X=None, y=None):
         if raw is None and (X is not None or y is not None):
-            raw = [X] if X is not None else []
-            raw.append(y) if y is not None else None
-            self.raw = pd.concat(raw, axis=1)
             if X is not self.designData:
                 self.designData = X
             if y is not self.targetData:
                 self.targetData = y
+
             name = getattr(y, 'name', getattr(self, 'target', None))
             self.target = name
+
+            self._link_dfs(X, y) if isinstance(X, dict) else self._link_df(X, y)
+
         else:
             self.raw = raw
 
@@ -330,7 +346,12 @@ class Dataset(Dobject):
             output = self._designData
         elif self._has_design:
             train, test, _, __ = self._split()
-            output = pd.concat([train, test])
+            if isinstance(train, dict):
+                output = {}
+                for key, value in train.items():
+                    output[key] = pd.concat([train[key], test[key]])
+            else:
+                output = pd.concat([train, test])
         else:
             output = None
         return output
@@ -424,7 +445,7 @@ def pull(wrapped, instance, args, kwargs):
             dataset = instance.dataset
         elif X is not None and hasattr(instance, 'dataset')\
                 and instance.dataset is not None:
-            dataset = Dataset(X=X, y=y, **instance.dataset.param)
+            dataset = Dataset(X=X, y=y, **instance.dataset.params)
 
         elif X is not None:
             param = dataset.param if dataset else {}
@@ -499,8 +520,8 @@ def extract_fields(wrapped, instance, args, kwargs):
     df = dataset.designData if (dataset is not None) else X if (X is not None) else None
 
     if df is not None:
-        instance.fields = list(
-            nvl(*[access(df, [attr], errors='ignore', slicers=()) for attr in ['columns', 'keys']]))
+        instance.fields = access(df,  errors='ignore', cb=list)
+        # Need dfs to find schema
         instance.fieldDtypes = access(df, ['dtypes'], method='to_dict', errors='ignore', slicers=())
 
     return result

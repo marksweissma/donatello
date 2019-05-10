@@ -88,9 +88,18 @@ def access(obj=None, attrPath=None,
     """
 
     if not attrPath or not attrPath[0]:
-        obj = obj if not method else getattr(obj, method)(
-            *nvl(methodArgs, ()), **nvl(methodKwargs, {}))
-        value = obj if not cb else cb(obj, *nvl(cbArgs, ()), **nvl(cbKwargs, {}))
+        if method and (hasattr(obj, method) or errors == 'raise'):
+            obj = obj if not method else getattr(obj, method)(
+                *nvl(methodArgs, ()), **nvl(methodKwargs, {}))
+            try:
+                value = obj if not cb else cb(obj, *nvl(cbArgs, ()), **nvl(cbKwargs, {}))
+            except Exception as e:
+                if errors == 'ignore':
+                    value = default
+                else:
+                    raise e
+        else:
+            value = default
 
     else:
         head, attrPath = attrPath[0], attrPath[1:]

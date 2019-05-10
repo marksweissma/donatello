@@ -36,7 +36,7 @@ def load_sculpture():
     dataset = Dataset(X=X, y=y)
 
     estimator = Estimator(model=LogisticRegression(),
-                          paramGrid={'model__C': list(pd.np.logspace(-2, 0, 5))},
+                          paramGrid={'model__C': list(pd.np.logspace(-2, -0.01, 5))},
                           searchKwargs={'scoring': 'roc_auc', 'cv': 3},
                           method='predict_proba',
                           scorer='score_second'
