@@ -9,7 +9,7 @@ from sklearn.model_selection import (KFold,
 
 from donatello.utils.base import Dobject, RANDOM_SEED
 from donatello.utils.decorators import decorator, init_time, fallback, coelesce
-from donatello.utils.helpers import find_value, replace_value, nvl, access
+from donatello.utils.helpers import find_value, replace_value, access
 
 
 _BASE = {'n_splits': 5,
@@ -17,18 +17,18 @@ _BASE = {'n_splits': 5,
          'random_state': RANDOM_SEED}
 
 
-TYPEDISPATCH = {None: KFold,
-                'stratify': StratifiedKFold,
-                'group': GroupShuffleSplit,
-                'time': TimeSeriesSplit
-                }
-
-
-KWARGDISPATCH = {None: _BASE,
-                 'stratify': _BASE,
-                 'group': {'n_splits': 5, 'random_state': RANDOM_SEED},
-                 'time': {'n_splits': 5}
+TYPE_DISPATCH = {None: KFold,
+                 'stratify': StratifiedKFold,
+                 'group': GroupShuffleSplit,
+                 'time': TimeSeriesSplit
                  }
+
+
+KWARG_DISPATCH = {None: _BASE,
+                  'stratify': _BASE,
+                  'group': {'n_splits': 5, 'random_state': RANDOM_SEED},
+                  'time': {'n_splits': 5}
+                  }
 
 
 class Fold(Dobject):
@@ -50,7 +50,7 @@ class Fold(Dobject):
     @coelesce(dap={}, dataMap={})
     def __init__(self, target=None, primaryKey=None,
                  scoreClay=None, foldClay=None,
-                 splitDispatch=TYPEDISPATCH, kwargDispatch=KWARGDISPATCH,
+                 splitDispatch=TYPE_DISPATCH, kwargDispatch=KWARG_DISPATCH,
                  dap=None, dataMap=None
                  ):
 
@@ -149,6 +149,7 @@ class Fold(Dobject):
 
             designTrain, designTest = self._split(df, trainMask, testMask, target)
 
+            # import pdb; pdb.set_trace()
             if isinstance(dataset.data, dict):
                 designTrain = {self.primaryKey: designTrain}
                 designTest = {self.primaryKey: designTest}
@@ -164,6 +165,7 @@ class Fold(Dobject):
 
             results = (designTrain, designTest, targetTrain, targetTest)
 
+            # import pdb; pdb.set_trace()
             yield results
         raise StopIteration
 
@@ -264,10 +266,6 @@ class Dataset(Dobject):
             else:
                 value = getattr(self, 'raw', None)
         return value
-
-    @data.setter
-    def data(self, value):
-        self._data = value
 
     @property
     def hasData(self):
