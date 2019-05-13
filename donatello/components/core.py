@@ -75,11 +75,12 @@ class Sculpture(Dobject, BaseEstimator):
         Build cross validated measurements over training data of models
         """
         print('Cross Validation')
-        estimator = clone(estimator).set_params(**estimator.get_params())
+        estimator = deepcopy(estimator)
         payload = {'estimator': estimator, 'metrics': metrics, 'dataset': dataset}
         self.measureCrossValidation = self.measure.buildCV(**payload)
         self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
         self._references['cross_validation'] = deepcopy(estimator) if self.storeReferences else None
+        #self.estimator = cv_rule(self.measureCrossValidation['estimators'].values())
 
     @fallback('estimator', 'metrics')
     def build_holdout(self, dataset, estimator=None, metrics=None, **fitParams):
@@ -87,6 +88,7 @@ class Sculpture(Dobject, BaseEstimator):
         Build model over training data and score
         """
         print('Holdout')
+        estimator = deepcopy(estimator)
         estimator = clone(estimator).set_params(**estimator.get_params())
         estimator.fit(dataset=dataset.subset('train'), **fitParams)
 
@@ -103,7 +105,7 @@ class Sculpture(Dobject, BaseEstimator):
         Build model over entire data set
         """
         print('Entire Dataset')
-        estimator = clone(estimator).set_params(**estimator.get_params())
+        estimator = deepcopy(estimator)
         estimator.fit(dataset=dataset, **fitParams)
 
         if self.storeReferences:

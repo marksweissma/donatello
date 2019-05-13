@@ -167,13 +167,12 @@ class Metric(Dobject):
     @init_time
     @name
     @coelesce(columns=['score'], agg=['mean', 'std'])
-    def __init__(self, scorer=None, columns=None, name='', key=None, scoreClay=None,
+    def __init__(self, scorer=None, columns=None, name='', key=None,
                  callback=pass_through, agg=None, sort=None):
         self.columns = columns
         self.scorer = scorer
         _name = getattr(scorer, '__name__', self.__class__.__name__)
         self._name = name if name else _name
-        self.scoreClay = scoreClay
         self.callback = callback
         self.agg = agg
         if key:

@@ -28,7 +28,7 @@ class Dobject(object):
         self._name = nvl(value, self.__class__.__name__)
 
     @property
-    def foldClay(self):
+    def clay(self):
         """
         Define type of splitting
 
@@ -36,46 +36,11 @@ class Dobject(object):
             #. stratify
             #. group
         """
-        return getattr(self, '_foldClay', None)
+        return getattr(self, '_clay', None)
 
-    @foldClay.setter
-    def foldClay(self, value):
-        self._foldClay = value
-
-    @property
-    def scoreClay(self):
-        """
-        Define type of learning
-
-            #. None -> regression
-            #. classificaiton
-            #. anomaly
-       """
-        return getattr(self, '_scoreClay', None)
-
-    @scoreClay.setter
-    def scoreClay(self, value):
-        self._scoreClay = value
-
-    @property
-    def foldDispatch(self):
-        """
-        """
-        return getattr(self, '_foldDispatch', None)
-
-    @foldDispatch.setter
-    def foldDispatch(self, value):
-        self._foldDispatch = value
-
-    @property
-    def scoreDispatch(self):
-        """
-        """
-        return getattr(self, '_scoreDispatch', None)
-
-    @scoreDispatch.setter
-    def scoreDispatch(self, value):
-        self._scoreDispatch = value
+    @clay.setter
+    def clay(self, value):
+        self._clay = value
 
     def __repr__(self):
         name = self.name

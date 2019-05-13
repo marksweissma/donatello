@@ -33,7 +33,8 @@ def load_sculpture():
     Helper to load sculpture
     """
     X, y = load_sklearn_bc_dataset()
-    dataset = Dataset(X=X, y=y)
+    dataset = Dataset(X=X, y=y, clay='stratify')
+    # dataset = Dataset(X=X, y=y)
 
     estimator = Estimator(model=LogisticRegression(),
                           paramGrid={'model__C': list(pd.np.logspace(-2, -0.01, 5))},

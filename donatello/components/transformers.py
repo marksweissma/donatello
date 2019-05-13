@@ -300,7 +300,9 @@ def concat(datasets, params=None, dataType=data.Dataset):
         data.Dataset: combined dataset
     """
     if datasets:
-        if not any([isinstance(i.designData, dict) for i in datasets]):
+        if len(datasets) == 1:
+            dataset = datasets[0]
+        elif not any([isinstance(i.data, dict) for i in datasets]):
             Xs = [dataset.designData for dataset in datasets if dataset.designData is not None]
             X = pd.concat(Xs, axis=1, join='inner') if Xs else None
 
@@ -308,8 +310,6 @@ def concat(datasets, params=None, dataType=data.Dataset):
             y = ys[0] if len(ys) == 1 else None if len(ys) < 1 else pd.concat(ys, axis=1, join='inner')
             params = nvl(params, getattr(datasets[0], 'params', {}))
             dataset = dataType(X=X, y=y, **params)
-        elif len(datasets) == 1:
-            dataset = datasets[0]
         else:
             raise Exception('datasets contains dicts and has len > 1, auto concat \
                             is not deterministic, provide a deterministic concat')
@@ -598,7 +598,10 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         Transform data and predict_proba at termination of subcomponent
         """
         dataset = self.process(dataset, node, 'transform')
-        probas = self.node_exec(node).predict_proba(dataset.designData)
+        try:
+            probas = self.node_exec(node).predict_proba(dataset.designData)
+        except:
+            import ipdb; ipdb.set_trace()
         return probas
 
     @data.package_dataset
@@ -652,7 +655,10 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         else:
             payload = {'X': dataset.designData}
             payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
-        information = access(self.node_exec(node), method=method, methodKwargs=payload)
+        try:
+            information = access(self.node_exec(node), method=method, methodKwargs=payload)
+        except:
+            import ipdb; ipdb.set_trace()
 
         return information
 

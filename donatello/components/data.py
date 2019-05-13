@@ -40,25 +40,22 @@ class Fold(Dobject):
         target (str): name of target field if supervised
         primaryKey (str): if dictionary of dataframes, key of dictionary\
             containing primrary df
-        scoreClay (str): option to set scoring options through dispatch
-        foldClay (str): option to set fodling options through dispatch
+        clay (str): option to set folding options through dispatch
         splitDispatch(dict): Folding Types keyed by clays
         kwargDispatch(dict): keyword arguments conjugate to folding types
         groupDap (str): option add runtime kwargs to folding and split (i.e. groups)
     """
     @init_time
     @coelesce(groupDap={}, dataMap={})
-    def __init__(self, target=None, primaryKey=None,
-                 scoreClay=None, foldClay=None,
+    def __init__(self, target=None, primaryKey=None, clay=None,
                  splitDispatch=TYPE_DISPATCH, kwargDispatch=KWARG_DISPATCH,
                  groupDap=None, dataMap=None
                  ):
 
         self.target = target
         self.primaryKey = primaryKey
-        self.scoreClay = scoreClay
-        self.foldClay = foldClay
-        self.folder = splitDispatch.get(foldClay)(**kwargDispatch.get(foldClay))
+        self.clay = clay
+        self.folder = splitDispatch.get(clay)(**kwargDispatch.get(clay))
         self.groupDap = groupDap
         self.dataMap = dataMap
 
@@ -77,15 +74,12 @@ class Fold(Dobject):
         Returns:
             object: self
         """
-        try:
-            df = dataset.data if not primaryKey else dataset.data[primaryKey]
-        except:
-            import pdb; pdb.set_trace()
+        df = dataset.designData if not primaryKey else dataset.designData[primaryKey]
 
         groups = access(df, **groupDap) if groupDap else None
-        condition = target and (target in df)
-        self.indices = list(self.split(df.drop(target, axis=1) if condition else df,
-                                       df[target] if condition else None,
+
+        self.indices = list(self.split(df,
+                                       dataset.targetData,
                                        groups=groups, **kwargs)
                             )
 
@@ -186,22 +180,6 @@ def has_data(data):
     return state
 
 
-# !!!TODO
-# deprecate this abomination
-@decorator
-def fit_fold(wrapped, instance, args, kwargs):
-    result = wrapped(*args, **kwargs)
-    try:
-        instance.fold.fit(instance)
-        attrs = ('designTrain', 'designTest',
-                 'targetTrain', 'targetTest')
-        folded = next(instance.fold.fold(instance))
-        [setattr(instance, attr, value) for attr, value in zip(attrs, folded) if value is not None]
-    except BaseException:
-        pass
-    return result
-
-
 class Dataset(Dobject):
     """
     Maintain and provide access to underlying information and metadata
@@ -211,31 +189,30 @@ class Dataset(Dobject):
         X (obj): option to specify design directly
         y (obj): option to specify target directly
         copyRaw (bool): option to have data return copy of raw to preserve fetch
-        foldClay (str): option to set fodling options through dispatch
+        clay (str): option to set fodling options through dispatch
         foldType(type): type of fold object
-        scoreClay (str): option to set scoring options through dispatch
         groupDap (dict): groupDap for Folder
     """
     @init_time
     @coelesce(dataMap={})
     def __init__(self, raw=None, X=None, y=None,
                  copyRaw=False,
-                 foldClay=None, foldType=Fold,
-                 scoreClay=None,
+                 clay=None, foldType=Fold,
                  target=None, primaryKey=None,
                  groupDap=None, dataMap=None
                  ):
 
         self.copyRaw = copyRaw
+        self.raw = raw
 
-        self.foldClay = foldClay
+        self.clay = clay
         self.foldType = foldType
 
         self.target = target if target else getattr(y, 'name', None)
         self.primaryKey = primaryKey
         self.dataMap = dataMap
 
-        self.fold = foldType(foldClay=foldClay, target=self.target, primaryKey=primaryKey, groupDap=groupDap,
+        self.fold = foldType(clay=clay, target=self.target, primaryKey=primaryKey, groupDap=groupDap,
                              dataMap=dataMap)
 
         if any([i is not None for i in [raw, X, y]]):
@@ -263,7 +240,7 @@ class Dataset(Dobject):
             if self.copyRaw and self.raw is not None:
                 value = self.raw.copy()
             else:
-                value = getattr(self, 'raw', None)
+                value = self.raw
         return value
 
     @property
@@ -285,10 +262,10 @@ class Dataset(Dobject):
 
     def link(self, raw=None, X=None, y=None):
         if raw is None and (X is not None or y is not None):
-            if X is not self.designData:
-                self.designData = X
-            if y is not self.targetData:
-                self.targetData = y
+            if X is not None:
+                self._designData = X
+            if y is not None:
+                self._targetData = y
 
             name = getattr(y, 'name', getattr(self, 'target', None))
             self.target = name
@@ -297,16 +274,6 @@ class Dataset(Dobject):
 
         else:
             self.raw = raw
-
-        if has_data(self.raw):
-            self._fit_fold()
-
-    def _fit_fold(self):
-        self.fold.fit(self)
-        attrs = ('designTrain', 'designTest',
-                 'targetTrain', 'targetTest')
-        folded = next(self.fold.fold(self))
-        [setattr(self, attr, value) for attr, value in zip(attrs, folded)]
 
     def _split(self):
         return next(self.fold.fold(self))  # :(
@@ -340,33 +307,44 @@ class Dataset(Dobject):
 
     @property
     def designData(self):
-        if hasattr(self, '_designData'):
-            output = self._designData
-        elif self._has_design:
-            train, test, _, __ = self._split()
-            if isinstance(train, dict):
-                output = {}
-                for key, value in train.items():
-                    output[key] = pd.concat([train[key], test[key]])
+        # if hasattr(self, '_designData'):
+            # output = self._designData
+        # elif self._has_design:
+        try:
+            if isinstance(self.data, dict):
+                primary = self.data[self.primaryKey].drop(self.target, axis=1, errors='ignore')
+                output = {self.primaryKey: primary}
+                [output.update({key: value}) for key, value in self.data.items() if key != self.primaryKey]
             else:
-                output = pd.concat([train, test])
-        else:
+                if self.target:
+                    output = self.data.drop(self.target, axis=1, errors='ignore')
+                else:
+                    output = self.data
+
+        # else:
+        except:
             output = None
+            import ipdb; ipdb.set_trace()
         return output
 
     @designData.setter
     def designData(self, value):
         self._designData = value
+        # use reassign
         self.link(X=value, y=self.targetData)
 
     @property
     def targetData(self):
-        if hasattr(self, '_targetData'):
-            output = self._targetData
-        elif self._has_target:
-            _, __, train, test = self._split()
-            output = pd.concat([train, test])
-        else:
+        # if hasattr(self, '_targetData'):
+            # output = self._targetData
+        # elif self._has_target:
+        try:
+            if isinstance(self.data, dict):
+                output = self.data[self.primaryKey][self.target]
+            else:
+                output = self.data[self.target]
+        # else:
+        except:
             output = None
         return output
 
@@ -374,6 +352,22 @@ class Dataset(Dobject):
     def targetData(self, value):
         self._targetData = value
         self.link(X=self.designData, y=value)
+
+    @property
+    def designTrain(self):
+        return self.take()[0]
+
+    @property
+    def targetTrain(self):
+        return self.take()[2]
+
+    @property
+    def designTest(self):
+        return self.take()[1]
+
+    @property
+    def targetTest(self):
+        return self.take()[3]
 
     def subset(self, subset='train'):
         """
@@ -440,8 +434,10 @@ def pull(wrapped, instance, args, kwargs):
     if not dataset:
         X = find_value(wrapped, args, kwargs, 'X')
         y = find_value(wrapped, args, kwargs, 'y')
-        args, kwargs = replace_value(wrapped, args, kwargs, 'X', None)
-        args, kwargs = replace_value(wrapped, args, kwargs, 'y', None)
+        if X is not None:
+            args, kwargs = replace_value(wrapped, args, kwargs, 'X', None)
+        if y is not None:
+            args, kwargs = replace_value(wrapped, args, kwargs, 'y', None)
 
         if X is None and hasattr(instance, 'dataset'):
             dataset = instance.dataset
