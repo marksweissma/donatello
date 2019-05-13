@@ -278,18 +278,18 @@ class Dataset(Dobject):
     def _split(self):
         return next(self.fold.fold(self))  # :(
 
-    @property
-    def _has_design(self):
-        if self.data is None:
-            has = False
-        elif isinstance(self.data, pd.Series):
-            has = self.data.name != self.target
-        else:
-            try:
-                has = bool([i for i in self.data if i != self.target])
-            except TypeError:
-                has = False
-        return has
+    # @property
+    # def _has_design(self):
+        # if self.data is None:
+            # has = False
+        # elif isinstance(self.data, pd.Series):
+            # has = self.data.name != self.target
+        # else:
+            # try:
+                # has = bool([i for i in self.data if i != self.target])
+            # except TypeError:
+                # has = False
+        # return has
 
     @property
     def _has_target(self):
@@ -307,9 +307,6 @@ class Dataset(Dobject):
 
     @property
     def designData(self):
-        # if hasattr(self, '_designData'):
-            # output = self._designData
-        # elif self._has_design:
         try:
             if isinstance(self.data, dict):
                 primary = self.data[self.primaryKey].drop(self.target, axis=1, errors='ignore')
@@ -321,10 +318,8 @@ class Dataset(Dobject):
                 else:
                     output = self.data
 
-        # else:
         except:
             output = None
-            import ipdb; ipdb.set_trace()
         return output
 
     @designData.setter
@@ -401,15 +396,16 @@ class Dataset(Dobject):
         return results
 
     def take(self):
-        train, test = next(self.fold.split(self.designData, self.targetData))
-        results = self._take(train, test)
+        self.fold.fit(self)
+        df = self.data[self.primaryKey] if isinstance(self.data, dict) else self.data
+        train, test = self.fold.ids[0]
+
+        results = self.fold._package_fold(self, df, train, test, self.target, self.groupDap)
         return results
 
-    def with_params(self, raw=None, X=None, y=None, safe=True, **kwargs):
+    def with_params(self, raw=None, X=None, y=None, **kwargs):
         kwargs = kwargs.copy()
         kwargs.update({i: j for i, j in self.params.items() if i not in kwargs})
-        # if safe and (isinstance(raw, dict) or isinstance(X, dict)):
-            # kwargs = {i: j for i, j in kwargs.items() if i not in ['primaryKey', 'dataMap']}
 
         return type(self)(raw=raw, X=X, y=y, **kwargs)
 

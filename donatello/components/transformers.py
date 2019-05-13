@@ -600,8 +600,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         dataset = self.process(dataset, node, 'transform')
         try:
             probas = self.node_exec(node).predict_proba(dataset.designData)
-        except:
-            import ipdb; ipdb.set_trace()
+        except Exception as e:
+            import pdb; pdb.set_trace()
         return probas
 
     @data.package_dataset
@@ -657,8 +657,8 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
             payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
         try:
             information = access(self.node_exec(node), method=method, methodKwargs=payload)
-        except:
-            import ipdb; ipdb.set_trace()
+        except Exception as e:
+            import pdb; pdb.set_trace()
 
         return information
 
