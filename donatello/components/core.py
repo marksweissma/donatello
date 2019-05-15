@@ -32,7 +32,7 @@ class Sculpture(Dobject, BaseEstimator):
     """
 
     def __init__(self,
-                 dataset=None,
+                 dataset=None, outsideData=None,
                  estimator=None,
                  validation='search', holdout='search', entire=False,
                  measure=Measure(), persist=persist, metrics=None,
@@ -42,6 +42,7 @@ class Sculpture(Dobject, BaseEstimator):
         self._initTime = now_string(timeFormat)
 
         self.dataset = dataset
+        self.outsideData = outsideData
         self.estimator = estimator
 
         self.measure = measure
@@ -80,7 +81,8 @@ class Sculpture(Dobject, BaseEstimator):
         self.measureCrossValidation = self.measure.buildCV(**payload)
         self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
         self._references['cross_validation'] = deepcopy(estimator) if self.storeReferences else None
-        #self.estimator = cv_rule(self.measureCrossValidation['estimators'].values())
+        # self.estimator = cv_rule(self.measureCrossValidation['estimators'].values())
+        self.estimator = self.measureCrossValidation['estimators'].values()[0]
 
     @fallback('estimator', 'metrics')
     def build_holdout(self, dataset, estimator=None, metrics=None, **fitParams):
@@ -89,7 +91,6 @@ class Sculpture(Dobject, BaseEstimator):
         """
         print('Holdout')
         estimator = deepcopy(estimator)
-        estimator = clone(estimator).set_params(**estimator.get_params())
         estimator.fit(dataset=dataset.subset('train'), **fitParams)
 
         payload = {'estimator': estimator, 'metrics': metrics,
@@ -99,8 +100,8 @@ class Sculpture(Dobject, BaseEstimator):
         self._references['holdout'] = deepcopy(estimator) if self.storeReferences else None
         self.estimator = estimator
 
-    @fallback('estimator')
-    def build_entire(self, dataset, estimator=None, **fitParams):
+    @fallback('estimator', 'metrics', 'outsideData')
+    def build_entire(self, dataset, estimator=None, metrics=None, outsideData=None, **fitParams):
         """
         Build model over entire data set
         """
@@ -114,10 +115,17 @@ class Sculpture(Dobject, BaseEstimator):
         else:
             self._references['entire'] = None
 
-    @fallback('dataset', 'writeAttrs', 'validation', 'holdout', 'entire')
+        if outsideData:
+            payload = {'estimator': estimator, 'metrics': metrics,
+                       'X': outsideData.designData, 'y': outsideData.targetData}
+            self.measureOutside = self.measure.build_holdout(**payload)
+            self.measurements.outside = Bunch(**self.measureOutside['measurements'])
+
+    @fallback('dataset', 'writeAttrs', 'validation', 'holdout', 'entire', 'outsideData')
     @package_dataset
     def fit(self, X=None, y=None, dataset=None, writeAttrs=None,
-            validation=None, holdout=None, entire=None, **fitParams):
+            validation=None, holdout=None, entire=None, outsideData=None,
+            **fitParams):
         """
         Build models, tune hyperparameters, and evaluate
         """
@@ -135,6 +143,7 @@ class Sculpture(Dobject, BaseEstimator):
         if entire:
             self.build_entire(dataset,
                     gridSearch=(entire=='search'),
+                    outsideData=outsideData,
                     **fitParams)
 
         self.write(writeAttrs=writeAttrs)

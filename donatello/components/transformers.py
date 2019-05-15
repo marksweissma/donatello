@@ -85,7 +85,7 @@ class TargetFlow(BaseTransformer):
         return dataset.targetData if self.passTarget else None
 
 
-def select_data_type(X, **kwargs):
+def select_data_type(X, kwargs):
     """
     Select columns from X through :py:meth:`pandas.DataFrame.select_dtypes`
     kwargs are keyword arguments for the method
@@ -598,10 +598,17 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         Transform data and predict_proba at termination of subcomponent
         """
         dataset = self.process(dataset, node, 'transform')
-        try:
-            probas = self.node_exec(node).predict_proba(dataset.designData)
-        except Exception as e:
-            import pdb; pdb.set_trace()
+        probas = self.node_exec(node).predict_proba(dataset.designData)
+        return probas
+
+    @data.package_dataset
+    @fallback(node='terminal')
+    def decision_function(self, X=None, y=None, node=None, dataset=None):
+        """
+        Transform data and decision_function at termination of subcomponent
+        """
+        dataset = self.process(dataset, node, 'transform')
+        probas = self.node_exec(node).decision_function(dataset.designData)
         return probas
 
     @data.package_dataset
@@ -655,10 +662,7 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         else:
             payload = {'X': dataset.designData}
             payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
-        try:
-            information = access(self.node_exec(node), method=method, methodKwargs=payload)
-        except Exception as e:
-            import pdb; pdb.set_trace()
+        information = access(self.node_exec(node), method=method, methodKwargs=payload)
 
         return information
 
@@ -724,6 +728,33 @@ class OneHotEncoder(PandasTransformer):
                         for column, value in self.taxonomy.items()], axis=1)
         X = pd.get_dummies(_X, drop_first=self.dropOne)
         dataset = dataset.with_params(X=pd.concat(design + [X], axis=1), y=dataset.targetData)
+        return dataset
+
+
+class Exists(PandasTransformer):
+    def __init__(self, columns=None, tolerance=0, suffix='exists'):
+        self.columns = columns
+        self.tolerance = tolerance
+        self.suffix = suffix
+
+    @data.package_dataset
+    @data.extract_fields
+    def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
+        df = dataset.designData[self.columns] if self.columns else dataset.designData
+        self.transformColumns = [i for i in df if df[i].isnull().mean() >= self.tolerance]
+        return self
+
+    @data.enforce_dataset
+    @data.extract_features
+    def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+        df = dataset.designData
+        for field in self.transformColumns:
+            if field in df:
+                df["_".join([field, self.suffix])] = df[field].notnull()
+            else:
+                df["_".join([field, self.suffix])] = False
+
+        dataset = dataset.with_params(X=df, y=dataset.targetData)
         return dataset
 
 

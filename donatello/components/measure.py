@@ -110,7 +110,9 @@ class Measure(Dobject):
 
         for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(dataset):
             estimator = clone(estimator)
-            estimator.fit(X=designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
+            _dataset = type(dataset)(X=designTrain, y=targetTrain, **dataset.params)
+            # estimator.fit(X=designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
+            estimator.fit(dataset=_dataset, gridSearch=self.gridSearchFlag)
             estimators[fold] = estimator
 
             _temp = self._score(estimator, designTest, targetTest)
@@ -166,9 +168,10 @@ class Measure(Dobject):
 class Metric(Dobject):
     @init_time
     @name
-    @coelesce(columns=['score'], agg=['mean', 'std'])
+    @coelesce(columns=['score'], agg=['mean', 'std'], evalKwargs={})
     def __init__(self, scorer=None, columns=None, name='', key=None,
-                 callback=pass_through, agg=None, sort=None):
+                 callback=pass_through, agg=None, sort=None,
+                 evalArgs=(), evalKwargs=None):
         self.columns = columns
         self.scorer = scorer
         _name = getattr(scorer, '__name__', self.__class__.__name__)
@@ -178,6 +181,8 @@ class Metric(Dobject):
         if key:
             self.key = key
         self.sort = sort
+        self.evalArgs = evalArgs
+        self.evalKwargs = evalKwargs
 
     @property
     def key(self):
@@ -191,7 +196,7 @@ class Metric(Dobject):
         return self
 
     def evaluate(self, estimator, truth, predicted, X):
-        df = pd.DataFrame([self.scorer(truth, predicted)])
+        df = pd.DataFrame([self.scorer(truth, predicted, *self.evalArgs, **self.evalKwargs)])
         if not hasattr(self, '_key'):
             df['_'] = range(len(df))
         return df

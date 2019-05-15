@@ -109,8 +109,10 @@ class Estimator(Dobject, BaseTransformer):
 
             groups = access(dataset.designData,
                             **dataset.groupDap) if dataset.groupDap else None
+
             self.gridSearch.fit(X=dataset.designData, y=dataset.targetData,
                                 groups=groups, gridSearch=False)
+
             self.set_params(**self.gridSearch.best_params_)
 
     @data.package_dataset
