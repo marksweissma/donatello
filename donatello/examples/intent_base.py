@@ -41,8 +41,8 @@ def load_data(asDf, group):
 
     # Declare intent for partitioning data over groups (rather than all rows being independent)
     if group:
-        data['foldClay'] = 'group'
-        data['dap'] = {'groups': {'attrPath': ['groups_column'], 'slicers': (pd.DataFrame, dict)}}
+        data['clay'] = 'group'
+        data['groupDap'] = {'attrPath': ['groups_column'], 'slicers': (pd.DataFrame, dict)}
 
     dataset = Dataset(**data)
     return dataset

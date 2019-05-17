@@ -108,9 +108,11 @@ class Estimator(Dobject, BaseTransformer):
                                            **searchKwargs)
 
             groups = access(dataset.designData,
-                            **dataset.dap['groups']) if 'groups' in dataset.dap else None
+                            **dataset.groupDap) if dataset.groupDap else None
+
             self.gridSearch.fit(X=dataset.designData, y=dataset.targetData,
                                 groups=groups, gridSearch=False)
+
             self.set_params(**self.gridSearch.best_params_)
 
     @data.package_dataset

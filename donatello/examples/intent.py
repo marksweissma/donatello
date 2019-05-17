@@ -52,8 +52,8 @@ def load_data(asDf, group):
     data['target'] = 'is_malignant'
 
     if group:
-        data['foldClay'] = 'group'
-        data['dap'] = {'groups': {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}}
+        data['clay'] = 'group'
+        data['groupDap'] = {'attrPath': ['a_column'], 'slicers': (pd.DataFrame, dict)}
 
     return data
 
