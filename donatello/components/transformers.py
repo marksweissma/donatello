@@ -708,14 +708,16 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
 
 class OneHotEncoder(PandasTransformer):
-    def __init__(self, columns=None, dropOne=False):
+    def __init__(self, columns=None, dropOne=False, missing='missing'):
         self.columns = columns
         self.dropOne = dropOne
+        self.missing = missing
 
     @data.package_dataset
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
         df = dataset.designData[self.columns] if self.columns else dataset.designData
+        df = df.fillna(self.missing)
         self.taxonomy = {i: df[i].unique() for i in df}
         return self
 
@@ -732,27 +734,54 @@ class OneHotEncoder(PandasTransformer):
 
 
 class Exists(PandasTransformer):
-    def __init__(self, columns=None, tolerance=0, suffix='exists'):
+    def __init__(self, columns=None, tolerance=0, suffix='exists',
+                 minFields=None, maxFields=None, meanFields=None):
         self.columns = columns
         self.tolerance = tolerance
         self.suffix = suffix
+        self.minFields = minFields
+        self.maxFields = maxFields
+        self.meanFields = meanFields
 
     @data.package_dataset
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, *args, **kwargs):
+        self.mins = {}
+        self.maxs = {}
+        self.means = {}
+
         df = dataset.designData[self.columns] if self.columns else dataset.designData
-        self.transformColumns = [i for i in df if df[i].isnull().mean() >= self.tolerance]
+        self.existsColumns = [i for i in df if df[i].isnull().mean() >= self.tolerance]
+
+        if self.minFields:
+            for field in [i for i in self.minFields if i in df]:
+                self.mins[field] = df[field].min()
+        if self.maxFields:
+            for field in [i for i in self.maxFields if i in df]:
+                self.maxs[field] = df[field].max()
+        if self.meanFields:
+            for field in [i for i in self.meanFields if i in df]:
+                self.means[field] = df[field].mean()
         return self
 
     @data.enforce_dataset
     @data.extract_features
     def transform(self, X=None, y=None, dataset=None, *args, **kwargs):
         df = dataset.designData
-        for field in self.transformColumns:
+        for field in self.existsColumns:
             if field in df:
                 df["_".join([field, self.suffix])] = df[field].notnull()
             else:
                 df["_".join([field, self.suffix])] = False
+
+        for field in [i for i in self.mins if i in df]:
+            df[field] = df[field].fillna(self.mins[field]) if field in df else self.mins[field]
+
+        for field in [i for i in self.maxs if i in df]:
+            df[field] = df[field].fillna(self.maxs[field]) if field in df else self.maxs[field]
+
+        for field in [i for i in self.means if i in df]:
+            df[field] = df[field].fillna(self.means[field]) if field in df else self.means[field]
 
         dataset = dataset.with_params(X=df, y=dataset.targetData)
         return dataset
