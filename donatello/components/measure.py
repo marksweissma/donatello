@@ -110,8 +110,7 @@ class Measure(Dobject):
 
         for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(dataset):
             estimator = clone(estimator)
-            _dataset = type(dataset)(X=designTrain, y=targetTrain, **dataset.params)
-            # estimator.fit(X=designTrain, y=targetTrain, gridSearch=self.gridSearchFlag)
+            _dataset = dataset.with_params(X=designTrain, y=targetTrain)
             estimator.fit(dataset=_dataset, gridSearch=self.gridSearchFlag)
             estimators[fold] = estimator
 
