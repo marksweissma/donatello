@@ -603,13 +603,23 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
+    def predict_log_proba(self, X=None, y=None, node=None, dataset=None):
+        """
+        Transform data and predict_proba at termination of subcomponent
+        """
+        dataset = self.process(dataset, node, 'transform')
+        log_probas = self.node_exec(node).predict_log_proba(dataset.designData)
+        return log_probas
+
+    @data.package_dataset
+    @fallback(node='terminal')
     def decision_function(self, X=None, y=None, node=None, dataset=None):
         """
         Transform data and decision_function at termination of subcomponent
         """
         dataset = self.process(dataset, node, 'transform')
-        probas = self.node_exec(node).decision_function(dataset.designData)
-        return probas
+        decisions = self.node_exec(node).decision_function(dataset.designData)
+        return decisions
 
     @data.package_dataset
     @fallback(node='terminal')
