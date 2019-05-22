@@ -4,6 +4,14 @@ donatello.components package
 Submodules
 ----------
 
+donatello.components.transformers module
+----------------------------------------
+
+.. automodule:: donatello.components.transformers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 donatello.components.core module
 --------------------------------
 
@@ -28,26 +36,10 @@ donatello.components.estimator module
     :undoc-members:
     :show-inheritance:
 
-donatello.components.fold module
---------------------------------
-
-.. automodule:: donatello.components.fold
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 donatello.components.measure module
 -----------------------------------
 
 .. automodule:: donatello.components.measure
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-donatello.components.transformers module
-----------------------------------------
-
-.. automodule:: donatello.components.transformers
     :members:
     :undoc-members:
     :show-inheritance:
