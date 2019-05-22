@@ -178,7 +178,7 @@
 </ol>
 </div></blockquote>
 <p>Sculptures can be embedded as nodes in <a class="reference internal" href="donatello.components.html#donatello.components.transformers.ModelDAG" title="donatello.components.transformers.ModelDAG"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.ModelDAG</span></code></a> as well
-as transformers in <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></p>
+as transformers in <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></p>
 <p>Donatello approaches model configuration as declaring intent. Everything required
 to build evaluate and produce artifacts is specified during instantiation.</p>
 <div class="section" id="intent">
@@ -218,10 +218,10 @@ to build evaluate and produce artifacts is specified during instantiation.</p>
 <span class="sd">    Helper to load sculpture</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">load_sklearn_bc_dataset</span><span class="p">()</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">clay</span><span class="o">=</span><span class="s1">&#39;stratify&#39;</span><span class="p">)</span>
 
     <span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span>
-                          <span class="n">paramGrid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;model__C&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">))},</span>
+                          <span class="n">paramGrid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;model__C&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">5</span><span class="p">))},</span>
                           <span class="n">searchKwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;scoring&#39;</span><span class="p">:</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="s1">&#39;cv&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
                           <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict_proba&#39;</span><span class="p">,</span>
                           <span class="n">scorer</span><span class="o">=</span><span class="s1">&#39;score_second&#39;</span>

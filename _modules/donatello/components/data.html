@@ -146,7 +146,7 @@
 
 <span class="kn">from</span> <span class="nn">donatello.utils.base</span> <span class="k">import</span> <span class="n">Dobject</span><span class="p">,</span> <span class="n">RANDOM_SEED</span>
 <span class="kn">from</span> <span class="nn">donatello.utils.decorators</span> <span class="k">import</span> <span class="n">decorator</span><span class="p">,</span> <span class="n">init_time</span><span class="p">,</span> <span class="n">fallback</span><span class="p">,</span> <span class="n">coelesce</span>
-<span class="kn">from</span> <span class="nn">donatello.utils.helpers</span> <span class="k">import</span> <span class="n">find_value</span><span class="p">,</span> <span class="n">replace_value</span><span class="p">,</span> <span class="n">nvl</span><span class="p">,</span> <span class="n">access</span>
+<span class="kn">from</span> <span class="nn">donatello.utils.helpers</span> <span class="k">import</span> <span class="n">find_value</span><span class="p">,</span> <span class="n">replace_value</span><span class="p">,</span> <span class="n">access</span>
 
 
 <span class="n">_BASE</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
@@ -154,18 +154,18 @@
          <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="n">RANDOM_SEED</span><span class="p">}</span>
 
 
-<span class="n">TYPEDISPATCH</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">KFold</span><span class="p">,</span>
-                <span class="s1">&#39;stratify&#39;</span><span class="p">:</span> <span class="n">StratifiedKFold</span><span class="p">,</span>
-                <span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="n">GroupShuffleSplit</span><span class="p">,</span>
-                <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">TimeSeriesSplit</span>
-                <span class="p">}</span>
-
-
-<span class="n">KWARGDISPATCH</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">_BASE</span><span class="p">,</span>
-                 <span class="s1">&#39;stratify&#39;</span><span class="p">:</span> <span class="n">_BASE</span><span class="p">,</span>
-                 <span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="n">RANDOM_SEED</span><span class="p">},</span>
-                 <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+<span class="n">TYPE_DISPATCH</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">KFold</span><span class="p">,</span>
+                 <span class="s1">&#39;stratify&#39;</span><span class="p">:</span> <span class="n">StratifiedKFold</span><span class="p">,</span>
+                 <span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="n">GroupShuffleSplit</span><span class="p">,</span>
+                 <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">TimeSeriesSplit</span>
                  <span class="p">}</span>
+
+
+<span class="n">KWARG_DISPATCH</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="n">_BASE</span><span class="p">,</span>
+                  <span class="s1">&#39;stratify&#39;</span><span class="p">:</span> <span class="n">_BASE</span><span class="p">,</span>
+                  <span class="s1">&#39;group&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="n">RANDOM_SEED</span><span class="p">},</span>
+                  <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;n_splits&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+                  <span class="p">}</span>
 
 
 <div class="viewcode-block" id="Fold"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold">[docs]</a><span class="k">class</span> <span class="nc">Fold</span><span class="p">(</span><span class="n">Dobject</span><span class="p">):</span>
@@ -177,29 +177,27 @@
 <span class="sd">        target (str): name of target field if supervised</span>
 <span class="sd">        primaryKey (str): if dictionary of dataframes, key of dictionary\</span>
 <span class="sd">            containing primrary df</span>
-<span class="sd">        scoreClay (str): option to set scoring options through dispatch</span>
-<span class="sd">        foldClay (str): option to set fodling options through dispatch</span>
+<span class="sd">        clay (str): option to set folding options through dispatch</span>
 <span class="sd">        splitDispatch(dict): Folding Types keyed by clays</span>
 <span class="sd">        kwargDispatch(dict): keyword arguments conjugate to folding types</span>
-<span class="sd">        dap (str): option add runtime kwargs to folding and split (i.e. groups)</span>
+<span class="sd">        groupDap (str): option add runtime kwargs to folding and split (i.e. groups)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@init_time</span>
-    <span class="nd">@coelesce</span><span class="p">(</span><span class="n">dap</span><span class="o">=</span><span class="p">{})</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">scoreClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">foldClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">splitDispatch</span><span class="o">=</span><span class="n">TYPEDISPATCH</span><span class="p">,</span> <span class="n">kwargDispatch</span><span class="o">=</span><span class="n">KWARGDISPATCH</span><span class="p">,</span>
-                 <span class="n">dap</span><span class="o">=</span><span class="kc">None</span>
+    <span class="nd">@coelesce</span><span class="p">(</span><span class="n">groupDap</span><span class="o">=</span><span class="p">{},</span> <span class="n">dataMap</span><span class="o">=</span><span class="p">{})</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">splitDispatch</span><span class="o">=</span><span class="n">TYPE_DISPATCH</span><span class="p">,</span> <span class="n">kwargDispatch</span><span class="o">=</span><span class="n">KWARG_DISPATCH</span><span class="p">,</span>
+                 <span class="n">groupDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataMap</span><span class="o">=</span><span class="kc">None</span>
                  <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span> <span class="o">=</span> <span class="n">primaryKey</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scoreClay</span> <span class="o">=</span> <span class="n">scoreClay</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">foldClay</span> <span class="o">=</span> <span class="n">foldClay</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">splitDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">foldClay</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">foldClay</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="o">=</span> <span class="n">dap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clay</span> <span class="o">=</span> <span class="n">clay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">splitDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">clay</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">clay</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">groupDap</span> <span class="o">=</span> <span class="n">groupDap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataMap</span> <span class="o">=</span> <span class="n">dataMap</span>
 
-<div class="viewcode-block" id="Fold.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.fit">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;primaryKey&#39;</span><span class="p">,</span> <span class="s1">&#39;dap&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Fold.fit"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.fit">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;primaryKey&#39;</span><span class="p">,</span> <span class="s1">&#39;groupDap&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        fit fold  =&gt; finds and store values for each set</span>
 
@@ -208,17 +206,17 @@
 <span class="sd">            target (str): str name of target field to separate</span>
 <span class="sd">            primaryKey (str): key for primary field (if dataset.data \</span>
 <span class="sd">                is dict not df)</span>
-<span class="sd">            dap (dict): objects dap, fit will use groups key if exists</span>
+<span class="sd">            groupDap (dict): payload to specify groups through access</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            object: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">primaryKey</span> <span class="k">else</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">primaryKey</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">primaryKey</span> <span class="k">else</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">[</span><span class="n">primaryKey</span><span class="p">]</span>
 
-        <span class="n">groups</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">dap</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">])</span> <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">condition</span> <span class="o">=</span> <span class="n">target</span> <span class="ow">and</span> <span class="p">(</span><span class="n">target</span> <span class="ow">in</span> <span class="n">df</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">condition</span> <span class="k">else</span> <span class="n">df</span><span class="p">,</span>
-                                       <span class="n">df</span><span class="p">[</span><span class="n">target</span><span class="p">]</span> <span class="k">if</span> <span class="n">condition</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="o">**</span><span class="n">groupDap</span><span class="p">)</span> <span class="k">if</span> <span class="n">groupDap</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
+                                       <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="p">,</span>
                                        <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                             <span class="p">)</span>
 
@@ -247,16 +245,42 @@
         <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">testMask</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span>
 
-<div class="viewcode-block" id="Fold.split"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">access</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-                      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="p">{})</span>
-        <span class="c1"># [kwargs.update({i: j}) for i, j in zip([&#39;X&#39;, &#39;y&#39;, &#39;groups&#39;], [X, y, groups]) if j is not None]</span>
-        <span class="p">[</span><span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="n">j</span><span class="p">})</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;groups&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">groups</span><span class="p">])]</span>
+<div class="viewcode-block" id="Fold.split"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span></div>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">_wrap_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+        <span class="n">_trainMask</span><span class="p">,</span> <span class="n">_testMask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_masks</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataMap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Fold.fold"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.fold">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;primaryKey&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">fold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">_trainMask</span><span class="p">,</span> <span class="n">_testMask</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span>
+
+    <span class="k">def</span> <span class="nf">_package_fold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">groupDap</span><span class="p">):</span>
+        <span class="c1"># move build_masks to access</span>
+        <span class="n">over</span> <span class="o">=</span> <span class="n">groupDap</span><span class="p">[</span><span class="s1">&#39;attrPath&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">groupDap</span> <span class="k">else</span> <span class="s1">&#39;index&#39;</span>
+        <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_masks</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">over</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
+
+        <span class="n">designTrain</span><span class="p">,</span> <span class="n">designTest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">designTrain</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span> <span class="n">designTrain</span><span class="p">}</span>
+            <span class="n">designTest</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span> <span class="n">designTest</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span>
+                    <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataMap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">designTrain</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">designTest</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">target</span> <span class="ow">and</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
+            <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">target</span><span class="p">],</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">(</span><span class="n">designTrain</span><span class="p">,</span> <span class="n">designTest</span><span class="p">,</span> <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+<div class="viewcode-block" id="Fold.fold"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Fold.fold">[docs]</a>    <span class="nd">@fallback</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;primaryKey&#39;</span><span class="p">,</span> <span class="s1">&#39;groupDap&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groupDap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Split data data into design/target train/test/data</span>
 
@@ -267,40 +291,11 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: paylod of train/test/data &lt;&gt; design/target subsets</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
         <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">primaryKey</span><span class="p">]</span> <span class="k">if</span> <span class="n">primaryKey</span> <span class="k">else</span> <span class="n">dataset</span><span class="o">.</span><span class="n">data</span>
-
-        <span class="k">def</span> <span class="nf">_wrap_split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
-            <span class="n">_trainMask</span><span class="p">,</span> <span class="n">_testMask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_masks</span><span class="p">(</span>
-                <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataMap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
-            <span class="n">_designTrain</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">_designTest</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">_trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">_designTrain</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">_designTest</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ids&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-
         <span class="k">for</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ids</span><span class="p">:</span>
-            <span class="n">over</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">][</span><span class="s1">&#39;attrPath&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;groups&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dap</span> <span class="k">else</span> <span class="s1">&#39;index&#39;</span>
-            <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_masks</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">over</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
-
-            <span class="n">designTrain</span><span class="p">,</span> <span class="n">designTest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
-
-            <span class="n">_designTrain</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span> <span class="n">designTrain</span><span class="p">}</span>
-            <span class="n">_designTest</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span> <span class="n">designTest</span><span class="p">}</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span>
-                        <span class="n">_designTrain</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">_designTest</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_wrap_split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
-
-            <span class="n">designTrain</span> <span class="o">=</span> <span class="n">_designTrain</span> <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_designTrain</span> <span class="k">else</span> <span class="n">_designTrain</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-            <span class="n">designTest</span> <span class="o">=</span> <span class="n">_designTest</span> <span class="k">if</span> <span class="kc">None</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_designTest</span> <span class="k">else</span> <span class="n">_designTest</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="n">target</span> <span class="ow">and</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">df</span><span class="p">:</span>
-                <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">target</span><span class="p">],</span> <span class="n">trainMask</span><span class="p">,</span> <span class="n">testMask</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-            <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">designTrain</span><span class="p">,</span> <span class="n">designTest</span><span class="p">,</span> <span class="n">targetTrain</span><span class="p">,</span> <span class="n">targetTest</span><span class="p">]</span>
-
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package_fold</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">groupDap</span><span class="p">)</span>
             <span class="k">yield</span> <span class="n">results</span>
         <span class="k">raise</span> <span class="ne">StopIteration</span></div></div>
 
@@ -322,22 +317,6 @@
     <span class="k">return</span> <span class="n">state</span></div>
 
 
-<span class="c1"># !!!TODO</span>
-<span class="c1"># deprecate this abomination</span>
-<div class="viewcode-block" id="fit_fold"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.fit_fold">[docs]</a><span class="nd">@decorator</span>
-<span class="k">def</span> <span class="nf">fit_fold</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">instance</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
-        <span class="n">attrs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;designTrain&#39;</span><span class="p">,</span> <span class="s1">&#39;designTest&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;targetTrain&#39;</span><span class="p">,</span> <span class="s1">&#39;targetTest&#39;</span><span class="p">)</span>
-        <span class="n">folded</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span><span class="n">instance</span><span class="p">))</span>
-        <span class="p">[</span><span class="nb">setattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">folded</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="k">except</span> <span class="ne">BaseException</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">return</span> <span class="n">result</span></div>
-
-
 <div class="viewcode-block" id="Dataset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset">[docs]</a><span class="k">class</span> <span class="nc">Dataset</span><span class="p">(</span><span class="n">Dobject</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Maintain and provide access to underlying information and metadata</span>
@@ -347,37 +326,38 @@
 <span class="sd">        X (obj): option to specify design directly</span>
 <span class="sd">        y (obj): option to specify target directly</span>
 <span class="sd">        copyRaw (bool): option to have data return copy of raw to preserve fetch</span>
-<span class="sd">        foldClay (str): option to set fodling options through dispatch</span>
+<span class="sd">        clay (str): option to set fodling options through dispatch</span>
 <span class="sd">        foldType(type): type of fold object</span>
-<span class="sd">        scoreClay (str): option to set scoring options through dispatch</span>
-<span class="sd">        dap (dict): dap for Folder</span>
+<span class="sd">        groupDap (dict): groupDap for Folder</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@init_time</span>
+    <span class="nd">@coelesce</span><span class="p">(</span><span class="n">dataMap</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">copyRaw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                 <span class="n">foldClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">foldType</span><span class="o">=</span><span class="n">Fold</span><span class="p">,</span>
-                 <span class="n">scoreClay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">clay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">foldType</span><span class="o">=</span><span class="n">Fold</span><span class="p">,</span>
                  <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">dap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span>
+                 <span class="n">groupDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataMap</span><span class="o">=</span><span class="kc">None</span>
                  <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">copyRaw</span> <span class="o">=</span> <span class="n">copyRaw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">foldClay</span> <span class="o">=</span> <span class="n">foldClay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clay</span> <span class="o">=</span> <span class="n">clay</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">foldType</span> <span class="o">=</span> <span class="n">foldType</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span> <span class="k">if</span> <span class="n">target</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span> <span class="o">=</span> <span class="n">primaryKey</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">force</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataMap</span> <span class="o">=</span> <span class="n">dataMap</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">fold</span> <span class="o">=</span> <span class="n">foldType</span><span class="p">(</span><span class="n">foldClay</span><span class="o">=</span><span class="n">foldClay</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="n">primaryKey</span><span class="p">,</span> <span class="n">dap</span><span class="o">=</span><span class="n">dap</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fold</span> <span class="o">=</span> <span class="n">foldType</span><span class="p">(</span><span class="n">clay</span><span class="o">=</span><span class="n">clay</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="n">primaryKey</span><span class="p">,</span> <span class="n">groupDap</span><span class="o">=</span><span class="n">groupDap</span><span class="p">,</span>
+                             <span class="n">dataMap</span><span class="o">=</span><span class="n">dataMap</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">raw</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">]]):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">dap</span>
+    <span class="k">def</span> <span class="nf">groupDap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">groupDap</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -397,56 +377,56 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">copyRaw</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;raw&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span>
         <span class="k">return</span> <span class="n">value</span>
-
-    <span class="nd">@data</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hasData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">has_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">_link_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">raw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_link_dfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="n">XDf</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">]</span>
+        <span class="n">primary</span> <span class="o">=</span> <span class="p">[</span><span class="n">XDf</span><span class="p">]</span>
+        <span class="n">primary</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">primary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">primary</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">]</span> <span class="o">=</span> <span class="n">primary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">X</span>
+
 <div class="viewcode-block" id="Dataset.link"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset.link">[docs]</a>    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="n">raw</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">]</span> <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
-            <span class="n">raw</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">designData</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">designData</span> <span class="o">=</span> <span class="n">X</span>
-            <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetData</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">targetData</span> <span class="o">=</span> <span class="n">y</span>
+            <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_designData</span> <span class="o">=</span> <span class="n">X</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_targetData</span> <span class="o">=</span> <span class="n">y</span>
+
             <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">name</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_link_dfs</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_link_df</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span>
-
-        <span class="k">if</span> <span class="n">has_data</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="ow">or</span> <span class="n">has_data</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_fold</span><span class="p">()</span></div>
-
-    <span class="k">def</span> <span class="nf">_fit_fold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">attrs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;designTrain&#39;</span><span class="p">,</span> <span class="s1">&#39;designTest&#39;</span><span class="p">,</span>
-                 <span class="s1">&#39;targetTrain&#39;</span><span class="p">,</span> <span class="s1">&#39;targetTest&#39;</span><span class="p">)</span>
-        <span class="n">folded</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-        <span class="p">[</span><span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">attrs</span><span class="p">,</span> <span class="n">folded</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span></div>
 
     <span class="k">def</span> <span class="nf">_split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fold</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>  <span class="c1"># :(</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_has_design</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">has</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-            <span class="n">has</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">has</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">])</span>
-            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-                <span class="n">has</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="n">has</span>
+    <span class="c1"># @property</span>
+    <span class="c1"># def _has_design(self):</span>
+        <span class="c1"># if self.data is None:</span>
+            <span class="c1"># has = False</span>
+        <span class="c1"># elif isinstance(self.data, pd.Series):</span>
+            <span class="c1"># has = self.data.name != self.target</span>
+        <span class="c1"># else:</span>
+            <span class="c1"># try:</span>
+                <span class="c1"># has = bool([i for i in self.data if i != self.target])</span>
+            <span class="c1"># except TypeError:</span>
+                <span class="c1"># has = False</span>
+        <span class="c1"># return has</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_has_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -456,35 +436,47 @@
             <span class="n">has</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">has</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+                <span class="n">_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+                <span class="n">has</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">in</span> <span class="n">_df</span>
             <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
                 <span class="n">has</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">has</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">designData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_designData&#39;</span><span class="p">):</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_designData</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_design</span><span class="p">:</span>
-            <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">()</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">primary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">:</span> <span class="n">primary</span><span class="p">}</span>
+                <span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">except</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">output</span>
 
     <span class="nd">@designData</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">designData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_designData</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="c1"># use reassign</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">targetData</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">targetData</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_targetData&#39;</span><span class="p">):</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_targetData</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_target</span><span class="p">:</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split</span><span class="p">()</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># if hasattr(self, &#39;_targetData&#39;):</span>
+            <span class="c1"># output = self._targetData</span>
+        <span class="c1"># elif self._has_target:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
+        <span class="c1"># else:</span>
+        <span class="k">except</span><span class="p">:</span>
             <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">output</span>
 
@@ -493,12 +485,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_targetData</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">designTrain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">take</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">targetTrain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">take</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">designTest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">take</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">targetTest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">take</span><span class="p">()[</span><span class="mi">3</span><span class="p">]</span>
+
 <div class="viewcode-block" id="Dataset.subset"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset.subset">[docs]</a>    <span class="k">def</span> <span class="nf">subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new `donatello.components.data.Dataset`</span>
 <span class="sd">        with a (sub)set of the dataset&#39;s data. Either</span>
 <span class="sd">        by referencing by name (train, test) or passing</span>
-<span class="sd">        a dap for :py:func:`donatello.utils.helpers.access`</span>
+<span class="sd">        a payload for :py:func:`donatello.utils.helpers.access`</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            subset (str|dict): attribute to select</span>
@@ -525,12 +533,17 @@
         <span class="k">return</span> <span class="n">results</span>
 
 <div class="viewcode-block" id="Dataset.take"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset.take">[docs]</a>    <span class="k">def</span> <span class="nf">take</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">designData</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">targetData</span><span class="p">))</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_take</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">_package_fold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupDap</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="Dataset.with_params"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.data.Dataset.with_params">[docs]</a>    <span class="k">def</span> <span class="nf">with_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">})</span>
+
         <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="n">raw</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
@@ -554,14 +567,16 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">dataset</span><span class="p">:</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">find_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">find_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">)</span>
-        <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">replace_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">replace_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">replace_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;X&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">replace_value</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">):</span>
             <span class="n">dataset</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">dataset</span>
         <span class="k">elif</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">)</span>\
                 <span class="ow">and</span> <span class="n">instance</span><span class="o">.</span><span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">instance</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">instance</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">param</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">param</span> <span class="k">if</span> <span class="n">dataset</span> <span class="k">else</span> <span class="p">{}</span>
@@ -636,8 +651,8 @@
     <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span> <span class="k">if</span> <span class="p">(</span><span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="n">X</span> <span class="k">if</span> <span class="p">(</span><span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">instance</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="n">nvl</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="n">attr</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">slicers</span><span class="o">=</span><span class="p">())</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;columns&#39;</span><span class="p">,</span> <span class="s1">&#39;keys&#39;</span><span class="p">]]))</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>  <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">cb</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+        <span class="c1"># Need dfs to find schema</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">fieldDtypes</span> <span class="o">=</span> <span class="n">access</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;dtypes&#39;</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;to_dict&#39;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">slicers</span><span class="o">=</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="n">result</span></div>

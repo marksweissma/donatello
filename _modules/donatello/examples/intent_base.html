@@ -178,8 +178,8 @@
 
     <span class="c1"># Declare intent for partitioning data over groups (rather than all rows being independent)</span>
     <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;foldClay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;group&#39;</span>
-        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;dap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;groups&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;attrPath&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;groups_column&#39;</span><span class="p">],</span> <span class="s1">&#39;slicers&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)}}</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;clay&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;group&#39;</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;groupDap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;attrPath&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;groups_column&#39;</span><span class="p">],</span> <span class="s1">&#39;slicers&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)}</span>
 
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataset</span></div>

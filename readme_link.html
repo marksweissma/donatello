@@ -156,14 +156,13 @@
 </style>
 <div class="section" id="readme-file">
 <h1>Readme File<a class="headerlink" href="#readme-file" title="Permalink to this headline">¶</a></h1>
-<p>(.rst not .md)</p>
 <p>Note donatello is not officially released, there is a test wheel on <code class="docutils literal notranslate"><span class="pre">test.pypi.org</span></code>
 if you want to take a look. The core is intact and basic examples are all turn key</p>
 <p>The test wheel is only python 2 compatible. Python 3 compatibility (and tests) are in the works.
 Donatello will be py2/3 compatible upon official release to pypi.</p>
 <p>For now:</p>
 <p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-i</span> <span class="pre">https://test.pypi.org/simple/</span> <span class="pre">donatello</span></code></p>
-<p>For walk through see notebooks, for interactive runnable examples in <code class="docutils literal notranslate"><span class="pre">donatello/examples</span></code> see simple, pipeline or line_graph intents.</p>
+<p>For walk through see <code class="docutils literal notranslate"><span class="pre">notebooks</span></code>, for interactive runnable examples in <code class="docutils literal notranslate"><span class="pre">donatello/examples</span></code> see simple, pipeline or line_graph intents.</p>
 <p>Docs via <a class="reference external" href="https://marksweissma.github.io/donatello/">github pages</a></p>
 <p>Donatello is a modeling framework designed to improve iteration speed of developemnt while bringing traceability and reproducibility
 without adding overhead to data scientist’s development time</p>
@@ -171,9 +170,9 @@ without adding overhead to data scientist’s development time</p>
 Components are the core, and utilities help manage the codebase and generic non-sevice oriented functionality.
 The <code class="docutils literal notranslate"><span class="pre">transformers</span></code> components support robust bindings between <code class="docutils literal notranslate"><span class="pre">pandas</span></code> and <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> for a range of applications from helping understand feature importances to enabling the DataFrame functionality that <code class="docutils literal notranslate"><span class="pre">numpy</span></code> does not support (well).</p>
 <p>Supported model types:</p>
-<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>#. Donatello comes with a DAG executor for building, managing, sharing, and reusing transformations, while supporting composibility throughout objects.
-#. Scikit-learn model objects (fit, predict/predict_proba) directly.
-#. Donatello has a light wrapper around scikit-learn&#39;s Pipeline to support the required metadata
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>1. Donatello comes with a DAG executor for building, managing, sharing, and reusing transformations, while supporting composibility throughout objects.
+2. Scikit-learn model objects (fit, predict/predict_proba) directly.
+3. Donatello has a light wrapper around scikit-learn&#39;s Pipeline to support the required metadata
 </pre></div>
 </div>
 <p>Components:</p>
@@ -184,6 +183,9 @@ The <code class="docutils literal notranslate"><span class="pre">transformers</s
 <li>The <code class="docutils literal notranslate"><span class="pre">Measure</span></code> objects are responsbile for evaluating models on unseen data, via <code class="docutils literal notranslate"><span class="pre">Metric</span></code> <em>functors</em> through cross validaiton and hold out scoring.</li>
 </ol>
 <p>Questions, comments, feature requests please reach out!</p>
+<p>Author Note:
+This project was incepted as a way to learn about decorators (before starting I had never written one). While I’ve
+learned a lot through that process, some of the technical debt in this project is still an artifact of that motivation and that lack of experience.</p>
 </div>
 
 
