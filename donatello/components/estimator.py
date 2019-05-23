@@ -128,7 +128,6 @@ class Estimator(Dobject, BaseTransformer):
         self.model.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
         return self
 
-    # Move to dispatch
     @pandas_series
     def score(self, X, name=''):
         scores = self.scorer(self, X)
