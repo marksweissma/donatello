@@ -12,8 +12,9 @@ Welcome to donatello's documentation!
 
    readme_link
    quickstart
-   sculpture
+   quick_start_example
    model_types
+   housing_prices
    donatello
 
 

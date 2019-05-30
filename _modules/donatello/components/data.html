@@ -87,8 +87,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../readme_link.html">Readme File</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start_example.html">Quickstart Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_types.html">Model Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../housing_prices.html">Housing prices &amp; y transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
 </ul>
 
@@ -177,7 +178,7 @@
 <span class="sd">        target (str): name of target field if supervised</span>
 <span class="sd">        primaryKey (str): if dictionary of dataframes, key of dictionary\</span>
 <span class="sd">            containing primrary df</span>
-<span class="sd">        clay (str): option to set folding options through dispatch</span>
+<span class="sd">        clay (str|obj): option to set folding options through dispatch or supply folding object</span>
 <span class="sd">        splitDispatch(dict): Folding Types keyed by clays</span>
 <span class="sd">        kwargDispatch(dict): keyword arguments conjugate to folding types</span>
 <span class="sd">        groupDap (str): option add runtime kwargs to folding and split (i.e. groups)</span>
@@ -185,14 +186,17 @@
     <span class="nd">@init_time</span>
     <span class="nd">@coelesce</span><span class="p">(</span><span class="n">groupDap</span><span class="o">=</span><span class="p">{},</span> <span class="n">dataMap</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primaryKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">clay</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">splitDispatch</span><span class="o">=</span><span class="n">TYPE_DISPATCH</span><span class="p">,</span> <span class="n">kwargDispatch</span><span class="o">=</span><span class="n">KWARG_DISPATCH</span><span class="p">,</span>
                  <span class="n">groupDap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataMap</span><span class="o">=</span><span class="kc">None</span>
                  <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">primaryKey</span> <span class="o">=</span> <span class="n">primaryKey</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clay</span> <span class="o">=</span> <span class="n">clay</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">splitDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">clay</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargDispatch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">clay</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clay</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">clay</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clay</span><span class="p">,</span> <span class="n">basestring</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">clay</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">TYPE_DISPATCH</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">clay</span><span class="p">)(</span><span class="o">**</span><span class="n">KWARG_DISPATCH</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">clay</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="n">clay</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">groupDap</span> <span class="o">=</span> <span class="n">groupDap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataMap</span> <span class="o">=</span> <span class="n">dataMap</span>
 

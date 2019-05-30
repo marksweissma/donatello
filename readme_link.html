@@ -90,6 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sculpture.html">Sculpture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_types.html">Model Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ranking_search.html">Table of Contents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
 </ul>
 
@@ -153,6 +154,11 @@
 .admonition > p:before {
     margin-right: 4px;  /* make room for the exclamation icon */
 }
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
 </style>
 <div class="section" id="readme-file">
 <h1>Readme File<a class="headerlink" href="#readme-file" title="Permalink to this headline">¶</a></h1>
@@ -170,9 +176,9 @@ without adding overhead to data scientist’s development time</p>
 Components are the core, and utilities help manage the codebase and generic non-sevice oriented functionality.
 The <code class="docutils literal notranslate"><span class="pre">transformers</span></code> components support robust bindings between <code class="docutils literal notranslate"><span class="pre">pandas</span></code> and <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> for a range of applications from helping understand feature importances to enabling the DataFrame functionality that <code class="docutils literal notranslate"><span class="pre">numpy</span></code> does not support (well).</p>
 <p>Supported model types:</p>
-<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span>1. Donatello comes with a DAG executor for building, managing, sharing, and reusing transformations, while supporting composibility throughout objects.
-2. Scikit-learn model objects (fit, predict/predict_proba) directly.
-3. Donatello has a light wrapper around scikit-learn&#39;s Pipeline to support the required metadata
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span>. <span class="nv">Donatello</span> <span class="nv">comes</span> <span class="nv">with</span> <span class="nv">a</span> <span class="nv">DAG</span> <span class="nv">executor</span> <span class="k">for</span> <span class="nv">building</span>, <span class="nv">managing</span>, <span class="nv">sharing</span>, <span class="nv">and</span> <span class="nv">reusing</span> <span class="nv">transformations</span>, <span class="k">while</span> <span class="nv">supporting</span> <span class="nv">composibility</span> <span class="nv">throughout</span> <span class="nv">objects</span>.
+<span class="mi">2</span>. <span class="nv">Scikit</span><span class="o">-</span><span class="nv">learn</span> <span class="nv">model</span> <span class="nv">objects</span> <span class="ss">(</span><span class="nv">fit</span>, <span class="nv">predict</span><span class="o">/</span><span class="nv">predict_proba</span><span class="ss">)</span> <span class="nv">directly</span>.
+<span class="mi">3</span>. <span class="nv">Donatello</span> <span class="nv">has</span> <span class="nv">a</span> <span class="nv">light</span> <span class="nv">wrapper</span> <span class="nv">around</span> <span class="nv">scikit</span><span class="o">-</span><span class="nv">learn</span><span class="s1">&#39;</span><span class="s">s Pipeline to support the required metadata</span>
 </pre></div>
 </div>
 <p>Components:</p>

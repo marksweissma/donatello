@@ -34,7 +34,7 @@
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
     <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="donatello package" href="donatello.html"/>
+        <link rel="next" title="Table of Contents" href="ranking_search.html"/>
         <link rel="prev" title="Sculpture" href="sculpture.html"/> 
 
   
@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#branching-example">Branching Example</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="ranking_search.html">Table of Contents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
 </ul>
 
@@ -159,17 +160,22 @@
 .admonition > p:before {
     margin-right: 4px;  /* make room for the exclamation icon */
 }
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
 </style>
 <div class="section" id="model-types">
 <h1>Model Types<a class="headerlink" href="#model-types" title="Permalink to this headline">¶</a></h1>
 <p>The previous example demonstrates building a model without transforming data or engineering features.</p>
-<p>The  <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a> is a great place to start for feature engineering.
+<p>The  <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a> is a great place to start for feature engineering.
 Donatello supports scikit-learn with a light wrapper to capture the metadata neccesary for
 the model to uphold it’s contracts.</p>
 <div class="section" id="pipeline">
 <h2>Pipeline<a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h2>
 <p>To support basic transformation donatello packages a lightly wrapped
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>. Replacing the
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>. Replacing the
 Logit in the last section with a pipeline that scales is identical (save the import path)
 to standard operating procedure in scikit-learn</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">donatello.components.transformers</span> <span class="kn">import</span> <span class="n">Pipeline</span>
@@ -322,7 +328,7 @@ are</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="donatello.html" class="btn btn-neutral float-right" title="donatello package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="ranking_search.html" class="btn btn-neutral float-right" title="Table of Contents" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="sculpture.html" class="btn btn-neutral" title="Sculpture" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

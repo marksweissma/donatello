@@ -99,6 +99,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="model_types.html">Model Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ranking_search.html">Table of Contents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
 </ul>
 
@@ -162,6 +163,11 @@
 .admonition > p:before {
     margin-right: 4px;  /* make room for the exclamation icon */
 }
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
 </style>
 <div class="section" id="sculpture">
 <h1>Sculpture<a class="headerlink" href="#sculpture" title="Permalink to this headline">¶</a></h1>
@@ -178,7 +184,7 @@
 </ol>
 </div></blockquote>
 <p>Sculptures can be embedded as nodes in <a class="reference internal" href="donatello.components.html#donatello.components.transformers.ModelDAG" title="donatello.components.transformers.ModelDAG"><code class="xref py py-class docutils literal notranslate"><span class="pre">donatello.components.transformers.ModelDAG</span></code></a> as well
-as transformers in <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></p>
+as transformers in <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a></p>
 <p>Donatello approaches model configuration as declaring intent. Everything required
 to build evaluate and produce artifacts is specified during instantiation.</p>
 <div class="section" id="intent">

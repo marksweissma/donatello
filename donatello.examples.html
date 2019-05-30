@@ -86,8 +86,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="readme_link.html">Readme File</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start_example.html">Quickstart Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="model_types.html">Model Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="housing_prices.html">Housing prices &amp; y transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
 </ul>
 
@@ -150,6 +151,11 @@
 
 .admonition > p:before {
     margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
 }
 </style>
 <div class="section" id="donatello-examples-package">
@@ -270,7 +276,7 @@ breast cancer data set to classify malignancy</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model</strong> (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.21.1)"><em>sklearn.base.BaseEstimator</em></a>) – ml prediction object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model</strong> (<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v0.21.2)"><em>sklearn.base.BaseEstimator</em></a>) – ml prediction object</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">execution graph</td>
 </tr>

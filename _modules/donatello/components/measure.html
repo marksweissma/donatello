@@ -87,8 +87,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../readme_link.html">Readme File</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../sculpture.html">Sculpture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start_example.html">Quickstart Example</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model_types.html">Model Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../housing_prices.html">Housing prices &amp; y transforms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../donatello.html">donatello package</a></li>
 </ul>
 
@@ -152,16 +153,19 @@
 
 <div class="viewcode-block" id="pass_through"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.pass_through">[docs]</a><span class="k">def</span> <span class="nf">pass_through</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    returns x</span>
+<span class="sd">    returns x (this enables strict enforcement of applying a function to output rather than</span>
+<span class="sd">    a control flow)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">x</span></div>
 
 
 <span class="c1"># FIX THIS</span>
-<span class="k">def</span> <span class="nf">_append_in_place</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">df2</span><span class="p">):</span>
-    <span class="n">store</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df2</span><span class="p">)</span>
+<span class="c1"># move to access</span>
+<span class="k">def</span> <span class="nf">_append_in_place</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">store</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
 
+<span class="c1"># something better here</span>
 <span class="k">def</span> <span class="nf">_option_sort</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">sort</span><span class="p">):</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">sort</span><span class="p">)</span> <span class="k">if</span> <span class="n">sort</span> <span class="k">else</span> <span class="n">df</span>
     <span class="k">return</span> <span class="n">df</span>
@@ -307,6 +311,7 @@
     <span class="nd">@coelesce</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">],</span> <span class="n">agg</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">],</span> <span class="n">evalKwargs</span><span class="o">=</span><span class="p">{})</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scorer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">callback</span><span class="o">=</span><span class="n">pass_through</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">withX</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">evalArgs</span><span class="o">=</span><span class="p">(),</span> <span class="n">evalKwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span> <span class="o">=</span> <span class="n">scorer</span>
@@ -314,8 +319,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="n">_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">agg</span> <span class="o">=</span> <span class="n">agg</span>
+        <span class="c1"># hack: fix this</span>
         <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">withX</span> <span class="o">=</span> <span class="n">withX</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span> <span class="o">=</span> <span class="n">view</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sort</span> <span class="o">=</span> <span class="n">sort</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evalArgs</span> <span class="o">=</span> <span class="n">evalArgs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evalKwargs</span> <span class="o">=</span> <span class="n">evalKwargs</span>
@@ -332,19 +340,40 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 <div class="viewcode-block" id="Metric.evaluate"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Metric.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="p">(</span><span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">evalArgs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">evalKwargs</span><span class="p">)])</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate scorer on data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># move to access</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">withX</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="p">(</span><span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">evalArgs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">evalKwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scorer</span><span class="p">(</span><span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">evalArgs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">evalKwargs</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">scores</span><span class="p">])</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_key&#39;</span><span class="p">):</span>
             <span class="n">df</span><span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
 <div class="viewcode-block" id="Metric.display"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.Metric.display">[docs]</a>    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bunch</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">view_sk_metric</span><span class="p">(</span><span class="n">bunch</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display metric&#39;s data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">view_sk_metric</span><span class="p">(</span><span class="n">bunch</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Metric does not have viewiing function, set self.view&#39;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FeatureWeights"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.FeatureWeights">[docs]</a><span class="k">class</span> <span class="nc">FeatureWeights</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Metric to collect model weights. can sort on column name via</span>
+<span class="sd">    attribute name (with trailing `_` stripped)</span>
+<span class="sd">    i.e. coefficients in linear model or feature_importances in tree model</span>
+
+<span class="sd">    attr (str): option to specify additional attribute to pull</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;feature_weights&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;names&#39;</span><span class="p">,</span>
                  <span class="n">callback</span><span class="o">=</span><span class="n">pass_through</span><span class="p">,</span> <span class="n">agg</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
@@ -355,7 +384,6 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            estimator (donatello.estimator.Estimator): has `features` and `model` attributes</span>
-<span class="sd">            attr (str): option to specify additional attribute to pull</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            pandas.DataFrame: values of feature weights</span>
@@ -397,6 +425,10 @@
 
 
 <div class="viewcode-block" id="ThresholdRates"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.ThresholdRates">[docs]</a><span class="k">class</span> <span class="nc">ThresholdRates</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Confusion matrix parameterized by evaluation threshold. Samples</span>
+<span class="sd">    points from score distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="s1">&#39;points&#39;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ThresholdRates</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="n">sort</span><span class="p">)</span>
 
@@ -410,6 +442,7 @@
 <div class="viewcode-block" id="ThresholdRates.evaluate"><a class="viewcode-back" href="../../../donatello.components.html#donatello.components.measure.ThresholdRates.evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># rewrite with dyadic product</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">truth</span><span class="p">,</span> <span class="n">predicted</span> <span class="o">&gt;</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4</span><span class="p">,)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">]</span>
 
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>

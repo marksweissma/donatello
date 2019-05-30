@@ -1,0 +1,2147 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Housing prices &amp; y transforms &mdash; donatello 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="donatello 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="donatello package" href="donatello.html"/>
+        <link rel="prev" title="Model Types" href="model_types.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> donatello
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Readme File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start_example.html">Quickstart Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model_types.html">Model Types</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Housing prices &amp; y transforms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Initial-dataset">Initial dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Augementation">Augementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#target-transforms-on-an-execution-graph">target transforms on an execution graph</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Branching">Branching</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="donatello.html">donatello package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">donatello</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Housing prices &amp; y transforms</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/housing_prices.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 5ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Housing-prices-&amp;-y-transforms">
+<h1>Housing prices &amp; y transforms<a class="headerlink" href="#Housing-prices-&-y-transforms" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">scale</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">r2_score</span><span class="p">,</span> <span class="n">explained_variance_score</span><span class="p">,</span> <span class="n">median_absolute_error</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+
+<span class="kn">from</span> <span class="nn">statsmodels.api</span> <span class="kn">import</span> <span class="n">OLS</span>
+
+<span class="kn">from</span> <span class="nn">donatello.components</span> <span class="kn">import</span> <span class="n">core</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">transformers</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">measure</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Initial-dataset">
+<h2>Initial dataset<a class="headerlink" href="#Initial-dataset" title="Permalink to this headline">¶</a></h2>
+<p>Housing price data from single family homes in Denver CO</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">prices</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;../data/single_family_home_values.csv&#39;</span><span class="p">)</span>
+<span class="n">prices</span><span class="p">[</span><span class="s1">&#39;last_sale_date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prices</span><span class="p">[</span><span class="s1">&#39;last_sale_date&#39;</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">prices</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">prices</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>(3417, 14)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>address</th>
+      <th>city</th>
+      <th>state</th>
+      <th>zipcode</th>
+      <th>property_type</th>
+      <th>square_footage</th>
+      <th>lot_size</th>
+      <th>num_rooms</th>
+      <th>num_bedrooms</th>
+      <th>num_baths</th>
+      <th>year_built</th>
+      <th>last_sale_amount</th>
+      <th>last_sale_date</th>
+      <th>estimated_value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2495 S Milwaukee St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80210</td>
+      <td>Single Family Residence</td>
+      <td>3885</td>
+      <td>7500.0</td>
+      <td>13</td>
+      <td>4</td>
+      <td>5.0</td>
+      <td>2010</td>
+      <td>350000</td>
+      <td>2010-06-07</td>
+      <td>1684147</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2690 Niagara St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80207</td>
+      <td>Single Family Residence</td>
+      <td>1343</td>
+      <td>7500.0</td>
+      <td>6</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>1948</td>
+      <td>31500</td>
+      <td>1978-02-01</td>
+      <td>343104</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3425 Grove St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80211</td>
+      <td>Single Family Residence</td>
+      <td>992</td>
+      <td>6250.0</td>
+      <td>5</td>
+      <td>2</td>
+      <td>2.0</td>
+      <td>1921</td>
+      <td>258000</td>
+      <td>2002-02-19</td>
+      <td>510436</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4794 Claude Ct</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80216</td>
+      <td>Single Family Residence</td>
+      <td>491</td>
+      <td>2990.0</td>
+      <td>3</td>
+      <td>1</td>
+      <td>1.0</td>
+      <td>1891</td>
+      <td>0</td>
+      <td>2011-04-27</td>
+      <td>184105</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3640 N Gaylord St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80205</td>
+      <td>Single Family Residence</td>
+      <td>1365</td>
+      <td>4690.0</td>
+      <td>6</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>1912</td>
+      <td>52600</td>
+      <td>1980-09-01</td>
+      <td>390055</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</div>
+<div class="section" id="Augementation">
+<h2>Augementation<a class="headerlink" href="#Augementation" title="Permalink to this headline">¶</a></h2>
+<p>With a larger dataet a model could learn to relate the sale date and sale amount, but if we had an existing measure for this it’d be helpful. Fortunately consumer price index is readily available in csvs! If this wasn’t a indepedent measure and we needed to control for leakage we could embed the merging in donatello’s ModelDAG (a lightweight execution graph) but since it’s not pernicious we can do it up front for simplicity.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">cpi</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;../data/denver_cpi.csv&#39;</span><span class="p">)</span>
+<span class="n">cpi</span><span class="p">[</span><span class="s1">&#39;DATE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cpi</span><span class="p">[</span><span class="s1">&#39;DATE&#39;</span><span class="p">])</span>
+<span class="n">cpi</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DATE</th>
+      <th>CUUSA433SAH</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1984-01-01</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1985-01-01</td>
+      <td>106.8</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1986-01-01</td>
+      <td>108.2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1987-01-01</td>
+      <td>109.6</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1988-01-01</td>
+      <td>110.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge_asof</span><span class="p">(</span><span class="n">prices</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;last_sale_date&#39;</span><span class="p">),</span> <span class="n">cpi</span><span class="p">,</span>
+                   <span class="n">left_on</span><span class="o">=</span><span class="s1">&#39;last_sale_date&#39;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s1">&#39;DATE&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>address</th>
+      <th>city</th>
+      <th>state</th>
+      <th>zipcode</th>
+      <th>property_type</th>
+      <th>square_footage</th>
+      <th>lot_size</th>
+      <th>num_rooms</th>
+      <th>num_bedrooms</th>
+      <th>num_baths</th>
+      <th>year_built</th>
+      <th>last_sale_amount</th>
+      <th>last_sale_date</th>
+      <th>estimated_value</th>
+      <th>DATE</th>
+      <th>CUUSA433SAH</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3564 Kearney St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80207</td>
+      <td>Single Family Residence</td>
+      <td>1008</td>
+      <td>6410.0</td>
+      <td>6</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>1954</td>
+      <td>50600</td>
+      <td>1966-04-14</td>
+      <td>340952</td>
+      <td>1984-01-01</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1585 S Meade St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80219</td>
+      <td>Single Family Residence</td>
+      <td>947</td>
+      <td>6010.0</td>
+      <td>5</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>1952</td>
+      <td>21500</td>
+      <td>1975-02-01</td>
+      <td>257016</td>
+      <td>1984-01-01</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>63 Yates St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80219</td>
+      <td>Single Family Residence</td>
+      <td>803</td>
+      <td>6250.0</td>
+      <td>4</td>
+      <td>2</td>
+      <td>1.0</td>
+      <td>1955</td>
+      <td>25000</td>
+      <td>1975-03-01</td>
+      <td>241671</td>
+      <td>1984-01-01</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3020 Newton St</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80211</td>
+      <td>Single Family Residence</td>
+      <td>2000</td>
+      <td>6350.0</td>
+      <td>9</td>
+      <td>4</td>
+      <td>3.0</td>
+      <td>1909</td>
+      <td>15000</td>
+      <td>1975-03-01</td>
+      <td>762124</td>
+      <td>1984-01-01</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2481 S Holly Pl</td>
+      <td>Denver</td>
+      <td>CO</td>
+      <td>80222</td>
+      <td>Single Family Residence</td>
+      <td>2398</td>
+      <td>13024.0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>3.0</td>
+      <td>1957</td>
+      <td>45000</td>
+      <td>1975-03-01</td>
+      <td>554375</td>
+      <td>1984-01-01</td>
+      <td>104.1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">load_sculpture</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
+                   <span class="n">model</span><span class="o">=</span><span class="n">LinearRegression</span><span class="p">(),</span>
+                   <span class="n">paramGrid</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                   <span class="n">searchKwargs</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper to load sculpture</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">raw</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;estimated_value&#39;</span><span class="p">)</span>
+
+    <span class="n">e</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="n">Estimator</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">paramGrid</span><span class="o">=</span><span class="n">paramGrid</span><span class="p">,</span> <span class="n">searchKwargs</span><span class="o">=</span><span class="n">searchKwargs</span><span class="p">)</span>
+
+    <span class="c1"># sklearn metrics</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="p">[</span><span class="n">measure</span><span class="o">.</span><span class="n">Metric</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span> <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">(</span><span class="n">r2_score</span><span class="p">,</span> <span class="n">explained_variance_score</span><span class="p">,</span> <span class="n">median_absolute_error</span><span class="p">)]</span>
+    <span class="c1"># donatello custom metric</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">measure</span><span class="o">.</span><span class="n">FeatureWeights</span><span class="p">())</span>
+
+    <span class="n">sculpture</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">Sculpture</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">m</span><span class="p">,</span>
+                               <span class="n">validation</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">holdout</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">sculpture</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;zipcode&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>square_footage</th>
+      <th>lot_size</th>
+      <th>num_rooms</th>
+      <th>num_bedrooms</th>
+      <th>num_baths</th>
+      <th>year_built</th>
+      <th>last_sale_amount</th>
+      <th>estimated_value</th>
+      <th>CUUSA433SAH</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1008</td>
+      <td>6410.0</td>
+      <td>6</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>1954</td>
+      <td>50600</td>
+      <td>340952</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>947</td>
+      <td>6010.0</td>
+      <td>5</td>
+      <td>3</td>
+      <td>1.0</td>
+      <td>1952</td>
+      <td>21500</td>
+      <td>257016</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>803</td>
+      <td>6250.0</td>
+      <td>4</td>
+      <td>2</td>
+      <td>1.0</td>
+      <td>1955</td>
+      <td>25000</td>
+      <td>241671</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2000</td>
+      <td>6350.0</td>
+      <td>9</td>
+      <td>4</td>
+      <td>3.0</td>
+      <td>1909</td>
+      <td>15000</td>
+      <td>762124</td>
+      <td>104.1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2398</td>
+      <td>13024.0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>3.0</td>
+      <td>1957</td>
+      <td>45000</td>
+      <td>554375</td>
+      <td>104.1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">df</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>(3417, 16)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sculpture</span> <span class="o">=</span> <span class="n">load_sculpture</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;zipcode&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Cross Validation
+Holdout
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>Sculpture_2019_05_30_08_16
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">donatello.utils.helpers</span> <span class="kn">import</span> <span class="n">view_sk_metric</span>
+
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">scores</span> <span class="ow">in</span> <span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;feature_weights&#39;</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">view_sk_metric</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">}))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="s1">&#39;{}_mean&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">}),</span>
+                           <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="s1">&#39;{}_std&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="p">})],</span>
+                           <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;coefficients_mean&#39;</span><span class="p">)</span>
+               <span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>explained_variance_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.554218</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.110623</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>median_absolute_error</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>100567.159569</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>3823.070881</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>r2_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.55326</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.11104</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coefficients_mean</th>
+      <th>coefficients_std</th>
+    </tr>
+    <tr>
+      <th>names</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>num_bedrooms</th>
+      <td>-91304.582962</td>
+      <td>4951.036085</td>
+    </tr>
+    <tr>
+      <th>year_built</th>
+      <td>-361.945991</td>
+      <td>68.452083</td>
+    </tr>
+    <tr>
+      <th>lot_size</th>
+      <td>-0.794809</td>
+      <td>0.477008</td>
+    </tr>
+    <tr>
+      <th>last_sale_amount</th>
+      <td>0.036801</td>
+      <td>0.037641</td>
+    </tr>
+    <tr>
+      <th>CUUSA433SAH</th>
+      <td>30.684390</td>
+      <td>97.998081</td>
+    </tr>
+    <tr>
+      <th>square_footage</th>
+      <td>343.798942</td>
+      <td>12.476631</td>
+    </tr>
+    <tr>
+      <th>num_rooms</th>
+      <td>12599.464578</td>
+      <td>2297.284636</td>
+    </tr>
+    <tr>
+      <th>num_baths</th>
+      <td>30469.476263</td>
+      <td>10992.537817</td>
+    </tr>
+    <tr>
+      <th>intercept_</th>
+      <td>778380.066873</td>
+      <td>127041.245944</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</div>
+<div class="section" id="target-transforms-on-an-execution-graph">
+<h2>target transforms on an execution graph<a class="headerlink" href="#target-transforms-on-an-execution-graph" title="Permalink to this headline">¶</a></h2>
+<p>Scikit-learn currently doesn’t support y transforms or record number modify transform (imblearn does, but places restrictions on what types of transformers can be embedded in Pipelines)</p>
+<p>Donatello has you covered.</p>
+<p>The Apply and AccessTransformer allows you to inject a transform function that modifes the design, the target, or both and can be applied only during fit or</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">build_mask</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">[</span><span class="n">columns</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">OLS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">outlier_test</span><span class="p">()[:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mask</span>
+
+<span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;square_footage&#39;</span><span class="p">,</span> <span class="s1">&#39;num_bedrooms&#39;</span><span class="p">,</span> <span class="s1">&#39;last_sale_amount&#39;</span><span class="p">),</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="k">if</span> <span class="n">columns</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">build_mask</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">designData</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">targetData</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
+</pre></div>
+</div>
+</div>
+<p>Here we use the fitOnly option to apply this transformation on fitting pipeline but not the scoring pipeline.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">outlier_removal</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Apply</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">d</span> <span class="o">=</span> <span class="n">sculpture</span><span class="o">.</span><span class="n">dataset</span>
+<span class="n">d_t</span> <span class="o">=</span> <span class="n">outlier_removal</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/markweiss/.local/lib/python2.7/site-packages/ipykernel_launcher.py:2: DataConversionWarning: Data with input dtype int64 were all converted to float64 by the scale function.
+
+</pre></div></div>
+</div>
+<p>QA dataset sizes for a given response (also note the subet method if you’re not familiar with it). The last member demonstrates the already fit transformer not altering the dataset</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_t</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">d_t</span><span class="o">.</span><span class="n">designTrain</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">outlier_removal</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">d_t</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Apply_[no_init_time] - fitOnly transformer - passing through
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>(3417, 2733, 3360, 2688, 2688)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;square_footage&#39;</span><span class="p">,</span> <span class="s1">&#39;num_bedrooms&#39;</span><span class="p">]):</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">build_mask</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">subset</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">),</span> <span class="n">columns</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">designTrain</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="o">.</span><span class="mi">98</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.05</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">targetTrain</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="mf">1.01</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">designTrain</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">targetData</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="s1">&#39;b.&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">designTrain</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">targetTrain</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="s1">&#39;r*&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=.</span><span class="mi">75</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;inliers&#39;</span><span class="p">,</span> <span class="s1">&#39;outliers&#39;</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;expected price in current USD&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/markweiss/.local/lib/python2.7/site-packages/ipykernel_launcher.py:2: DataConversionWarning: Data with input dtype int64 were all converted to float64 by the scale function.
+
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/housing_prices_21_1.png" src="_images/housing_prices_21_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/housing_prices_21_2.png" src="_images/housing_prices_21_2.png" />
+</div>
+</div>
+<p>Donatello’s execution graph is built on top of networkx and scikit-learn. To ensure parameters are passed through, and estimator clones are performed properly, the ModelDAG requires a set of nodes and a dict of edges. The graph can be intialized with these but it’s typically easier to use the helper methods to build the graph.</p>
+<p>Scikit-learn transformers do not natively enable passing the target through,</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{})</span>
+<span class="n">n1</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">n2</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Apply</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;ml&#39;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n1</span><span class="p">,</span> <span class="n">n2</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n2</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sculpture</span> <span class="o">=</span> <span class="n">load_sculpture</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;zipcode&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Cross Validation
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Holdout
+Apply_[no_init_time] - fitOnly transformer - passing through
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>Sculpture_2019_05_30_08_17
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">scores</span> <span class="ow">in</span> <span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;feature_weights&#39;</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">view_sk_metric</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">}))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="s1">&#39;{}_mean&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">}),</span>
+                           <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="s1">&#39;{}_std&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="p">})],</span>
+                           <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;coefficients_mean&#39;</span><span class="p">)</span>
+               <span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>explained_variance_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.558581</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.061935</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>median_absolute_error</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>94755.617899</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>5280.675622</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>r2_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.556026</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.062935</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coefficients_mean</th>
+      <th>coefficients_std</th>
+    </tr>
+    <tr>
+      <th>names</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>num_bedrooms</th>
+      <td>-64693.487437</td>
+      <td>2570.268460</td>
+    </tr>
+    <tr>
+      <th>year_built</th>
+      <td>-41758.995713</td>
+      <td>6855.093092</td>
+    </tr>
+    <tr>
+      <th>lot_size</th>
+      <td>-13700.718409</td>
+      <td>3702.407919</td>
+    </tr>
+    <tr>
+      <th>CUUSA433SAH</th>
+      <td>5194.435849</td>
+      <td>2684.496007</td>
+    </tr>
+    <tr>
+      <th>last_sale_amount</th>
+      <td>17017.633934</td>
+      <td>9878.614885</td>
+    </tr>
+    <tr>
+      <th>num_rooms</th>
+      <td>20235.015009</td>
+      <td>3802.519509</td>
+    </tr>
+    <tr>
+      <th>num_baths</th>
+      <td>31537.118397</td>
+      <td>9999.725428</td>
+    </tr>
+    <tr>
+      <th>square_footage</th>
+      <td>220052.808761</td>
+      <td>6828.259413</td>
+    </tr>
+    <tr>
+      <th>intercept_</th>
+      <td>477679.716399</td>
+      <td>2645.771120</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="section" id="Branching">
+<h3>Branching<a class="headerlink" href="#Branching" title="Permalink to this headline">¶</a></h3>
+<p>Scikit-learn enables branching feature engineering by nesting FeatureUnions and Pipelines. While servicable, this interface can be hard to manage and makes it more difficult to share transformers and components between problems.</p>
+<p>To support this feature, the edges of donatello’s ModelDAG are actually transformers themselves with the sole task of passing (conducting) data through them. Conduction transformers follow a pattern. By default all columns/keys found during fitting will be passed along but the ModelDAG’s add_edge_conductor method makes it easy to modify these options but selecting or inverting (selecting all but) the columns seen during fit by name, a regex match, or dtype.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">ModelDAG</span><span class="p">(</span><span class="nb">set</span><span class="p">([]),</span> <span class="p">{})</span>
+<span class="c1"># intitate branching by selecting all</span>
+<span class="n">n0</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;select&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">DatasetFlow</span><span class="p">(</span><span class="n">invert</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+<span class="c1"># first branch</span>
+<span class="n">n11</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;ohe&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">dropOne</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+<span class="c1"># second branch</span>
+<span class="n">n21</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">enforceTarget</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">n22</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;rm_outliers&#39;</span><span class="p">,</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Apply</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="n">fitOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+
+<span class="c1"># terminal node</span>
+<span class="n">n3</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;ml&#39;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># send zipcode data only to OHE and don&#39;t pass target through first branch</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n0</span><span class="p">,</span> <span class="n">n11</span><span class="p">,</span> <span class="n">passTarget</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;zipcode&#39;</span><span class="p">],</span> <span class="n">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="c1"># send output of ohe to Linear Regression</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n11</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
+
+<span class="c1"># send all other design data and the target through second branch</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n0</span><span class="p">,</span> <span class="n">n21</span><span class="p">,</span> <span class="n">selectValue</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;zipcode&#39;</span><span class="p">],</span> <span class="n">invert</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n21</span><span class="p">,</span> <span class="n">n22</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add_edge_flow</span><span class="p">(</span><span class="n">n22</span><span class="p">,</span> <span class="n">n3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sculpture</span> <span class="o">=</span> <span class="n">load_sculpture</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">sculpture</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Cross Validation
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Apply_[no_init_time] - fitOnly transformer - passing through
+Holdout
+Apply_[no_init_time] - fitOnly transformer - passing through
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>Sculpture_2019_05_30_08_17
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;{} fold validation&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sculpture</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">fold</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">get_n_splits</span><span class="p">()))</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">scores</span> <span class="ow">in</span> <span class="n">sculpture</span><span class="o">.</span><span class="n">measurements</span><span class="o">.</span><span class="n">crossValidation</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;feature_weights&#39;</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">view_sk_metric</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">}))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="s1">&#39;{}_mean&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">mean</span><span class="p">}),</span>
+                           <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="s1">&#39;{}_std&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">std</span><span class="p">})],</span>
+                           <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;coefficients_mean&#39;</span><span class="p">)</span>
+               <span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+5 fold validation
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>explained_variance_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.749091</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.044543</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>median_absolute_error</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>61437.632107</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>4506.724301</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>r2_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>mean</th>
+      <td>0.747221</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>0.044210</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coefficients_mean</th>
+      <th>coefficients_std</th>
+    </tr>
+    <tr>
+      <th>names</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>zipcode_46926.0</th>
+      <td>-3.497458e+05</td>
+      <td>9.342515e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_37134.0</th>
+      <td>-2.576103e+05</td>
+      <td>8.583484e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80249.0</th>
+      <td>-2.528603e+05</td>
+      <td>8.174263e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80219.0</th>
+      <td>-1.859698e+05</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>zipcode_80239.0</th>
+      <td>-1.427271e+05</td>
+      <td>8.110450e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80247.0</th>
+      <td>-1.334592e+05</td>
+      <td>8.993306e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80235.0</th>
+      <td>-1.210530e+05</td>
+      <td>8.912922e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80227.0</th>
+      <td>-1.198548e+05</td>
+      <td>8.882648e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80234.0</th>
+      <td>-9.058705e+04</td>
+      <td>9.318180e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80236.0</th>
+      <td>-8.268968e+04</td>
+      <td>7.530384e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80231.0</th>
+      <td>-7.234041e+04</td>
+      <td>9.055022e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80229.0</th>
+      <td>-7.053978e+04</td>
+      <td>8.345132e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80216.0</th>
+      <td>-5.947857e+04</td>
+      <td>8.323959e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80237.0</th>
+      <td>-5.080427e+04</td>
+      <td>8.115128e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80123.0</th>
+      <td>-4.871960e+04</td>
+      <td>8.283967e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80221.0</th>
+      <td>-3.734875e+04</td>
+      <td>8.365931e+04</td>
+    </tr>
+    <tr>
+      <th>num_bedrooms</th>
+      <td>-2.913625e+04</td>
+      <td>1.594907e+03</td>
+    </tr>
+    <tr>
+      <th>zipcode_80238.0</th>
+      <td>-1.594640e+04</td>
+      <td>8.421631e+04</td>
+    </tr>
+    <tr>
+      <th>num_rooms</th>
+      <td>-8.833781e+03</td>
+      <td>2.873768e+03</td>
+    </tr>
+    <tr>
+      <th>zipcode_80223.0</th>
+      <td>-7.352431e+03</td>
+      <td>7.887081e+04</td>
+    </tr>
+    <tr>
+      <th>year_built</th>
+      <td>-5.408580e+03</td>
+      <td>5.563987e+03</td>
+    </tr>
+    <tr>
+      <th>lot_size</th>
+      <td>-1.753674e+03</td>
+      <td>8.775075e+02</td>
+    </tr>
+    <tr>
+      <th>zipcode_80202.0</th>
+      <td>6.470687e-11</td>
+      <td>3.557717e-10</td>
+    </tr>
+    <tr>
+      <th>zipcode_80224.0</th>
+      <td>1.797611e+03</td>
+      <td>8.469129e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80204.0</th>
+      <td>4.780848e+03</td>
+      <td>7.990204e+04</td>
+    </tr>
+    <tr>
+      <th>last_sale_amount</th>
+      <td>9.699988e+03</td>
+      <td>5.251803e+03</td>
+    </tr>
+    <tr>
+      <th>CUUSA433SAH</th>
+      <td>1.150610e+04</td>
+      <td>1.495333e+03</td>
+    </tr>
+    <tr>
+      <th>zipcode_80232.0</th>
+      <td>2.298716e+04</td>
+      <td>4.097158e+03</td>
+    </tr>
+    <tr>
+      <th>zipcode_80222.0</th>
+      <td>3.896352e+04</td>
+      <td>7.714646e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80230.0</th>
+      <td>4.514445e+04</td>
+      <td>7.986207e+04</td>
+    </tr>
+    <tr>
+      <th>num_baths</th>
+      <td>5.554352e+04</td>
+      <td>6.271186e+03</td>
+    </tr>
+    <tr>
+      <th>zipcode_80205.0</th>
+      <td>6.314953e+04</td>
+      <td>7.939138e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80203.0</th>
+      <td>6.878301e+04</td>
+      <td>8.665959e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80207.0</th>
+      <td>1.090660e+05</td>
+      <td>8.477885e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80212.0</th>
+      <td>1.345499e+05</td>
+      <td>8.039984e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80220.0</th>
+      <td>1.447685e+05</td>
+      <td>8.123279e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80211.0</th>
+      <td>1.730266e+05</td>
+      <td>2.064613e+03</td>
+    </tr>
+    <tr>
+      <th>square_footage</th>
+      <td>1.901516e+05</td>
+      <td>4.026248e+03</td>
+    </tr>
+    <tr>
+      <th>zipcode_80218.0</th>
+      <td>2.013662e+05</td>
+      <td>7.066343e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80210.0</th>
+      <td>2.146780e+05</td>
+      <td>8.145243e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80206.0</th>
+      <td>2.181842e+05</td>
+      <td>8.195679e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80246.0</th>
+      <td>2.424187e+05</td>
+      <td>7.359469e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80209.0</th>
+      <td>2.684135e+05</td>
+      <td>8.453153e+04</td>
+    </tr>
+    <tr>
+      <th>intercept_</th>
+      <td>4.494734e+05</td>
+      <td>8.081546e+04</td>
+    </tr>
+    <tr>
+      <th>zipcode_80214.0</th>
+      <td>4.597228e+05</td>
+      <td>8.549774e+04</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="donatello.html" class="btn btn-neutral float-right" title="donatello package" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="model_types.html" class="btn btn-neutral" title="Model Types" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Mark Weiss.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
