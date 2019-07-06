@@ -7,13 +7,6 @@ from donatello.utils.decorators import pandas_series, fallback
 from donatello.utils.helpers import now_string, access
 
 
-def no_op(model, X):
-    """
-    Scoring function
-    """
-    return model.predict_method(X=X)
-
-
 def score_second(model, X):
     """
     Scoring function
@@ -29,7 +22,6 @@ def score_invert(model, X):
 
 
 SCORE_REGISTRY = {
-    'no_op': no_op,
     'score_second': score_second,
     'score_invert': score_invert
 }
@@ -55,7 +47,8 @@ class Estimator(Dobject, BaseTransformer):
     def __init__(self,
                  model=None,
                  method='predict',
-                 scorer='no_op',
+                 scorer=None,
+                 server=None,
                  paramGrid={},
                  searchKwargs={},
                  timeFormat="%Y_%m_%d_%H_%M"
@@ -65,7 +58,8 @@ class Estimator(Dobject, BaseTransformer):
 
         self.model = model
         self.method = method
-        self.scorer = scorer if callable(scorer) else SCORE_REGISTRY[scorer]
+        self.scorer = scorer if (not scorer or callable(scorer)) else SCORE_REGISTRY[scorer]
+        self.server = server
 
         self.paramGrid = paramGrid
         self.searchKwargs = searchKwargs
@@ -128,10 +122,18 @@ class Estimator(Dobject, BaseTransformer):
         self.model.fit(X=dataset.designData, y=dataset.targetData, **kwargs)
         return self
 
+    # move to
+    # @pandas_dim
     @pandas_series
-    def score(self, X, name=''):
-        scores = self.scorer(self, X)
+    @fallback('scorer')
+    def score(self, X, name='', scorer=None):
+        scores = scorer(self, X) if scorer else X
         return scores
+
+    @fallback('server')
+    def serve(self, X, server=None):
+        serves = server(self, X) if server else X
+        return serves
 
     @data.package_dataset
     def transform(self, X=None, y=None, dataset=None):
