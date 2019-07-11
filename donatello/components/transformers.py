@@ -242,7 +242,7 @@ class Apply(DatasetTransformer):
     def transform(self, X=None, y=None, dataset=None):
 
         if self.fitOnly and getattr(self, 'features', None):
-            print('fitOnly transformer - passing through')
+            print('{} - fitOnly transformer - passing through'.format(self.name))
             output = dataset
         else:
             output = self.func(dataset)

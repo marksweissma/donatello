@@ -127,7 +127,7 @@ class Estimator(Dobject, BaseTransformer):
     @pandas_series
     @fallback('scorer')
     def score(self, X, name='', scorer=None):
-        scores = scorer(self, X) if scorer else X
+        scores = scorer(self, X) if scorer else self.predict_method(X=X)
         return scores
 
     @fallback('server')
