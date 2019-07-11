@@ -13,13 +13,14 @@ def init_time(wrapped, instance, args, kwargs):
     Add _initTime attribute to object, format prescribed by
     **strFormat** kwarg
     """
-    signature = kwargs.get('timeFormat', None)
+    signature = find_value(wrapped, args, kwargs, 'timeFormat')
     payload = {'strFormat': signature} if signature else {}
     result = wrapped(*args, **kwargs)
     instance._initTime = now_string(**payload)
     return result
 
 
+# todo @to_pandas(shape)
 @decorator
 def pandas_series(wrapped, instance, args, kwargs):
     """
@@ -90,15 +91,6 @@ def fallback(*defaults, **replacements):
     return _wrapper
 
 
-# fix this, should check - default - execute
-@decorator
-def name(wrapped, instance, args, kwargs):
-    result = wrapped(*args, **kwargs)
-    _name = getattr(instance, '_name', instance.__class__.__name__)
-    instance._name = _name
-    return result
-
-
 @coelesce(existing={})
 def mem_cache(existing=None):
     """
@@ -121,12 +113,3 @@ def mem_cache(existing=None):
         return cache[key]
 
     return memoize
-
-
-@decorator
-def to_kwargs(wrapped, instance, args, kwargs):
-    spec = inspect.getargspec(wrapped)
-    offset = int(bool(instance))
-    update = {argSpec: arg for argSpec, arg in zip(spec.args[offset:], args)}
-    kwargs.update(update)
-    return wrapped(**kwargs)

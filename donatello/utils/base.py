@@ -1,5 +1,6 @@
 from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
+from inflection import underscore
 from donatello.utils.decorators import coelesce
 from donatello.utils.helpers import nvl
 
@@ -20,12 +21,12 @@ class Dobject(object):
 
     @property
     def name(self):
-        name = getattr(self, '_name', self.__class__.__name__)
+        name = getattr(self, '_name', underscore(self.__class__.__name__))
         return name
 
     @name.setter
     def name(self, value):
-        self._name = nvl(value, self.__class__.__name__)
+        self._name = nvl(value, underscore(self.__class__.__name__))
 
     @property
     def clay(self):
