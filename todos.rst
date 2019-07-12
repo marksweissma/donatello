@@ -1,12 +1,12 @@
-OHE - null options - impute / hold
+Chaining Folders in subsetting (stack)
+
+Metric displays
+
+Metric bases by shape (scalar, vector, matrix)
 
 spelling / docs
 
 didactic
-
-Metric displays
-
-Fix fit_transform option in DiGraph
 
 QA subsetting over transformations
 
@@ -21,13 +21,6 @@ tests
 examples
 #. many : 1
 
-Refactor measurements / metrics -> smooth return
-Look at panel for measurement / metric organization
-
 callback for slice execution graph
 
-version
-
-
-Grid Searcher over collection of tables
-
+Parameter Optimization
