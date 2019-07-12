@@ -124,10 +124,17 @@ class Measure(Dobject):
         [metric.fit(scored) for metric in metrics]
 
         # move to list of dict -> concat
-        outputs = defaultdict(pd.DataFrame)
+        # outputs = defaultdict(pd.DataFrame)
+        # for fold, df in scored.groupby('fold'):
+            # _outputs = self._evaluate(estimators[fold], df, metrics, X)
+            # [_append_in_place(outputs, name, df) for name, df in _outputs.items()]
+        outputs = {metric.name: [] for metric in metrics}
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
-            [_append_in_place(outputs, name, df) for name, df in _outputs.items()]
+            [outputs[name].append(df) for name, df in _outputs.items()]
+
+        for name in outputs:
+            outputs[name] = pd.concat(outputs[name])
 
         measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]
                                                                       .groupby(metric.key)
@@ -297,7 +304,7 @@ class ThresholdRates(Metric):
     def __init__(self, key='points', sort='points'):
         super(ThresholdRates, self).__init__(key=key, sort=sort)
 
-    def fit(self, scored, points=None, spacing=101, **kwargs):
+    def fit(self, scored, points=None, spacing=21, **kwargs):
         if points is None:
             percentiles = np.linspace(0, 1, spacing)
             self.points = scored.predicted.quantile(percentiles)
