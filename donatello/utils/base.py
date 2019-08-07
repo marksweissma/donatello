@@ -1,7 +1,6 @@
 from abc import ABCMeta
 from sklearn.base import BaseEstimator, TransformerMixin
 from inflection import underscore
-from donatello.utils.decorators import coelesce
 from donatello.utils.helpers import nvl
 
 
@@ -13,11 +12,6 @@ class Dobject(object):
     Base object for Donatello - templates in name and __repr___
     """
     __meta__ = ABCMeta
-
-    @coelesce(kargs={})
-    def _update_to(self, kargs, *names):
-        kargs.update({name: getattr(self, name) for name in names})
-        return kargs
 
     @property
     def name(self):
@@ -43,10 +37,17 @@ class Dobject(object):
     def clay(self, value):
         self._clay = value
 
+    @property
+    def initTime(self):
+        return getattr(self, '_initTime', '[no init time]')
+
+    @initTime.setter
+    def initTime(self, value):
+        self._initTime = value
+
     def __repr__(self):
         name = self.name
-        time = getattr(self, '_initTime', '[no init time]')
-        rep = "_".join([name, time])
+        rep = "_".join([name, self.initTime])
         return rep
 
 

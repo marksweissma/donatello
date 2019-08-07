@@ -13,10 +13,17 @@ def init_time(wrapped, instance, args, kwargs):
     Add _initTime attribute to object, format prescribed by
     **strFormat** kwarg
     """
-    signature = find_value(wrapped, args, kwargs, 'timeFormat')
-    payload = {'strFormat': signature} if signature else {}
+
+    initTime = find_value(wrapped, args, kwargs, 'initTime')
+    timeFormat = find_value(wrapped, args, kwargs, 'timeFormat')
+
+    if not initTime:
+        payload = {'strFormat': timeFormat} if timeFormat else {}
+        initTime = now_string(**payload)
+
+    instance.timeFormat = timeFormat
+    instance.initTime = initTime
     result = wrapped(*args, **kwargs)
-    instance._initTime = now_string(**payload)
     return result
 
 
