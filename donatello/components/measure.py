@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 
-from collections import defaultdict
 from inflection import underscore
 
 from sklearn import clone
@@ -22,7 +21,7 @@ def _append_in_place(store, name, value):
 
 # something better here
 def _option_sort(df, sort):
-    df = df.sort_values(sort) if sort else df
+    df = df.sort_values(sort) if (sort and sort in df) else df
     return df
 
 
@@ -123,20 +122,12 @@ class Measure(Dobject):
         """
         [metric.fit(scored) for metric in metrics]
 
-        # move to list of dict -> concat
-        # outputs = defaultdict(pd.DataFrame)
-        # for fold, df in scored.groupby('fold'):
-            # _outputs = self._evaluate(estimators[fold], df, metrics, X)
-            # [_append_in_place(outputs, name, df) for name, df in _outputs.items()]
         outputs = {metric.name: [] for metric in metrics}
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
             [outputs[name].append(df) for name, df in _outputs.items()]
 
-        for name in outputs:
-            outputs[name] = pd.concat(outputs[name])
-
-        measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]
+        measurements = {metric.name: metric.callback(_unwrap_multiple(pd.concat(outputs[metric.name])
                                                                       .groupby(metric.key)
                                                                       .agg(metric.agg),
                                                                       metric.sort))

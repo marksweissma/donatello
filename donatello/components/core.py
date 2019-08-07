@@ -9,8 +9,8 @@ from sklearn.utils import Bunch
 from donatello.components.data import package_dataset, subset_dataset
 from donatello.components.measure import Measure
 
-from donatello.utils.helpers import now_string, persist
-from donatello.utils.decorators import fallback
+from donatello.utils.helpers import persist
+from donatello.utils.decorators import fallback, init_time
 from donatello.utils.base import Dobject
 
 
@@ -31,15 +31,14 @@ class Sculpture(Dobject, BaseEstimator):
         timeFormat (str): format for creation time string
     """
 
+    @init_time
     def __init__(self,
                  dataset=None, outsideData=None,
                  estimator=None,
                  validation='search', holdout='search', entire=False,
                  measure=Measure(), persist=persist, metrics=None,
                  storeReferences=True, writeAttrs=('', 'estimator'),
-                 timeFormat="%Y_%m_%d_%H_%M"):
-
-        self._initTime = now_string(timeFormat)
+                 timeFormat="%Y_%m_%d_%H_%M", initTime=None):
 
         self.dataset = dataset
         self.outsideData = outsideData
@@ -162,7 +161,8 @@ class Sculpture(Dobject, BaseEstimator):
         return self._references
 
     def __getattr__(self, attr):
-        return getattr(self.estimator, attr) if attr != '_name' else self.__class__.__name__
+        # return getattr(self.estimator, attr) if attr != '_name' else self.__class__.__name__
+        return getattr(self.estimator, attr)
 
 
 class Garden(Dobject):

@@ -3,8 +3,8 @@ from sklearn.model_selection import GridSearchCV
 from donatello.components import data
 
 from donatello.utils.base import Dobject, BaseTransformer
-from donatello.utils.decorators import pandas_series, fallback
-from donatello.utils.helpers import now_string, access
+from donatello.utils.decorators import pandas_series, fallback, init_time
+from donatello.utils.helpers import access
 
 
 def score_second(model, X):
@@ -44,6 +44,7 @@ class Estimator(Dobject, BaseTransformer):
         timeFormat (str): option to specify timestamp format
     """
 
+    @init_time
     def __init__(self,
                  model=None,
                  method='predict',
@@ -51,10 +52,9 @@ class Estimator(Dobject, BaseTransformer):
                  server=None,
                  paramGrid={},
                  searchKwargs={},
-                 timeFormat="%Y_%m_%d_%H_%M"
+                 timeFormat="%Y_%m_%d_%H_%M",
+                 initTime=None
                  ):
-
-        self._initTime = now_string(timeFormat)
 
         self.model = model
         self.method = method
@@ -123,7 +123,7 @@ class Estimator(Dobject, BaseTransformer):
         return self
 
     # move to
-    # @pandas_dim
+    # @to_pandas
     @pandas_series
     @fallback('scorer')
     def score(self, X, name='', scorer=None):
@@ -132,7 +132,7 @@ class Estimator(Dobject, BaseTransformer):
 
     @fallback('server')
     def serve(self, X, server=None):
-        serves = server(self, X) if server else X
+        serves = server(self, X) if server else self.predict_method(X=X)
         return serves
 
     @data.package_dataset

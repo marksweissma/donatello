@@ -11,8 +11,8 @@ from sklearn.pipeline import Pipeline
 from sklearn import clone
 
 from donatello.utils.base import Dobject, PandasAttrs, BaseTransformer, BaseDatasetTransformer
-from donatello.utils.decorators import fallback
-from donatello.utils.helpers import access, nvl, now_string
+from donatello.utils.decorators import fallback, init_time
+from donatello.utils.helpers import access, nvl
 from donatello.components import data
 
 
@@ -382,7 +382,7 @@ class Node(Dobject, BaseTransformer):
         return getattr(self.transformer, attr)
 
 
-class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
+class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
     """
     In memory data transformation graph. Nodes are accessed via
     via any :py:class:`networkx.DiGraph` accessor of the node's name.
@@ -414,16 +414,14 @@ class ModelDAG(Dobject, nx.DiGraph, BaseTransformer):
         timeFormat (str): str format for logging init time
     """
 
+    @init_time
     def __init__(self, _nodes, _edges, executor='executor',
                  flow=DatasetFlow(invert=True, passTarget=True),
-                 timeFormat="%Y_%m_%d_%H_%M",
+                 timeFormat="%Y_%m_%d_%H_%M", initTime=None,
                  graphArgs=tuple(), graphKwargs={}
                  ):
 
         super(ModelDAG, self).__init__(*graphArgs, **graphKwargs)
-
-        self.timeFormat = timeFormat
-        self._initTime = now_string(timeFormat)
 
         self.graphArgs = graphArgs
         self.graphKwargs = graphKwargs
