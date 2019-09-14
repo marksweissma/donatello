@@ -112,13 +112,13 @@ class BaseTransformer(BaseEstimator, TransformerMixin):
         """
         Name of object, defaults to class name + model name
         """
-        _name = self.__class__.__name__
+        _name = underscore(self.__class__.__name__)
         name = [_name, self.model.__class__.__name__] if hasattr(self, 'model') else [_name]
-        time = getattr(self, '_initTime', '[no init time]').replace(' ', '_')
+        time = getattr(self, 'initTime', '[no init time]').replace(' ', '_')
         return "_".join(name + [time])
 
     def __repr__(self):
-        time = getattr(self, '_initTime', '[no init time]')
+        time = getattr(self, 'initTime', '[no init time]')
         rep = ['{model} created at {time}'.format(model=self.name,
                                                   time=time),
                super(BaseTransformer, self).__repr__()]

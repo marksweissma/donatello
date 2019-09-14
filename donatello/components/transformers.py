@@ -311,7 +311,7 @@ def concat(datasets, params=None, dataType=data.Dataset):
             params = nvl(params, getattr(datasets[0], 'params', {}))
             dataset = dataType(X=X, y=y, **params)
         else:
-            raise Exception('datasets contains dicts and has len > 1, auto concat \
+            raise ValueError('datasets contains dicts and has len > 1, auto concat \
                             is not deterministic, provide a deterministic concat')
     else:
         dataset = None
@@ -359,8 +359,8 @@ class Node(Dobject, BaseTransformer):
 
     @data.package_dataset
     @data.extract_features
-    def transform(self, X=None, y=None, dataset=None, **kwargs):
-        if self.fitOnly and not getattr(self, 'features', None):
+    def transform(self, X=None, y=None, dataset=None, fitting=False, **kwargs):
+        if self.fitOnly and not fitting:
             return dataset
         information = self._transform(dataset=dataset, **kwargs)
         if isinstance(information,
@@ -374,9 +374,9 @@ class Node(Dobject, BaseTransformer):
         output = self.transformer.transform(dataset=dataset)
         return output
 
-    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+    def fit_transform(self, X=None, y=None, dataset=None, fitting=False, *args, **kwargs):
         self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
-        return self.transform(X=X, y=y, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, y=y, dataset=dataset, ftting=fitting, *args, **kwargs)
 
     def __getattr__(self, attr):
         return getattr(self.transformer, attr)
@@ -564,17 +564,17 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
-    def fit(self, X=None, y=None, dataset=None, node=None, clean=True):
+    def fit(self, X=None, y=None, dataset=None, node=None, clean=True, **kwargs):
         """
         Fit graph to data
         """
         if clean:
             self.clean()
 
-        dataset = self.process(dataset, node, 'fit_transform')
+        dataset = self.process(dataset, node, 'fit_transform', **kwargs)
 
         self.features = list(dataset.designData)
-        self.node_exec(node).fit(dataset=dataset)
+        self.node_exec(node).fit(dataset=dataset, **kwargs)
 
         self.isFit = True
         return self
@@ -816,5 +816,4 @@ class Pipeline(PandasMixin, Pipeline):
     Will default to looking for attributes in last transformer
     """
 
-    def __getattr__(self, attr):
-        return getattr(self.steps[-1][1], attr)
+    def __getattr__(self, attr): return getattr(self.steps[-1][1], attr)
