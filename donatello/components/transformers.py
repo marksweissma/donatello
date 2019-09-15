@@ -16,6 +16,12 @@ from donatello.utils.helpers import access, nvl
 from donatello.components import data
 
 
+if hasattr(inspect, 'signature'):
+    funcsigs = inspect.signature
+else:
+    import funcsigs
+
+
 class PandasMixin(TransformerMixin, PandasAttrs):
     """
     Scikit-learn transformer with pandas bindings
@@ -346,12 +352,15 @@ class Node(Dobject, BaseTransformer):
     @data.package_dataset
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, **kwargs):
-        spec = inspect.getargspec(self.transformer.fit)
-        if 'dataset' in spec.args:
+        sig = funcsigs.signature(self.transformer.fit)
+        # keys = sig.parameters.keys()
+        # _args = keys[1:] if inspect.ismethod(self.transformer.fit) else keys
+
+        if 'dataset' in sig.parameters:
             payload = {'dataset': dataset}
         else:
             payload = {'X': dataset.designData}
-            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+            payload.update({'y': dataset.targetData}) if 'y' in sig.parameters else None
         payload.update(kwargs)
         self.transformer.fit(**payload)
 
@@ -664,12 +673,12 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
 
         dataset = self.node_exec(node).combine(output)
 
-        spec = inspect.getargspec(getattr(self.node_exec(node), method))
-        if 'dataset' in spec.args:
+        sig = funcsigs.signature(getattr(self.node_exec(node), method))
+        if 'dataset' in sig.parameters:
             payload = {'dataset': dataset}
         else:
             payload = {'X': dataset.designData}
-            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+            payload.update({'y': dataset.targetData}) if 'y' in sig.parameters else None
         information = access(self.node_exec(node), method=method, methodKwargs=payload)
 
         return information

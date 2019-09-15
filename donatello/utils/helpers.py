@@ -1,9 +1,12 @@
 import os
+from sklearn.externals import joblib
+import pandas as pd
 import inspect
 
-import pandas as pd
-
-from sklearn.externals import joblib
+if hasattr(inspect, 'signature'):
+    funcsigs = inspect.signature
+else:
+    import funcsigs
 
 
 def now_string(strFormat="%Y_%m_%d_%H_%M"):
@@ -118,13 +121,15 @@ def find_value(func, args, kwargs, accessKey, how='name'):
     """
     Find a value from a function signature
     """
-    spec = inspect.getargspec(func)
-    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
+    sig = funcsigs.signature(func)
+    parameters = sig.parameters
+    keys = parameters.keys()
 
     try:
-        index = _args.index(accessKey) if how == 'name' else accessKey
-        offset = len(_args) - len(nvl(spec.defaults, []))
-        default = spec.defaults[index - offset] if index >= offset else None
+        index = keys.index(accessKey) if how == 'name' else accessKey
+        defaults = [i.default for i in parameters.values() if i.default != funcsigs._empty]
+        offset = len(keys) - len(nvl(defaults, []))
+        default = defaults[index - offset] if index >= offset else None
         value = kwargs.get(accessKey, default) if index >= len(args) else args[index]
     except ValueError:
         value = kwargs.get(accessKey, None)
@@ -135,9 +140,12 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
     """
     Replace a value from a function signature
     """
-    spec = inspect.getargspec(func)
-    _args = spec.args[1:] if inspect.ismethod(func) else spec.args
-    index = _args.index(accessKey)
+
+    sig = funcsigs.signature(func)
+    parameters = sig.parameters
+    keys = parameters.keys()
+    index = keys.index(accessKey)
+
     if index >= len(args):
         kwargs[accessKey] = accessValue
     else:

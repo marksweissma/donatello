@@ -3,3 +3,4 @@ scikit-learn
 wrapt
 networkx
 inflection
+funcsigs
