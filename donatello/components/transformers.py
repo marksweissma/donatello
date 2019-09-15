@@ -17,7 +17,7 @@ from donatello.components import data
 
 
 if hasattr(inspect, 'signature'):
-    funcsigs = inspect.signature
+    funcsigs = inspect
 else:
     import funcsigs
 

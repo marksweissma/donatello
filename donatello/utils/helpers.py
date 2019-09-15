@@ -4,7 +4,7 @@ import pandas as pd
 import inspect
 
 if hasattr(inspect, 'signature'):
-    funcsigs = inspect.signature
+    funcsigs = inspect
 else:
     import funcsigs
 
