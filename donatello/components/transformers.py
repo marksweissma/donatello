@@ -554,13 +554,13 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
                             )
         return terminal
 
-    def process(self, dataset, node, method):
+    def process(self, dataset, node, method, **kwargs):
         """
         Evalute method through nodes that accept dataset inputs
         """
         parents = tuple(self.predecessors(node))
         if parents:
-            upstreams = [self.apply(parent, dataset, method) for parent in parents]
+            upstreams = [self.apply(parent, dataset, method, **kwargs) for parent in parents]
             datas = [
                 access(
                     self.edge_exec(
@@ -590,67 +590,67 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
-    def predict(self, X=None, y=None, node=None, dataset=None):
+    def predict(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and predict at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         predictions = self.node_exec(node).predict(dataset.designData)
         return predictions
 
     @data.package_dataset
     @fallback(node='terminal')
-    def predict_proba(self, X=None, y=None, node=None, dataset=None):
+    def predict_proba(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and predict_proba at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         probas = self.node_exec(node).predict_proba(dataset.designData)
         return probas
 
     @data.package_dataset
     @fallback(node='terminal')
-    def predict_log_proba(self, X=None, y=None, node=None, dataset=None):
+    def predict_log_proba(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and predict_proba at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         log_probas = self.node_exec(node).predict_log_proba(dataset.designData)
         return log_probas
 
     @data.package_dataset
     @fallback(node='terminal')
-    def decision_function(self, X=None, y=None, node=None, dataset=None):
+    def decision_function(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and decision_function at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         decisions = self.node_exec(node).decision_function(dataset.designData)
         return decisions
 
     @data.package_dataset
     @fallback(node='terminal')
-    def transform(self, X=None, y=None, dataset=None, node=None):
+    def transform(self, X=None, y=None, dataset=None, node=None, **kwargs):
         """
         Transform data given through node given a fit subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
-        transformed = self.node_exec(node).transform(dataset=dataset)
+        dataset = self.process(dataset, node, 'transform', **kwargs)
+        transformed = self.node_exec(node).transform(dataset=dataset, **kwargs)
         return transformed
 
     @data.package_dataset
     @fallback(node='terminal')
-    def fit_transform(self, X=None, y=None, dataset=None, node=None, clean=True):
+    def fit_transform(self, X=None, y=None, dataset=None, node=None, clean=True, **kwargs):
         """
         Fit model to data and return the transform at the given node
         """
         if clean:
             self.clean()
-        dataset = self.process(dataset, node, 'fit_transform')
-        transformed = self.node_exec(node).fit_transform(dataset=dataset)
+        dataset = self.process(dataset, node, 'fit_transform', **kwargs)
+        transformed = self.node_exec(node).fit_transform(dataset=dataset, **kwargs)
         return transformed
 
-    def apply(self, node, data, method):
+    def apply(self, node, data, method, **kwargs):
         """
         Apply a method through the graph terminating at a node
 
@@ -679,6 +679,7 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
         else:
             payload = {'X': dataset.designData}
             payload.update({'y': dataset.targetData}) if 'y' in sig.parameters else None
+            payload.update(kwargs)
         information = access(self.node_exec(node), method=method, methodKwargs=payload)
 
         return information
