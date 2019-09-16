@@ -353,8 +353,6 @@ class Node(Dobject, BaseTransformer):
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, **kwargs):
         sig = funcsigs.signature(self.transformer.fit)
-        # keys = sig.parameters.keys()
-        # _args = keys[1:] if inspect.ismethod(self.transformer.fit) else keys
 
         if 'dataset' in sig.parameters:
             payload = {'dataset': dataset}
@@ -580,6 +578,7 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
         if clean:
             self.clean()
 
+        kwargs.update({'fitting': True})
         dataset = self.process(dataset, node, 'fit_transform', **kwargs)
 
         self.features = list(dataset.designData)
@@ -646,6 +645,7 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
         """
         if clean:
             self.clean()
+        kwargs.update({'fitting': True})
         dataset = self.process(dataset, node, 'fit_transform', **kwargs)
         transformed = self.node_exec(node).fit_transform(dataset=dataset, **kwargs)
         return transformed
