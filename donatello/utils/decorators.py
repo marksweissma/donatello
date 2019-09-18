@@ -27,6 +27,37 @@ def init_time(wrapped, instance, args, kwargs):
     return result
 
 
+def as_series(arr, index, name):
+    pass
+
+
+def as_df(arr, index, columns):
+    pass
+
+
+@decorator
+def to_pandas(wrapped, instance, args, kwargs):
+
+    dataset = find_value(wrapped, args, kwargs, 'dataset')
+    X = find_value(wrapped, args, kwargs, 'X')
+    y = find_value(wrapped, args, kwargs, 'y')
+
+    if 'name' in kwargs:
+        name = kwargs.pop('name', '')
+    elif 'columns' in kwargs:
+        columns = kwargs.pop('columns', '')
+
+    result = wrapped(*args, **kwargs)
+
+    if isinstance(result, pd.np.ndarray):
+        dims = result.shape
+        if len(dims) == 1 or dims[1] == 1:
+            result = as_series(result, index, name)
+        else:
+            result = as_df(result, index, columns)
+    return result
+
+
 # todo @to_pandas(shape)
 @decorator
 def pandas_series(wrapped, instance, args, kwargs):

@@ -16,6 +16,12 @@ from donatello.utils.helpers import access, nvl
 from donatello.components import data
 
 
+if hasattr(inspect, 'signature'):
+    funcsigs = inspect
+else:
+    import funcsigs
+
+
 class PandasMixin(TransformerMixin, PandasAttrs):
     """
     Scikit-learn transformer with pandas bindings
@@ -311,7 +317,7 @@ def concat(datasets, params=None, dataType=data.Dataset):
             params = nvl(params, getattr(datasets[0], 'params', {}))
             dataset = dataType(X=X, y=y, **params)
         else:
-            raise Exception('datasets contains dicts and has len > 1, auto concat \
+            raise ValueError('datasets contains dicts and has len > 1, auto concat \
                             is not deterministic, provide a deterministic concat')
     else:
         dataset = None
@@ -346,12 +352,13 @@ class Node(Dobject, BaseTransformer):
     @data.package_dataset
     @data.extract_fields
     def fit(self, X=None, y=None, dataset=None, **kwargs):
-        spec = inspect.getargspec(self.transformer.fit)
-        if 'dataset' in spec.args:
+        sig = funcsigs.signature(self.transformer.fit)
+
+        if 'dataset' in sig.parameters:
             payload = {'dataset': dataset}
         else:
             payload = {'X': dataset.designData}
-            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+            payload.update({'y': dataset.targetData}) if 'y' in sig.parameters else None
         payload.update(kwargs)
         self.transformer.fit(**payload)
 
@@ -359,8 +366,8 @@ class Node(Dobject, BaseTransformer):
 
     @data.package_dataset
     @data.extract_features
-    def transform(self, X=None, y=None, dataset=None, **kwargs):
-        if self.fitOnly and not getattr(self, 'features', None):
+    def transform(self, X=None, y=None, dataset=None, fitting=False, **kwargs):
+        if self.fitOnly and not fitting:
             return dataset
         information = self._transform(dataset=dataset, **kwargs)
         if isinstance(information,
@@ -374,9 +381,9 @@ class Node(Dobject, BaseTransformer):
         output = self.transformer.transform(dataset=dataset)
         return output
 
-    def fit_transform(self, X=None, y=None, dataset=None, *args, **kwargs):
+    def fit_transform(self, X=None, y=None, dataset=None, fitting=False, *args, **kwargs):
         self.fit(X=X, y=y, dataset=dataset, *args, **kwargs)
-        return self.transform(X=X, y=y, dataset=dataset, *args, **kwargs)
+        return self.transform(X=X, y=y, dataset=dataset, ftting=fitting, *args, **kwargs)
 
     def __getattr__(self, attr):
         return getattr(self.transformer, attr)
@@ -545,13 +552,13 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
                             )
         return terminal
 
-    def process(self, dataset, node, method):
+    def process(self, dataset, node, method, **kwargs):
         """
         Evalute method through nodes that accept dataset inputs
         """
         parents = tuple(self.predecessors(node))
         if parents:
-            upstreams = [self.apply(parent, dataset, method) for parent in parents]
+            upstreams = [self.apply(parent, dataset, method, **kwargs) for parent in parents]
             datas = [
                 access(
                     self.edge_exec(
@@ -564,84 +571,86 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
 
     @data.package_dataset
     @fallback(node='terminal')
-    def fit(self, X=None, y=None, dataset=None, node=None, clean=True):
+    def fit(self, X=None, y=None, dataset=None, node=None, clean=True, **kwargs):
         """
         Fit graph to data
         """
         if clean:
             self.clean()
 
-        dataset = self.process(dataset, node, 'fit_transform')
+        kwargs.update({'fitting': True})
+        dataset = self.process(dataset, node, 'fit_transform', **kwargs)
 
         self.features = list(dataset.designData)
-        self.node_exec(node).fit(dataset=dataset)
+        self.node_exec(node).fit(dataset=dataset, **kwargs)
 
         self.isFit = True
         return self
 
     @data.package_dataset
     @fallback(node='terminal')
-    def predict(self, X=None, y=None, node=None, dataset=None):
+    def predict(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and predict at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         predictions = self.node_exec(node).predict(dataset.designData)
         return predictions
 
     @data.package_dataset
     @fallback(node='terminal')
-    def predict_proba(self, X=None, y=None, node=None, dataset=None):
+    def predict_proba(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and predict_proba at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         probas = self.node_exec(node).predict_proba(dataset.designData)
         return probas
 
     @data.package_dataset
     @fallback(node='terminal')
-    def predict_log_proba(self, X=None, y=None, node=None, dataset=None):
+    def predict_log_proba(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and predict_proba at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         log_probas = self.node_exec(node).predict_log_proba(dataset.designData)
         return log_probas
 
     @data.package_dataset
     @fallback(node='terminal')
-    def decision_function(self, X=None, y=None, node=None, dataset=None):
+    def decision_function(self, X=None, y=None, node=None, dataset=None, **kwargs):
         """
         Transform data and decision_function at termination of subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
+        dataset = self.process(dataset, node, 'transform', **kwargs)
         decisions = self.node_exec(node).decision_function(dataset.designData)
         return decisions
 
     @data.package_dataset
     @fallback(node='terminal')
-    def transform(self, X=None, y=None, dataset=None, node=None):
+    def transform(self, X=None, y=None, dataset=None, node=None, **kwargs):
         """
         Transform data given through node given a fit subcomponent
         """
-        dataset = self.process(dataset, node, 'transform')
-        transformed = self.node_exec(node).transform(dataset=dataset)
+        dataset = self.process(dataset, node, 'transform', **kwargs)
+        transformed = self.node_exec(node).transform(dataset=dataset, **kwargs)
         return transformed
 
     @data.package_dataset
     @fallback(node='terminal')
-    def fit_transform(self, X=None, y=None, dataset=None, node=None, clean=True):
+    def fit_transform(self, X=None, y=None, dataset=None, node=None, clean=True, **kwargs):
         """
         Fit model to data and return the transform at the given node
         """
         if clean:
             self.clean()
-        dataset = self.process(dataset, node, 'fit_transform')
-        transformed = self.node_exec(node).fit_transform(dataset=dataset)
+        kwargs.update({'fitting': True})
+        dataset = self.process(dataset, node, 'fit_transform', **kwargs)
+        transformed = self.node_exec(node).fit_transform(dataset=dataset, **kwargs)
         return transformed
 
-    def apply(self, node, data, method):
+    def apply(self, node, data, method, **kwargs):
         """
         Apply a method through the graph terminating at a node
 
@@ -664,12 +673,13 @@ class ModelDAG(nx.DiGraph, Dobject, BaseTransformer):
 
         dataset = self.node_exec(node).combine(output)
 
-        spec = inspect.getargspec(getattr(self.node_exec(node), method))
-        if 'dataset' in spec.args:
+        sig = funcsigs.signature(getattr(self.node_exec(node), method))
+        if 'dataset' in sig.parameters:
             payload = {'dataset': dataset}
         else:
             payload = {'X': dataset.designData}
-            payload.update({'y': dataset.targetData}) if 'y' in spec.args else None
+            payload.update({'y': dataset.targetData}) if 'y' in sig.parameters else None
+            payload.update(kwargs)
         information = access(self.node_exec(node), method=method, methodKwargs=payload)
 
         return information
@@ -816,5 +826,4 @@ class Pipeline(PandasMixin, Pipeline):
     Will default to looking for attributes in last transformer
     """
 
-    def __getattr__(self, attr):
-        return getattr(self.steps[-1][1], attr)
+    def __getattr__(self, attr): return getattr(self.steps[-1][1], attr)
