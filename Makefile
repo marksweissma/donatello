@@ -28,11 +28,14 @@ run:
 run-dev:
 	docker run -it -v `pwd`:/opt/workspace $(BASE) bash
 
+test-run:
+	docker run -it $(BASE)  "./scripts/run_tests.sh"
+
 test: env 
-	docker run $(BASE) -c "./scripts/run_test.sh"
+	docker run -it $(BASE)  "./scripts/run_tests.sh"
 
 test-dev: 
-	docker run -it -v `pwd`:/opt/workspace $(BASE) -c "./scripts/run_test.sh"
+	docker run -it -v `pwd`:/opt/workspace $(BASE) -c "./scripts/run_tests.sh"
 
 ship-wheel: clean-build
 	python setup.py bdist_wheel --universal &&\

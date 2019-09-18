@@ -6,6 +6,4 @@ WORKDIR /opt/workspace
 
 COPY .  /opt/workspace
 
-RUN pip install -r env_requirements.txt
-
-RUN python setup.py install
+RUN cd /opt/workspace && pip install -r env_requirements.txt && python setup.py install

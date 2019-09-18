@@ -359,7 +359,7 @@ class Node(Dobject, BaseTransformer):
         else:
             payload = {'X': dataset.designData}
             payload.update({'y': dataset.targetData}) if 'y' in sig.parameters else None
-        payload.update(kwargs)
+        payload.update({i: j for i, j in kwargs.items() if i != 'fitting'})
         self.transformer.fit(**payload)
 
         return self
