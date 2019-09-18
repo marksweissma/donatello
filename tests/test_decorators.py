@@ -66,3 +66,30 @@ def test_fallback():
     assert a2 == 'a' and c2 is o.b
     assert a3 is o.a and c3 == 'a'
     assert a4 == 'a' and c4 is o.b
+
+
+def test_init_time():
+    class O(object):
+        @decorators.init_time
+        def __init__(self):
+            pass
+
+    class P(object):
+        @decorators.init_time
+        def __init__(self, initTime='123'):
+            pass
+
+    class Q(object):
+        @decorators.init_time
+        def __init__(self, timeFormat='%H', initTime=None):
+            pass
+
+    o = O()
+    assert len(o.initTime)
+
+    p = P()
+    assert len(p.initTime) == 3
+
+    q = Q()
+    assert len(q.initTime) == 2
+    assert q.timeFormat
