@@ -40,22 +40,24 @@ class Fold(Dobject):
         target (str): name of target field if supervised
         primaryKey (str): if dictionary of dataframes, key of dictionary\
             containing primrary df
-        clay (str): option to set folding options through dispatch
-        splitDispatch(dict): Folding Types keyed by clays
+        folder (str|obj): option to set folding options through dispatch or supply folding object
+        splitDispatch(dict): Folding Types keyed by folder
         kwargDispatch(dict): keyword arguments conjugate to folding types
         groupDap (str): option add runtime kwargs to folding and split (i.e. groups)
     """
     @init_time
     @coelesce(groupDap={}, dataMap={})
-    def __init__(self, target=None, primaryKey=None, clay=None,
-                 splitDispatch=TYPE_DISPATCH, kwargDispatch=KWARG_DISPATCH,
+    def __init__(self, target=None, primaryKey=None, folder=None,
                  groupDap=None, dataMap=None
                  ):
 
         self.target = target
         self.primaryKey = primaryKey
-        self.clay = clay
-        self.folder = splitDispatch.get(clay)(**kwargDispatch.get(clay))
+        if isinstance(folder, basestring) or not folder:
+            self.folder = TYPE_DISPATCH.get(folder)(**KWARG_DISPATCH.get(folder))
+        else:
+            self.folder = folder
+
         self.groupDap = groupDap
         self.dataMap = dataMap
 
@@ -208,11 +210,13 @@ class Dataset(Dobject):
         self.clay = clay
         self.foldType = foldType
 
-        self.target = target if target else getattr(y, 'name', None)
+        target = target if target else getattr(y, 'name', None)
+        self.target = target
+
         self.primaryKey = primaryKey
         self.dataMap = dataMap
 
-        self.fold = foldType(clay=clay, target=self.target, primaryKey=primaryKey, groupDap=groupDap,
+        self.fold = foldType(folder=clay, target=target, primaryKey=primaryKey, groupDap=groupDap,
                              dataMap=dataMap)
 
         if any([i is not None for i in [raw, X, y]]):

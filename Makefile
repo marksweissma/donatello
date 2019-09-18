@@ -1,7 +1,5 @@
 BASE=donatello
 
-TEST_PATH=./
-
 clean-pyc: 
 	find . -name '*.pyc' -delete ;
 	find . -name '*.pyo' -delete ;
@@ -31,10 +29,10 @@ run-dev:
 	docker run -it -v `pwd`:/opt/workspace $(BASE) bash
 
 test: env 
-	docker run $(BASE) -c "pytest $(TEST_PATH)"
+	docker run $(BASE) -c "./scripts/run_test.sh"
 
 test-dev: 
-	docker run -v `pwd`:/opt/workspace $(BASE) -c "pytest $(TEST_PATH)"
+	docker run -it -v `pwd`:/opt/workspace $(BASE) -c "./scripts/run_test.sh"
 
 ship-wheel: clean-build
 	python setup.py bdist_wheel --universal &&\

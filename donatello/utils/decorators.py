@@ -13,13 +13,52 @@ def init_time(wrapped, instance, args, kwargs):
     Add _initTime attribute to object, format prescribed by
     **strFormat** kwarg
     """
-    signature = kwargs.get('timeFormat', None)
-    payload = {'strFormat': signature} if signature else {}
+
+    initTime = find_value(wrapped, args, kwargs, 'initTime')
+    timeFormat = find_value(wrapped, args, kwargs, 'timeFormat')
+
+    if not initTime:
+        payload = {'strFormat': timeFormat} if timeFormat else {}
+        initTime = now_string(**payload)
+
+    instance.timeFormat = timeFormat
+    instance.initTime = initTime
     result = wrapped(*args, **kwargs)
-    instance._initTime = now_string(**payload)
     return result
 
 
+def as_series(arr, index, name):
+    pass
+
+
+def as_df(arr, index, columns):
+    pass
+
+
+@decorator
+def to_pandas(wrapped, instance, args, kwargs):
+
+    dataset = find_value(wrapped, args, kwargs, 'dataset')
+    X = find_value(wrapped, args, kwargs, 'X')
+    y = find_value(wrapped, args, kwargs, 'y')
+
+    if 'name' in kwargs:
+        name = kwargs.pop('name', '')
+    elif 'columns' in kwargs:
+        columns = kwargs.pop('columns', '')
+
+    result = wrapped(*args, **kwargs)
+
+    if isinstance(result, pd.np.ndarray):
+        dims = result.shape
+        if len(dims) == 1 or dims[1] == 1:
+            result = as_series(result, index, name)
+        else:
+            result = as_df(result, index, columns)
+    return result
+
+
+# todo @to_pandas(shape)
 @decorator
 def pandas_series(wrapped, instance, args, kwargs):
     """
@@ -90,15 +129,6 @@ def fallback(*defaults, **replacements):
     return _wrapper
 
 
-# fix this, should check - default - execute
-@decorator
-def name(wrapped, instance, args, kwargs):
-    result = wrapped(*args, **kwargs)
-    _name = getattr(instance, '_name', instance.__class__.__name__)
-    instance._name = _name
-    return result
-
-
 @coelesce(existing={})
 def mem_cache(existing=None):
     """
@@ -121,12 +151,3 @@ def mem_cache(existing=None):
         return cache[key]
 
     return memoize
-
-
-@decorator
-def to_kwargs(wrapped, instance, args, kwargs):
-    spec = inspect.getargspec(wrapped)
-    offset = int(bool(instance))
-    update = {argSpec: arg for argSpec, arg in zip(spec.args[offset:], args)}
-    kwargs.update(update)
-    return wrapped(**kwargs)

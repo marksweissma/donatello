@@ -1,32 +1,27 @@
 import pandas as pd
 import numpy as np
 
-from collections import defaultdict
+from inflection import underscore
 
 from sklearn import clone
 from sklearn.utils import Bunch
 from sklearn.metrics import confusion_matrix
 
 from donatello.utils.helpers import view_sk_metric
-from donatello.utils.decorators import init_time, coelesce, name
+from donatello.utils.decorators import init_time, coelesce
 from donatello.utils.base import Dobject
 from donatello.components.data import package_dataset
 
 
-def pass_through(x):
-    """
-    returns x
-    """
-    return x
-
-
 # FIX THIS
-def _append_in_place(store, name, df2):
-    store[name] = store[name].append(df2)
+# move to access
+def _append_in_place(store, name, value):
+    store[name] = store[name].append(value)
 
 
+# something better here
 def _option_sort(df, sort):
-    df = df.sort_values(sort) if sort else df
+    df = df.sort_values(sort) if (sort and sort in df) else df
     return df
 
 
@@ -105,7 +100,8 @@ class Measure(Dobject):
         Returns:
             tuple(pandas.Series, metric evaluations): scored, measurements
         """
-        scored = pd.DataFrame()
+        # scored = pd.DataFrame()
+        scored = []
         estimators = {}
 
         for fold, (designTrain, designTest, targetTrain, targetTest) in enumerate(dataset):
@@ -116,7 +112,8 @@ class Measure(Dobject):
 
             _temp = self._score(estimator, designTest, targetTest)
             _temp['fold'] = fold
-            scored = scored.append(_temp)
+            scored.append(_temp)
+        scored = pd.concat(scored)
         return estimators, scored
 
     def evaluate_scored_folds(self, estimators=None, metrics=None, scored=None, X=None, **kwargs):
@@ -125,13 +122,12 @@ class Measure(Dobject):
         """
         [metric.fit(scored) for metric in metrics]
 
-        # move to list of dict -> concat
-        outputs = defaultdict(pd.DataFrame)
+        outputs = {metric.name: [] for metric in metrics}
         for fold, df in scored.groupby('fold'):
             _outputs = self._evaluate(estimators[fold], df, metrics, X)
-            [_append_in_place(outputs, name, df) for name, df in _outputs.items()]
+            [outputs[name].append(df) for name, df in _outputs.items()]
 
-        measurements = {metric.name: metric.callback(_unwrap_multiple(outputs[metric.name]
+        measurements = {metric.name: metric.callback(_unwrap_multiple(pd.concat(outputs[metric.name])
                                                                       .groupby(metric.key)
                                                                       .agg(metric.agg),
                                                                       metric.sort))
@@ -166,22 +162,34 @@ class Measure(Dobject):
 
 class Metric(Dobject):
     @init_time
-    @name
     @coelesce(columns=['score'], agg=['mean', 'std'], evalKwargs={})
     def __init__(self, scorer=None, columns=None, name='', key=None,
-                 callback=pass_through, agg=None, sort=None,
+                 callback=None, agg=None, sort=None,
+                 withX=False, view=None,
                  evalArgs=(), evalKwargs=None):
         self.columns = columns
         self.scorer = scorer
-        _name = getattr(scorer, '__name__', self.__class__.__name__)
+        _name = getattr(scorer, '__name__', underscore(self.__class__.__name__))
         self._name = name if name else _name
         self.callback = callback
         self.agg = agg
+        # hack: fix this
         if key:
             self.key = key
+        self.withX = withX
+        self.view = view
         self.sort = sort
         self.evalArgs = evalArgs
         self.evalKwargs = evalKwargs
+
+    @property
+    def callback(self):
+        func = self._callback if self._callback else lambda x: x
+        return func
+
+    @callback.setter
+    def callback(self, func):
+        self._callback = func
 
     @property
     def key(self):
@@ -195,21 +203,42 @@ class Metric(Dobject):
         return self
 
     def evaluate(self, estimator, truth, predicted, X):
-        df = pd.DataFrame([self.scorer(truth, predicted, *self.evalArgs, **self.evalKwargs)])
+        """
+        Evaluate scorer on data
+        """
+        # move to access
+        if self.withX:
+            scores = self.scorer(truth, predicted, X=X, *self.evalArgs, **self.evalKwargs)
+        else:
+            scores = self.scorer(truth, predicted, *self.evalArgs, **self.evalKwargs)
+        df = pd.DataFrame([scores])
         if not hasattr(self, '_key'):
             df['_'] = range(len(df))
         return df
 
     def display(self, bunch, *args, **kwargs):
-        view_sk_metric(bunch)
+        """
+        Display metric's data
+        """
+        if self.view:
+            self.view(view_sk_metric(bunch))
+        else:
+            print('Metric does not have viewiing function, set self.view')
 
     def __call__(self, *args, **kwargs):
         return self.evaluate(*args, **kwargs)
 
 
 class FeatureWeights(Metric):
+    """
+    Metric to collect model weights. can sort on column name via
+    attribute name (with trailing `_` stripped)
+    i.e. coefficients in linear model or feature_importances in tree model
+
+    attr (str): option to specify additional attribute to pull
+    """
     def __init__(self, attr='', name='feature_weights', key='names',
-                 callback=pass_through, agg=['mean', 'std'], sort=None):
+                 callback=None, agg=['mean', 'std'], sort=None):
 
         super(FeatureWeights, self).__init__(name=name, key=key,
                                              callback=callback, agg=agg, sort=sort)
@@ -218,7 +247,6 @@ class FeatureWeights(Metric):
         """
         Args:
             estimator (donatello.estimator.Estimator): has `features` and `model` attributes
-            attr (str): option to specify additional attribute to pull
 
         Returns:
             pandas.DataFrame: values of feature weights
@@ -260,10 +288,14 @@ class FeatureWeights(Metric):
 
 
 class ThresholdRates(Metric):
+    """
+    Confusion matrix parameterized by evaluation threshold. Samples
+    points from score distribution
+    """
     def __init__(self, key='points', sort='points'):
         super(ThresholdRates, self).__init__(key=key, sort=sort)
 
-    def fit(self, scored, points=None, spacing=101, **kwargs):
+    def fit(self, scored, points=None, spacing=21, **kwargs):
         if points is None:
             percentiles = np.linspace(0, 1, spacing)
             self.points = scored.predicted.quantile(percentiles)
@@ -273,6 +305,7 @@ class ThresholdRates(Metric):
     def evaluate(self, estimator, truth, predicted, X):
         """
         """
+        # rewrite with dyadic product
         data = [confusion_matrix(truth, predicted > i).reshape(4,) for i in self.points]
 
         df = pd.DataFrame(data=data,
