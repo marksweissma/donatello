@@ -35,7 +35,7 @@ test: env
 	docker run -it $(BASE)  "./scripts/run_tests.sh"
 
 test-dev: 
-	docker run -it -v `pwd`:/opt/workspace $(BASE) -c "./scripts/run_tests.sh"
+	docker run -it -v `pwd`:/opt/workspace $(BASE)  "./scripts/run_tests.sh"
 
 ship-wheel: clean-build
 	python setup.py bdist_wheel --universal &&\
