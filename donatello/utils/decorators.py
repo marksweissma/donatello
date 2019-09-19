@@ -4,6 +4,12 @@ from copy import deepcopy
 from uuid import uuid4
 from wrapt import decorator
 
+if hasattr(inspect, 'signature'):
+    funcsigs = inspect
+else:
+    import funcsigs
+
+
 from donatello.utils.helpers import now_string, nvl, find_value, replace_value
 
 
@@ -112,42 +118,41 @@ def fallback(*defaults, **replacements):
     """
     @decorator
     def _wrapper(wrapped, instance, args, kwargs):
-        spec = inspect.getargspec(wrapped)
-        n = len(spec.args) - 1
+        sig = funcsigs.signature(wrapped)
         for default in defaults:
-            index = spec.args.index(default)
-            if index > len(args) and default not in kwargs:
-                kwargs[default] = getattr(instance, default, spec.defaults[n - index])
+            index = list(sig.parameters).index(default)
+            if index >= len(args) and default not in kwargs and hasattr(instance, default):
+                kwargs[default] = getattr(instance, default)
 
         for key, replacement in replacements.items():
-            index = spec.args.index(key)
-            if index > len(args) and key not in kwargs:
-                kwargs[key] = getattr(instance, replacement, spec.defaults[n - index])
+            index = list(sig.parameters).index(key)
+            if index >= len(args) and key not in kwargs and hasattr(instance, replacement):
+                kwargs[key] = getattr(instance, replacement)
 
         result = wrapped(*args, **kwargs)
         return result
     return _wrapper
 
 
-@coelesce(existing={})
-def mem_cache(existing=None):
-    """
-    memoization cache
+# @coelesce(existing={})
+# def mem_cache(existing=None):
+    # """
+    # memoization cache
 
-    Args:
-        existing: __getitem__ sliceable cache, defaults to :py:class:`dict`
-    """
-    attr = '_'.join(['cache', str(uuid4())[:4]])
+    # Args:
+        # existing: __getitem__ sliceable cache, defaults to :py:class:`dict`
+    # """
+    # attr = '_'.join(['cache', str(uuid4())[:4]])
 
-    @decorator
-    def memoize(wrapped, instance, args, kwargs):
-        if not hasattr(wrapped, attr):
-            setattr(wrapped, attr, existing)
-        cache = getattr(wrapped, attr)
-        spec = inspect.getargspec(wrapped)
-        key = tuple((str(i), str(find_value(wrapped, args, kwargs, i))) for i in spec.args)
-        if key not in cache:
-            cache[key] = wrapped(*args, **kwargs)
-        return cache[key]
+    # @decorator
+    # def memoize(wrapped, instance, args, kwargs):
+        # if not hasattr(wrapped, attr):
+            # setattr(wrapped, attr, existing)
+        # cache = getattr(wrapped, attr)
+        # spec = inspect.getargspec(wrapped)
+        # key = tuple((str(i), str(find_value(wrapped, args, kwargs, i))) for i in spec.args)
+        # if key not in cache:
+            # cache[key] = wrapped(*args, **kwargs)
+        # return cache[key]
 
-    return memoize
+    # return memoize

@@ -68,7 +68,7 @@ def get(obj, attr, slicers, errors, default):
 def access(obj=None, attrPath=None,
            method=None, methodArgs=None, methodKwargs=None,
            cb=None, cbArgs=None, cbKwargs=None,
-           slicers=(dict, list, tuple, pd.np.ndarray, pd.Series, pd.DataFrame, pd.Panel),
+           slicers=(dict, list, tuple, pd.np.ndarray, pd.Series, pd.DataFrame),
            default=None, errors='raise'):
     """
     Access information from nested object
@@ -123,7 +123,7 @@ def find_value(func, args, kwargs, accessKey, how='name'):
     """
     sig = funcsigs.signature(func)
     parameters = sig.parameters
-    keys = parameters.keys()
+    keys = list(parameters.keys())
 
     try:
         index = keys.index(accessKey) if how == 'name' else accessKey
@@ -143,7 +143,7 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
 
     sig = funcsigs.signature(func)
     parameters = sig.parameters
-    keys = parameters.keys()
+    keys = list(parameters.keys())
     index = keys.index(accessKey)
 
     if index >= len(args):
@@ -158,7 +158,7 @@ def replace_value(func, args, kwargs, accessKey, accessValue):
 def package_dap(dap):
     if isinstance(dap, dict):
         pass
-    elif isinstance(dap, basestring):
+    elif isinstance(dap, str):
         dap = {'attrPath': [dap]}
     elif isinstance(dap, list):
         dap = {'attrPath': dap}

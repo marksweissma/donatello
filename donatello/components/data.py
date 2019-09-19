@@ -53,7 +53,7 @@ class Fold(Dobject):
 
         self.target = target
         self.primaryKey = primaryKey
-        if isinstance(folder, basestring) or not folder:
+        if isinstance(folder, str) or not folder:
             self.folder = TYPE_DISPATCH.get(folder)(**KWARG_DISPATCH.get(folder))
         else:
             self.folder = folder
@@ -162,7 +162,7 @@ class Fold(Dobject):
         for train, test in self.ids:
             results = self._package_fold(dataset, df, train, test, target, groupDap)
             yield results
-        raise StopIteration
+        # raise StopIteration
 
 
 def has_data(data):
@@ -381,7 +381,7 @@ class Dataset(Dobject):
         Returns:
             Dataset: with same params as current dataset
         """
-        if isinstance(subset, basestring):
+        if isinstance(subset, str):
             subset = subset.capitalize()
             attrs = ['{}{}'.format(attr, subset) for attr in ['design', 'target']]
             X, y = tuple(getattr(self, attr) for attr in attrs)
@@ -421,7 +421,7 @@ class Dataset(Dobject):
     def __iter__(self):
         for xTrain, xTest, yTrain, yTest in self.fold.fold(self):
             yield xTrain, xTest, yTrain, yTest
-        raise StopIteration
+        # raise StopIteration
 
     def __len__(self):
         return len(self.data if self.data is not None else [])
@@ -485,7 +485,7 @@ def enforce_dataset(wrapped, instance, args, kwargs):
         if isinstance(result, tuple) and len(result) <= 2:
             result = Dataset(X=result[0], y=result[1] if len(result) > 1 else dataset.targetData,
                              **dataset.params)
-        elif isinstance(result, (pd.Series, pd.DataFrame, pd.Panel)):
+        elif isinstance(result, (pd.Series, pd.DataFrame)):
             result = Dataset(X=result, **dataset.params)
     return result
 

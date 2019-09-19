@@ -81,7 +81,7 @@ class Sculpture(Dobject, BaseEstimator):
         self.measurements.crossValidation = Bunch(**self.measureCrossValidation['measurements'])
         self._references['cross_validation'] = deepcopy(estimator) if self.storeReferences else None
         # self.estimator = cv_rule(self.measureCrossValidation['estimators'].values())
-        self.estimator = self.measureCrossValidation['estimators'].values()[0]
+        self.estimator = list(self.measureCrossValidation['estimators'].values())[0]
 
     @fallback('estimator', 'metrics')
     def build_holdout(self, dataset, estimator=None, metrics=None, **fitParams):
